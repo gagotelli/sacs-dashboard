@@ -161,6 +161,42 @@
   }
 
   // ---------------------------------------------------------------------
+  // Support tickets (ManageEngine ServiceDesk Plus)
+  // ---------------------------------------------------------------------
+  const TICKET_PRIORITY_COLOR = {
+    Urgent: "var(--status-critical)",
+    High: "var(--status-warning)",
+    Medium: "var(--status-unknown)",
+    Low: "var(--status-good)",
+  };
+
+  function renderTickets() {
+    const labelEl = document.getElementById("ticket-button-label");
+    const noteEl = document.getElementById("tickets-not-connected-note");
+    const donutEl = document.getElementById("glance-tickets-donut");
+    const legendEl = document.getElementById("glance-tickets-legend");
+
+    if (TICKET_SUMMARY.total == null) {
+      labelEl.textContent = "Tickets: not connected";
+      donutEl.innerHTML = "";
+      legendEl.innerHTML = "";
+      noteEl.hidden = false;
+      return;
+    }
+
+    noteEl.hidden = true;
+    labelEl.textContent = `${TICKET_SUMMARY.open ?? TICKET_SUMMARY.total} open · ${TICKET_SUMMARY.urgent ?? 0} urgent`;
+
+    const priorityCounts = (TICKET_SUMMARY.byPriority || []).map((p) => ({
+      value: p.count,
+      label: p.priority,
+      color: TICKET_PRIORITY_COLOR[p.priority] || "var(--status-unknown)",
+    }));
+    donutEl.innerHTML = donutSvg(priorityCounts, { centerValue: TICKET_SUMMARY.open ?? TICKET_SUMMARY.total, centerLabel: "open" });
+    legendEl.innerHTML = legendHtml(priorityCounts);
+  }
+
+  // ---------------------------------------------------------------------
   // Network at a glance (charts derived from inventory data — not live telemetry)
   // ---------------------------------------------------------------------
   function renderGlance() {
@@ -883,6 +919,7 @@
     initLogout();
     renderStatusBanner();
     renderKpis();
+    renderTickets();
     renderGlance();
     renderTopology();
     renderDeviceTable();

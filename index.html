@@ -27,6 +27,7 @@
   <symbol id="icon-services" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="1.6"/><path d="M9 9h6M9 13h6M9 17h4"/></symbol>
   <symbol id="icon-camera" viewBox="0 0 24 24"><rect x="3" y="7" width="14" height="11" rx="1.6"/><path d="M17 10.5 21 8v9l-4-2.5"/><circle cx="10" cy="12.5" r="3"/></symbol>
   <symbol id="icon-logout" viewBox="0 0 24 24"><path d="M9 4H5a1 1 0 00-1 1v14a1 1 0 001 1h4"/><path d="M15 8l4 4-4 4"/><path d="M19 12H9"/></symbol>
+  <symbol id="icon-ticket" viewBox="0 0 24 24"><path d="M3 9a2 2 0 012-2h14a2 2 0 012 2v1a2 2 0 000 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2v-1a2 2 0 000-4V9z"/><path d="M10 7v10" stroke-dasharray="2 2"/></symbol>
 </svg>
 
 <div id="app-content" style="display:none">
@@ -39,6 +40,10 @@
     </div>
   </div>
   <div class="header-actions">
+    <button class="theme-toggle ticket-button" id="ticket-button" type="button" data-panel="panel-overview">
+      <svg class="icon" width="15" height="15"><use href="#icon-ticket"/></svg>
+      <span id="ticket-button-label">Tickets: not connected</span>
+    </button>
     <button class="theme-toggle" id="theme-toggle" type="button">
       <svg class="icon" width="15" height="15" id="theme-icon"><use href="#icon-moon"/></svg>
       <span id="theme-label">Dark</span>
@@ -104,6 +109,17 @@
           <div id="glance-attention-ring"></div>
           <div class="legend-col" id="glance-attention-list"></div>
         </div>
+      </div>
+
+      <div class="card glance-card">
+        <h2>Support tickets (ManageEngine)</h2>
+        <div class="glance-donut-row">
+          <div id="glance-tickets-donut"></div>
+          <div class="legend-col" id="glance-tickets-legend"></div>
+        </div>
+        <p class="muted-text" id="tickets-not-connected-note" style="margin:10px 0 0">
+          Not connected yet — aggregate counts only once wired up, no ticket subjects or requester names.
+        </p>
       </div>
 
       <div class="card glance-card">
@@ -529,6 +545,7 @@
 <script src="data/roadmap.js"></script>
 <script src="data/docs.js"></script>
 <script src="data/status.js"></script>
+<script src="data/tickets.js"></script>
 <script src="assets/app.js"></script>
 </body>
 </html>
