@@ -58,7 +58,7 @@
       if (!el) return;
       e.preventDefault();
       go(el.dataset.panel, true);
-      if (el.classList.contains("nav-card") || el.classList.contains("doc-row")) {
+      if (el.classList.contains("nav-card") || el.classList.contains("doc-row") || el.classList.contains("legend-row-link")) {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     });
@@ -95,6 +95,119 @@
       sync();
       renderTopology();
     });
+  }
+
+  // ---------------------------------------------------------------------
+  // Small chart primitives (no external library — plain SVG / HTML)
+  // ---------------------------------------------------------------------
+  function donutSvg(segments, opts) {
+    opts = opts || {};
+    const size = opts.size || 132;
+    const thickness = opts.thickness || 18;
+    const filtered = segments.filter((s) => s.value > 0);
+    const total = filtered.reduce((s, x) => s + x.value, 0) || 1;
+    const centerValue = opts.centerValue != null ? opts.centerValue : total;
+    const centerLabel = opts.centerLabel || "total";
+    const r = (size - thickness) / 2;
+    const c = size / 2;
+    const circumference = 2 * Math.PI * r;
+    const gapDeg = filtered.length > 1 ? 3 : 0;
+    let cumulativeDeg = -90;
+    const arcs = filtered.map((seg) => {
+      const sweepDeg = (seg.value / total) * 360;
+      const startDeg = cumulativeDeg;
+      cumulativeDeg += sweepDeg;
+      const drawSweep = Math.max(sweepDeg - gapDeg, 0.001);
+      const dash = (drawSweep / 360) * circumference;
+      const gap = circumference - dash;
+      const rotation = startDeg + gapDeg / 2;
+      return `<circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${seg.color}" stroke-width="${thickness}" stroke-dasharray="${dash.toFixed(2)} ${gap.toFixed(2)}" transform="rotate(${rotation.toFixed(2)} ${c} ${c})"><title>${esc(seg.label)}: ${esc(seg.value)}</title></circle>`;
+    }).join("");
+    return `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" class="donut-svg">
+      <circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="var(--gridline)" stroke-width="${thickness}"/>
+      ${arcs}
+      <text x="${c}" y="${c - 2}" text-anchor="middle" class="donut-total">${esc(centerValue)}</text>
+      <text x="${c}" y="${c + 16}" text-anchor="middle" class="donut-total-label">${esc(centerLabel)}</text>
+    </svg>`;
+  }
+
+  function legendHtml(items) {
+    return items.map((i) => `
+      <div class="legend-row-item">
+        <span class="swatch" style="background:${i.color}"></span>
+        <span class="legend-row-label">${esc(i.label)}</span>
+        <span class="legend-value">${esc(i.value)}</span>
+      </div>`).join("");
+  }
+
+  function barListHtml(items, color) {
+    const max = Math.max(...items.map((i) => i.value), 1);
+    return items.map((i) => `
+      <div class="bar-row">
+        <div class="bar-row-label">${esc(i.label)}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${((i.value / max) * 100).toFixed(1)}%; background:${color}"></div></div>
+        <div class="bar-row-value">${esc(i.value)}</div>
+      </div>`).join("");
+  }
+
+  // ---------------------------------------------------------------------
+  // Network at a glance (charts derived from inventory data — not live telemetry)
+  // ---------------------------------------------------------------------
+  function renderGlance() {
+    const layerCounts = ["core", "security", "access", "legacy"].map((l) => ({
+      value: DEVICES.filter((d) => d.layer === l).length,
+      label: LAYER_LABEL[l],
+      color: LAYER_COLOR[l],
+    }));
+    document.getElementById("glance-layer-donut").innerHTML = donutSvg(layerCounts, { centerLabel: "devices" });
+    document.getElementById("glance-layer-legend").innerHTML = legendHtml(layerCounts);
+
+    const statusCounts = ["critical", "warning", "unknown", "good"].map((s) => ({
+      value: LICENSES.filter((l) => licenseStatus(l) === s).length,
+      label: LICENSE_STATUS_LABEL[s],
+      color: `var(--status-${s})`,
+    }));
+    document.getElementById("glance-license-donut").innerHTML = donutSvg(statusCounts, { centerLabel: "licenses" });
+    document.getElementById("glance-license-legend").innerHTML = legendHtml(statusCounts);
+
+    const licensesNeedingAction = LICENSES.filter((l) => ["critical", "warning"].includes(licenseStatus(l))).length;
+    const legacyCount = DEVICES.filter((d) => d.layer === "legacy").length;
+    const noRedundancyHosts = HOSTS.filter((h) => h.redundancy && /^no known/i.test(h.redundancy)).length;
+    const attnItems = [
+      { label: "Licenses to action", value: licensesNeedingAction, panel: "panel-licenses" },
+      { label: "Legacy uplinks", value: legacyCount, panel: "panel-devices" },
+      { label: "No DHCP failover", value: noRedundancyHosts, panel: "panel-hosts" },
+    ];
+    const attnTotal = attnItems.reduce((s, i) => s + i.value, 0);
+    document.getElementById("glance-attention-ring").innerHTML = donutSvg(
+      [{ value: 1, color: attnTotal > 0 ? "var(--status-warning)" : "var(--status-good)", label: "Flagged" }],
+      { size: 132, thickness: 18, centerValue: attnTotal, centerLabel: "flagged" }
+    );
+    document.getElementById("glance-attention-list").innerHTML = attnItems.map((i) => `
+      <button type="button" class="legend-row-item legend-row-link" data-panel="${esc(i.panel)}">
+        <span class="swatch" style="background:${i.value > 0 ? 'var(--status-warning)' : 'var(--status-good)'}"></span>
+        <span class="legend-row-label">${esc(i.label)}</span>
+        <span class="legend-value">${esc(i.value)}</span>
+      </button>`).join("");
+
+    const siteCounts = ["SAH", "BBC", "Core"].map((s) => ({
+      label: s === "Core" ? "Shared" : s,
+      value: DEVICES.filter((d) => d.site === s).length,
+    }));
+    document.getElementById("glance-site-bars").innerHTML = barListHtml(siteCounts, "var(--layer-core)");
+
+    const vlanCounts = VLAN_GROUPS.map((g) => ({ label: g.category, value: g.vlans.length }));
+    document.getElementById("glance-vlan-bars").innerHTML = barListHtml(vlanCounts, "var(--layer-core)");
+
+    const speedBuckets = {};
+    DEVICES.forEach((d) => {
+      if (d.uplink && d.uplink.speedGbps) speedBuckets[d.uplink.speedGbps] = (speedBuckets[d.uplink.speedGbps] || 0) + 1;
+    });
+    BACKBONE_LINKS.forEach((l) => { speedBuckets[l.speedGbps] = (speedBuckets[l.speedGbps] || 0) + 1; });
+    const speedItems = Object.keys(speedBuckets)
+      .sort((a, b) => Number(a) - Number(b))
+      .map((k) => ({ label: `${k}G links`, value: speedBuckets[k] }));
+    document.getElementById("glance-speed-bars").innerHTML = barListHtml(speedItems, "var(--layer-core)");
   }
 
   // ---------------------------------------------------------------------
@@ -512,6 +625,7 @@
     initTheme();
     renderStatusBanner();
     renderKpis();
+    renderGlance();
     renderTopology();
     renderDeviceTable();
     renderHosts();

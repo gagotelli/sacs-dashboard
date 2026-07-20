@@ -66,6 +66,51 @@
       </p>
     </div>
 
+    <div class="kpi-row" id="kpi-row"></div>
+
+    <h2 class="section-heading">Network at a glance</h2>
+    <div class="glance-grid" id="glance-grid">
+      <div class="card glance-card">
+        <h2>Devices by layer</h2>
+        <div class="glance-donut-row">
+          <div id="glance-layer-donut"></div>
+          <div class="legend-col" id="glance-layer-legend"></div>
+        </div>
+      </div>
+
+      <div class="card glance-card">
+        <h2>License status</h2>
+        <div class="glance-donut-row">
+          <div id="glance-license-donut"></div>
+          <div class="legend-col" id="glance-license-legend"></div>
+        </div>
+      </div>
+
+      <div class="card glance-card">
+        <h2>Needs attention</h2>
+        <div class="glance-donut-row">
+          <div id="glance-attention-ring"></div>
+          <div class="legend-col" id="glance-attention-list"></div>
+        </div>
+      </div>
+
+      <div class="card glance-card">
+        <h2>Devices by site</h2>
+        <div class="bar-list" id="glance-site-bars"></div>
+      </div>
+
+      <div class="card glance-card">
+        <h2>VLANs by category</h2>
+        <div class="bar-list" id="glance-vlan-bars"></div>
+      </div>
+
+      <div class="card glance-card">
+        <h2>Uplinks by speed</h2>
+        <div class="bar-list" id="glance-speed-bars"></div>
+      </div>
+    </div>
+
+    <h2 class="section-heading">Jump to a section</h2>
     <div class="nav-grid" id="nav-grid">
       <button class="nav-card" data-panel="panel-topology">
         <span class="nav-card-icon layer-core"><svg class="icon"><use href="#icon-topology"/></svg></span>
@@ -113,8 +158,6 @@
         <span class="nav-card-desc">Full index of every section, runbook, and admin portal</span>
       </button>
     </div>
-
-    <div class="kpi-row" id="kpi-row"></div>
 
     <div class="card">
       <h2>About this dashboard</h2>
