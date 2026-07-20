@@ -1,0 +1,26 @@
+name: Fetch external asset
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        required: true
+        type: string
+      dest:
+        required: true
+        type: string
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download and commit
+        run: |
+          curl -sSL -o "${{ inputs.dest }}" "${{ inputs.url }}"
+          file "${{ inputs.dest }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "${{ inputs.dest }}"
+          git commit -m "Fetch external asset: ${{ inputs.dest }}"
+          git push
