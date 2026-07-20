@@ -122,6 +122,21 @@
       </div>
     </div>
 
+    <div class="topology-heading-row">
+      <h2 class="section-heading">Network topology</h2>
+      <button type="button" class="link-button" data-panel="panel-topology">Open full view <svg class="icon"><use href="#icon-arrow"/></svg></button>
+    </div>
+    <div class="legend-row">
+      <span class="legend-item"><span class="swatch" style="background:var(--layer-core)"></span>Core</span>
+      <span class="legend-item"><span class="swatch" style="background:var(--layer-security)"></span>Security / Firewall</span>
+      <span class="legend-item"><span class="swatch" style="background:var(--layer-access)"></span>Access</span>
+      <span class="legend-item"><span class="swatch" style="background:var(--layer-legacy)"></span>Legacy / 1G</span>
+      <span class="legend-item">Line thickness = link speed</span>
+    </div>
+    <div class="card topology-card" style="margin-bottom:28px">
+      <div class="table-wrap topology-mount"></div>
+    </div>
+
     <div class="card">
       <h2>About this dashboard</h2>
       <p class="muted-text">
@@ -148,7 +163,7 @@
       <span class="legend-item">Line thickness = link speed</span>
     </div>
     <div class="card topology-card">
-      <div class="table-wrap" id="topology-wrap"></div>
+      <div class="table-wrap topology-mount"></div>
     </div>
   </section>
 

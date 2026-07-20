@@ -58,9 +58,7 @@
       if (!el) return;
       e.preventDefault();
       go(el.dataset.panel, true);
-      if (el.classList.contains("doc-row") || el.classList.contains("legend-row-link")) {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
     });
 
     const wanted = location.hash.replace("#", "");
@@ -331,7 +329,7 @@
     }
 
     const svgParts = [];
-    svgParts.push(`<svg id="topology-svg" viewBox="0 0 ${totalWidth} ${totalHeight}" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, -apple-system, sans-serif">`);
+    svgParts.push(`<svg class="topology-svg" viewBox="0 0 ${totalWidth} ${totalHeight}" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, -apple-system, sans-serif">`);
 
     // soft colored group backgrounds, echoing the source diagram's layer boxes
     function groupBox(deviceList, labelY, rgbVar) {
@@ -396,7 +394,8 @@
 
     svgParts.push("</svg>");
 
-    document.getElementById("topology-wrap").innerHTML = svgParts.join("\n");
+    const svgMarkup = svgParts.join("\n");
+    document.querySelectorAll(".topology-mount").forEach((el) => { el.innerHTML = svgMarkup; });
   }
 
   // ---------------------------------------------------------------------

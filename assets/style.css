@@ -434,6 +434,32 @@ tbody tr:hover { background: var(--surface-2); }
   margin: 4px 0 12px;
 }
 
+.topology-heading-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.topology-heading-row .section-heading { margin-bottom: 0; }
+
+.link-button {
+  appearance: none;
+  border: none;
+  background: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 2px;
+  margin-bottom: 12px;
+  color: var(--layer-core);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.link-button .icon { width: 13px; height: 13px; }
+.link-button:hover { text-decoration: underline; }
+
 .glance-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -543,7 +569,7 @@ tbody tr:hover { background: var(--surface-2); }
 }
 .port-card li:last-child { border-bottom: none; }
 
-#topology-svg { width: 100%; height: auto; display: block; }
+.topology-svg { width: 100%; height: auto; display: block; }
 
 .topo-node { cursor: default; transition: filter 0.15s ease; }
 .topo-node:hover { filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.12)); }
