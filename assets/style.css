@@ -129,14 +129,19 @@ header.app-header::after {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 10px;
-  background: rgba(var(--layer-core-rgb), 0.12);
-  color: var(--layer-core);
+  background: #ffffff;
+  border: 1px solid var(--border);
+  padding: 4px;
   flex-shrink: 0;
 }
-.brand-mark .icon { width: 20px; height: 20px; stroke-width: 1.6; }
+.brand-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
 
 .app-header h1 {
   font-size: 17px;
