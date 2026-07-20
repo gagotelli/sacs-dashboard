@@ -472,29 +472,31 @@ tbody tr:hover { background: var(--surface-2); }
 .overview-main .topology-card { margin-bottom: 0; }
 
 @media (min-width: 1080px) {
+  .overview-layout { grid-template-columns: minmax(0, 1fr) 480px; }
+  .overview-side { position: sticky; top: 84px; }
+  .overview-side .glance-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1080px) and (max-width: 1339px) {
   .overview-layout { grid-template-columns: minmax(0, 1fr) 360px; }
-  .overview-side {
-    position: sticky;
-    top: 84px;
-    max-height: calc(100vh - 104px);
-    overflow-y: auto;
-    padding-right: 2px;
-  }
+  .overview-side .glance-grid { grid-template-columns: 1fr; }
 }
 
 .glance-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 
-.glance-card { padding: 16px 18px; }
+.glance-card { padding: 12px 16px; }
+.overview-side .glance-card h2 { font-size: 13px; margin-bottom: 8px; }
 
 .glance-donut-row {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
 }
+.overview-side .donut-svg { width: 92px; height: 92px; }
 
 .donut-svg { flex-shrink: 0; }
 .donut-total { fill: var(--text-primary); font-weight: 700; font-size: 22px; font-variant-numeric: tabular-nums; }
