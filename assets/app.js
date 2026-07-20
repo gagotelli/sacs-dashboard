@@ -513,20 +513,164 @@
   // VLANs
   // ---------------------------------------------------------------------
   function renderVlans() {
-    const el = document.getElementById("vlan-groups");
-    el.innerHTML = VLAN_GROUPS.map((g) => `
-      <div class="card">
-        <h2>${esc(g.category)}</h2>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th style="width:80px">VLAN</th><th>Name</th></tr></thead>
-            <tbody>
-              ${g.vlans.map((v) => `<tr><td class="ip">${esc(v.id)}</td><td>${esc(v.name)}</td></tr>`).join("")}
-            </tbody>
-          </table>
-        </div>
+    const search = document.getElementById("vlan-search");
+    const statusFilter = document.getElementById("vlan-status-filter");
+    const auditFilter = document.getElementById("vlan-audit-filter");
+    const tbody = document.getElementById("vlan-table-body");
+    const countEl = document.getElementById("vlan-count");
+
+    const audits = Array.from(new Set(VLANS.map((v) => v.auditStatus).filter(Boolean))).sort();
+    auditFilter.innerHTML = `<option value="all">All audit statuses</option>` +
+      audits.map((a) => `<option value="${esc(a)}">${esc(a)}</option>`).join("");
+
+    function draw() {
+      const q = search.value.trim().toLowerCase();
+      const status = statusFilter.value;
+      const audit = auditFilter.value;
+      const rows = VLANS.filter((v) => {
+        if (status !== "all" && v.status !== status) return false;
+        if (audit !== "all" && v.auditStatus !== audit) return false;
+        if (!q) return true;
+        return [v.vlan, v.name, v.subnet, v.owner, v.purpose].filter((x) => x != null).join(" ").toLowerCase().includes(q);
+      });
+      countEl.textContent = `${rows.length} of ${VLANS.length} VLANs`;
+      tbody.innerHTML = rows.map((v) => `
+        <tr>
+          <td class="ip">${esc(v.vlan)}</td>
+          <td class="name">${esc(v.name)}</td>
+          <td class="ip">${esc(v.subnet || "—")}</td>
+          <td class="ip">${esc(v.gateway || "—")}</td>
+          <td>${esc(v.vrf || "—")}</td>
+          <td><span class="badge"><span class="dot status-dot-${v.status === "up" ? "good" : "critical"}" style="background:currentColor"></span>${v.status === "up" ? "Up" : "Down"}</span></td>
+          <td class="note">${esc(v.purpose || "")}</td>
+          <td class="note">${esc(v.owner || "—")}</td>
+          <td class="note">${esc(v.auditStatus || "—")}</td>
+          <td class="note">${esc(v.notes || "")}</td>
+        </tr>`).join("") || `<tr><td colspan="10" style="color:var(--text-muted)">No VLANs match.</td></tr>`;
+    }
+
+    search.addEventListener("input", draw);
+    statusFilter.addEventListener("change", draw);
+    auditFilter.addEventListener("change", draw);
+    draw();
+  }
+
+  // ---------------------------------------------------------------------
+  // Services
+  // ---------------------------------------------------------------------
+  function renderServices() {
+    const search = document.getElementById("service-search");
+    const critFilter = document.getElementById("service-criticality-filter");
+    const tbody = document.getElementById("service-table-body");
+    const countEl = document.getElementById("service-count");
+
+    function draw() {
+      const q = search.value.trim().toLowerCase();
+      const crit = critFilter.value;
+      const rows = SERVICES.filter((s) => {
+        if (crit !== "all" && s.criticality !== crit) return false;
+        if (!q) return true;
+        return [s.service, s.hostname, s.ip, s.owner, s.purpose].filter((x) => x != null).join(" ").toLowerCase().includes(q);
+      });
+      countEl.textContent = `${rows.length} of ${SERVICES.length} services`;
+      tbody.innerHTML = rows.map((s) => `
+        <tr>
+          <td class="name">${esc(s.service)}</td>
+          <td class="ip">${esc(s.ip || "—")}</td>
+          <td class="ip">${esc(s.vlan || "—")}</td>
+          <td>${esc(s.deviceType || "—")}</td>
+          <td class="note">${esc(s.purpose || "")}</td>
+          <td class="note">${esc(s.owner || "—")}</td>
+          <td>${esc(s.criticality || "—")}</td>
+          <td>${esc(s.internetFacing || "—")}</td>
+          <td class="note">${esc(s.notes || "")}</td>
+        </tr>`).join("") || `<tr><td colspan="9" style="color:var(--text-muted)">No services match.</td></tr>`;
+    }
+
+    search.addEventListener("input", draw);
+    critFilter.addEventListener("change", draw);
+    draw();
+  }
+
+  // ---------------------------------------------------------------------
+  // CCTV
+  // ---------------------------------------------------------------------
+  function renderCctv() {
+    const s = CCTV_SUMMARY;
+    document.getElementById("cctv-kpi-row").innerHTML = [
+      { label: "Total cameras", value: s.totalCameras },
+      { label: "Active (working)", value: s.activeCameras },
+      { label: "SAH cameras", value: s.sahCameras },
+      { label: "BBC cameras", value: s.bbcCameras },
+      { label: "Proposed NVRs", value: s.newNvrs },
+      { label: "On-prem usable (TB)", value: s.onPremUsableTb },
+    ].map((t) => `
+      <div class="kpi-tile">
+        <div class="value">${esc(t.value)}</div>
+        <div class="label">${esc(t.label)}</div>
       </div>
     `).join("");
+
+    document.getElementById("cctv-platform-body").innerHTML = RECORDING_PLATFORM.map((p) => `
+      <tr>
+        <td class="name">${esc(p.instance)}</td>
+        <td class="ip">${esc(p.ipDomain)}</td>
+        <td>${esc(p.platform)}</td>
+        <td class="note">${esc(p.runsOn)}</td>
+        <td class="ip">${esc(p.port)}</td>
+        <td class="ip">${esc(p.licensedChannels)}</td>
+        <td><span class="badge"><span class="dot status-dot-${p.online === "Online" ? "good" : "critical"}" style="background:currentColor"></span>${esc(p.online)}</span></td>
+        <td class="note">${esc(p.serial || "—")}</td>
+      </tr>`).join("");
+
+    document.getElementById("camera-models-body").innerHTML = CAMERA_MODELS.map((m) => `
+      <tr>
+        <td class="name">${esc(m.name)}</td>
+        <td class="ip">${esc(m.dahuaModel || "—")}</td>
+        <td class="note">${esc(m.type)}</td>
+        <td class="ip">${esc(m.resolutionMp)}</td>
+        <td class="ip">${esc(m.bitrateMbps)}</td>
+        <td class="note">${esc(m.notes || "")}</td>
+      </tr>`).join("");
+
+    const search = document.getElementById("camera-search");
+    const siteFilter = document.getElementById("camera-site-filter");
+    const workingFilter = document.getElementById("camera-working-filter");
+    const tbody = document.getElementById("camera-table-body");
+    const countEl = document.getElementById("camera-count");
+
+    function draw() {
+      const q = search.value.trim().toLowerCase();
+      const site = siteFilter.value;
+      const working = workingFilter.value;
+      const rows = CAMERAS.filter((c) => {
+        if (site !== "all" && c.site !== site) return false;
+        if (working === "Y" && c.working !== "Y") return false;
+        if (working === "not" && c.working === "Y") return false;
+        if (!q) return true;
+        return [c.name, c.ip, c.room, c.location, c.area].filter((x) => x != null).join(" ").toLowerCase().includes(q);
+      });
+      countEl.textContent = `${rows.length} of ${CAMERAS.length} cameras`;
+      tbody.innerHTML = rows.map((c) => `
+        <tr>
+          <td><span class="dot status-dot-${c.working === "Y" ? "good" : "unknown"}"></span></td>
+          <td class="ip">${esc(c.camNo != null ? c.camNo : "—")}</td>
+          <td class="name">${esc(c.name)}</td>
+          <td>${esc(c.site)}</td>
+          <td class="note">${esc(c.area || "—")}</td>
+          <td class="ip">${esc(c.ip)}</td>
+          <td>${esc(c.model || "—")}</td>
+          <td class="note">${esc(c.switchPort || "—")}</td>
+          <td class="ip">${esc(c.nvrChannel != null ? c.nvrChannel : "—")}</td>
+          <td class="note">${esc(c.room || "—")}</td>
+          <td class="note">${esc(c.location || "—")}</td>
+        </tr>`).join("") || `<tr><td colspan="11" style="color:var(--text-muted)">No cameras match.</td></tr>`;
+    }
+
+    search.addEventListener("input", draw);
+    siteFilter.addEventListener("change", draw);
+    workingFilter.addEventListener("change", draw);
+    draw();
   }
 
   // ---------------------------------------------------------------------
@@ -555,6 +699,15 @@
         <ul>${c.lines.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>
       </div>
     `).join("");
+
+    document.getElementById("layer3-table-body").innerHTML = LAYER3_INTERFACES.map((i) => `
+      <tr>
+        <td class="name">${esc(i.iface)}</td>
+        <td class="ip">${esc(i.ip || "—")}</td>
+        <td>${esc(i.vrf || "—")}</td>
+        <td><span class="badge"><span class="dot status-dot-${i.status === "up" ? "good" : "critical"}" style="background:currentColor"></span>${i.status === "up" ? "Up" : "Down"}</span></td>
+        <td class="note">${esc(i.purpose || "")}</td>
+      </tr>`).join("");
   }
 
   // ---------------------------------------------------------------------
@@ -629,8 +782,10 @@
     renderTopology();
     renderDeviceTable();
     renderHosts();
+    renderServices();
     renderLicenses();
     renderVlans();
+    renderCctv();
     renderCriticalInfra();
     renderPorts();
     renderCns();

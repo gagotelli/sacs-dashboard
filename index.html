@@ -24,6 +24,8 @@
   <symbol id="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
   <symbol id="icon-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 119.5 4a6.5 6.5 0 1010.5 10.5z"/></symbol>
   <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></symbol>
+  <symbol id="icon-services" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="1.6"/><path d="M9 9h6M9 13h6M9 17h4"/></symbol>
+  <symbol id="icon-camera" viewBox="0 0 24 24"><rect x="3" y="7" width="14" height="11" rx="1.6"/><path d="M17 10.5 21 8v9l-4-2.5"/><circle cx="10" cy="12.5" r="3"/></symbol>
 </svg>
 
 <div id="app-content" style="display:none">
@@ -46,8 +48,10 @@
   <button data-panel="panel-topology"><svg class="icon"><use href="#icon-topology"/></svg>Topology</button>
   <button data-panel="panel-devices"><svg class="icon"><use href="#icon-devices"/></svg>Devices</button>
   <button data-panel="panel-hosts"><svg class="icon"><use href="#icon-hosts"/></svg>Hosts &amp; Systems</button>
+  <button data-panel="panel-services"><svg class="icon"><use href="#icon-services"/></svg>Services</button>
   <button data-panel="panel-licenses"><svg class="icon"><use href="#icon-license"/></svg>Licenses</button>
   <button data-panel="panel-vlans"><svg class="icon"><use href="#icon-vlans"/></svg>VLANs</button>
+  <button data-panel="panel-cctv"><svg class="icon"><use href="#icon-camera"/></svg>CCTV</button>
   <button data-panel="panel-infra"><svg class="icon"><use href="#icon-infra"/></svg>Critical Infrastructure</button>
   <button data-panel="panel-ports"><svg class="icon"><use href="#icon-ports"/></svg>Port &amp; Speed Summary</button>
   <button data-panel="panel-cns"><svg class="icon"><use href="#icon-map"/></svg>CNS Roadmap</button>
@@ -101,7 +105,7 @@
       </div>
 
       <div class="card glance-card">
-        <h2>VLANs by category</h2>
+        <h2>VLANs by owner/area</h2>
         <div class="bar-list" id="glance-vlan-bars"></div>
       </div>
 
@@ -127,6 +131,16 @@
         <span class="nav-card-icon layer-legacy"><svg class="icon"><use href="#icon-hosts"/></svg></span>
         <span class="nav-card-title">Hosts &amp; Systems</span>
         <span class="nav-card-desc">Servers, hypervisors, and appliances behind the network</span>
+      </button>
+      <button class="nav-card" data-panel="panel-services">
+        <span class="nav-card-icon layer-core"><svg class="icon"><use href="#icon-services"/></svg></span>
+        <span class="nav-card-title">Services</span>
+        <span class="nav-card-desc">Logical systems and services — owner, criticality, DR status</span>
+      </button>
+      <button class="nav-card" data-panel="panel-cctv">
+        <span class="nav-card-icon layer-security"><svg class="icon"><use href="#icon-camera"/></svg></span>
+        <span class="nav-card-title">CCTV</span>
+        <span class="nav-card-desc">245-camera fleet across SAH &amp; BBC, recording platform, NVR proposal</span>
       </button>
       <button class="nav-card" data-panel="panel-licenses">
         <span class="nav-card-icon layer-security"><svg class="icon"><use href="#icon-license"/></svg></span>
@@ -235,6 +249,29 @@
     </div>
   </section>
 
+  <section id="panel-services" class="panel">
+    <div class="card">
+      <div class="filters">
+        <input type="search" id="service-search" placeholder="Search by service, hostname, IP, owner…" />
+        <select id="service-criticality-filter">
+          <option value="all">All criticality</option>
+          <option value="Critical">Critical</option>
+          <option value="High">High</option>
+          <option value="Medium">Medium</option>
+        </select>
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px" id="service-count"></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Service</th><th>IP</th><th>VLAN</th><th>Type</th><th>Purpose</th><th>Owner</th><th>Criticality</th><th>Internet facing</th><th>Notes</th></tr>
+          </thead>
+          <tbody id="service-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
   <section id="panel-licenses" class="panel">
     <div class="kpi-row" id="license-kpi-row"></div>
     <div class="card">
@@ -250,7 +287,78 @@
   </section>
 
   <section id="panel-vlans" class="panel">
-    <div class="grid-2" id="vlan-groups"></div>
+    <div class="card">
+      <div class="filters">
+        <input type="search" id="vlan-search" placeholder="Search by VLAN, name, subnet, owner…" />
+        <select id="vlan-status-filter">
+          <option value="all">All statuses</option>
+          <option value="up">Up</option>
+          <option value="down">Down</option>
+        </select>
+        <select id="vlan-audit-filter">
+          <option value="all">All audit statuses</option>
+        </select>
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px" id="vlan-count"></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>VLAN</th><th>Name</th><th>Subnet</th><th>Gateway</th><th>VRF</th><th>Status</th><th>Purpose</th><th>Owner/Area</th><th>Audit status</th><th>Notes</th></tr>
+          </thead>
+          <tbody id="vlan-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="panel-cctv" class="panel">
+    <div class="kpi-row" id="cctv-kpi-row"></div>
+
+    <div class="card">
+      <h2>Recording platform</h2>
+      <p class="muted-text">Current Dahua VMS on Ubuntu/Dell — ownership of the hardware and licence is unconfirmed (see Documentation → Runbooks for the ownership-check steps).</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Instance</th><th>IP</th><th>Platform</th><th>Runs on</th><th>Port</th><th>Licensed ch.</th><th>Status</th><th>Serial</th></tr></thead>
+          <tbody id="cctv-platform-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="filters">
+        <input type="search" id="camera-search" placeholder="Search by name, IP, room, location…" />
+        <select id="camera-site-filter">
+          <option value="all">All sites</option>
+          <option value="SAH">SAH</option>
+          <option value="BBC">BBC</option>
+        </select>
+        <select id="camera-working-filter">
+          <option value="all">All cameras</option>
+          <option value="Y">Working</option>
+          <option value="not">Not confirmed working</option>
+        </select>
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px" id="camera-count"></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Working</th><th>Cam #</th><th>Name</th><th>Site</th><th>Area</th><th>IP</th><th>Model</th><th>Switch port</th><th>NVR ch.</th><th>Room</th><th>Location</th></tr>
+          </thead>
+          <tbody id="camera-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Camera models</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Name</th><th>Dahua model</th><th>Type</th><th>Res (MP)</th><th>Bitrate (Mbps)</th><th>Notes</th></tr></thead>
+          <tbody id="camera-models-body"></tbody>
+        </table>
+      </div>
+    </div>
   </section>
 
   <section id="panel-infra" class="panel">
@@ -259,6 +367,15 @@
 
   <section id="panel-ports" class="panel">
     <div class="grid-2" id="port-grid"></div>
+    <div class="card">
+      <h2>Layer-3 interfaces</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Interface</th><th>IP</th><th>VRF</th><th>Status</th><th>Purpose / notes</th></tr></thead>
+          <tbody id="layer3-table-body"></tbody>
+        </table>
+      </div>
+    </div>
   </section>
 
   <section id="panel-cns" class="panel">
@@ -296,6 +413,9 @@
 <script src="data/hosts.js"></script>
 <script src="data/licenses.js"></script>
 <script src="data/vlans.js"></script>
+<script src="data/services.js"></script>
+<script src="data/layer3.js"></script>
+<script src="data/cctv.js"></script>
 <script src="data/critical-infra.js"></script>
 <script src="data/ports.js"></script>
 <script src="data/cns-notes.js"></script>
