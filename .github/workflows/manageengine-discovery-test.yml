@@ -10,6 +10,12 @@ jobs:
           ZOHO_CLIENT_SECRET: ${{ secrets.ZOHO_CLIENT_SECRET }}
           ZOHO_REFRESH_TOKEN: ${{ secrets.ZOHO_REFRESH_TOKEN }}
         run: |
+          echo "=== secret shape check (no secret values printed) ==="
+          echo "ZOHO_CLIENT_ID length: ${#ZOHO_CLIENT_ID}  prefix: ${ZOHO_CLIENT_ID:0:5}...  suffix: ...${ZOHO_CLIENT_ID: -4}"
+          echo "ZOHO_CLIENT_SECRET length: ${#ZOHO_CLIENT_SECRET}"
+          echo "ZOHO_REFRESH_TOKEN length: ${#ZOHO_REFRESH_TOKEN}  prefix: ${ZOHO_REFRESH_TOKEN:0:5}...  suffix: ...${ZOHO_REFRESH_TOKEN: -4}"
+          echo ""
+
           echo "=== refreshing access token ==="
           curl -sS -X POST "https://accounts.zoho.com/oauth/v2/token" \
             --data-urlencode "grant_type=refresh_token" \
