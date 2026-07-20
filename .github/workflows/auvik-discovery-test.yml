@@ -1,0 +1,17 @@
+name: Auvik API discovery (test)
+on: workflow_dispatch
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch a small sample of device inventory
+        env:
+          AUVIK_API_USERNAME: ${{ secrets.AUVIK_API_USERNAME }}
+          AUVIK_API_KEY: ${{ secrets.AUVIK_API_KEY }}
+          AUVIK_API_DOMAIN: ${{ secrets.AUVIK_API_DOMAIN }}
+        run: |
+          curl -sS -u "$AUVIK_API_USERNAME:$AUVIK_API_KEY" \
+            "https://$AUVIK_API_DOMAIN/v1/inventory/device/info?page[first]=3" \
+            -o response.json -w "\nHTTP %{http_code}\n"
+          echo "--- pretty-printed (truncated to 6000 chars) ---"
+          jq '.' response.json | head -c 6000
