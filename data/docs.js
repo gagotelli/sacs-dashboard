@@ -15,9 +15,9 @@ const DOC_INDEX = [
   {
     category: "Systems & Compliance",
     items: [
-      { title: "Hosts & systems", desc: "Servers, hypervisors, and appliances behind the network", href: "#hosts" },
+      { title: "Hosts & systems", desc: "Servers, hypervisors, and appliances behind the network", href: "#devices" },
       { title: "License tracker", desc: "Expiry tracking for OS, firewall, and subscription licenses", href: "#licenses" },
-      { title: "Critical infrastructure", desc: "DCs, DHCP, CCTV, cloud services, security, wireless", href: "#infra" },
+      { title: "Critical infrastructure", desc: "DCs, DHCP, CCTV, cloud services, security, wireless", href: "#devices" },
     ],
   },
   {

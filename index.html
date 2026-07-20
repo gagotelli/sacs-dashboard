@@ -58,13 +58,11 @@
 <nav class="tabs">
   <button class="active" data-panel="panel-overview"><svg class="icon"><use href="#icon-home"/></svg>Overview</button>
   <button data-panel="panel-topology"><svg class="icon"><use href="#icon-topology"/></svg>Topology</button>
-  <button data-panel="panel-devices"><svg class="icon"><use href="#icon-devices"/></svg>Devices</button>
-  <button data-panel="panel-hosts"><svg class="icon"><use href="#icon-hosts"/></svg>Hosts &amp; Systems</button>
+  <button data-panel="panel-devices"><svg class="icon"><use href="#icon-devices"/></svg>Devices &amp; Infrastructure</button>
   <button data-panel="panel-services"><svg class="icon"><use href="#icon-services"/></svg>Services</button>
   <button data-panel="panel-licenses"><svg class="icon"><use href="#icon-license"/></svg>Licenses</button>
   <button data-panel="panel-vlans"><svg class="icon"><use href="#icon-vlans"/></svg>VLANs</button>
   <button data-panel="panel-cctv"><svg class="icon"><use href="#icon-camera"/></svg>CCTV</button>
-  <button data-panel="panel-infra"><svg class="icon"><use href="#icon-infra"/></svg>Critical Infrastructure</button>
   <button data-panel="panel-ports"><svg class="icon"><use href="#icon-ports"/></svg>Port &amp; Speed Summary</button>
   <button data-panel="panel-roadmap"><svg class="icon"><use href="#icon-map"/></svg>Roadmap</button>
   <button data-panel="panel-docs"><svg class="icon"><use href="#icon-docs"/></svg>Documentation</button>
@@ -85,72 +83,78 @@
 
     <div class="kpi-row" id="kpi-row"></div>
 
-    <h2 class="section-heading">Network at a glance</h2>
-    <div class="glance-grid" id="glance-grid">
-      <div class="card glance-card">
-        <h2>Devices by layer</h2>
-        <div class="glance-donut-row">
-          <div id="glance-layer-donut"></div>
-          <div class="legend-col" id="glance-layer-legend"></div>
+    <div class="overview-layout">
+      <div class="overview-main">
+        <div class="topology-heading-row">
+          <h2 class="section-heading">Network topology</h2>
+          <button type="button" class="link-button" data-panel="panel-topology">Open full view <svg class="icon"><use href="#icon-arrow"/></svg></button>
+        </div>
+        <div class="legend-row">
+          <span class="legend-item"><span class="swatch" style="background:var(--layer-core)"></span>Core</span>
+          <span class="legend-item"><span class="swatch" style="background:var(--layer-security)"></span>Security / Firewall</span>
+          <span class="legend-item"><span class="swatch" style="background:var(--layer-access)"></span>Access</span>
+          <span class="legend-item"><span class="swatch" style="background:var(--layer-legacy)"></span>Legacy / 1G</span>
+          <span class="legend-item">Line thickness = link speed</span>
+        </div>
+        <div class="card topology-card">
+          <div class="table-wrap topology-mount"></div>
         </div>
       </div>
 
-      <div class="card glance-card">
-        <h2>License status</h2>
-        <div class="glance-donut-row">
-          <div id="glance-license-donut"></div>
-          <div class="legend-col" id="glance-license-legend"></div>
+      <aside class="overview-side">
+        <h2 class="section-heading">Network at a glance</h2>
+        <div class="glance-grid" id="glance-grid">
+          <div class="card glance-card">
+            <h2>Devices by layer</h2>
+            <div class="glance-donut-row">
+              <div id="glance-layer-donut"></div>
+              <div class="legend-col" id="glance-layer-legend"></div>
+            </div>
+          </div>
+
+          <div class="card glance-card">
+            <h2>License status</h2>
+            <div class="glance-donut-row">
+              <div id="glance-license-donut"></div>
+              <div class="legend-col" id="glance-license-legend"></div>
+            </div>
+          </div>
+
+          <div class="card glance-card">
+            <h2>Needs attention</h2>
+            <div class="glance-donut-row">
+              <div id="glance-attention-ring"></div>
+              <div class="legend-col" id="glance-attention-list"></div>
+            </div>
+          </div>
+
+          <div class="card glance-card">
+            <h2>Support tickets (ManageEngine)</h2>
+            <div class="glance-donut-row">
+              <div id="glance-tickets-donut"></div>
+              <div class="legend-col" id="glance-tickets-legend"></div>
+            </div>
+            <p class="muted-text" id="tickets-not-connected-note" style="margin:10px 0 0">
+              Not connected yet — aggregate counts only once wired up, no ticket subjects or requester names.
+            </p>
+          </div>
+
+          <div class="card glance-card">
+            <h2>Devices by site</h2>
+            <div class="bar-list" id="glance-site-bars"></div>
+          </div>
+
+          <div class="card glance-card">
+            <h2>VLANs by owner/area</h2>
+            <div class="bar-list" id="glance-vlan-bars"></div>
+          </div>
+
+          <div class="card glance-card">
+            <h2>Uplinks by speed</h2>
+            <div class="bar-list" id="glance-speed-bars"></div>
+          </div>
         </div>
-      </div>
-
-      <div class="card glance-card">
-        <h2>Needs attention</h2>
-        <div class="glance-donut-row">
-          <div id="glance-attention-ring"></div>
-          <div class="legend-col" id="glance-attention-list"></div>
-        </div>
-      </div>
-
-      <div class="card glance-card">
-        <h2>Support tickets (ManageEngine)</h2>
-        <div class="glance-donut-row">
-          <div id="glance-tickets-donut"></div>
-          <div class="legend-col" id="glance-tickets-legend"></div>
-        </div>
-        <p class="muted-text" id="tickets-not-connected-note" style="margin:10px 0 0">
-          Not connected yet — aggregate counts only once wired up, no ticket subjects or requester names.
-        </p>
-      </div>
-
-      <div class="card glance-card">
-        <h2>Devices by site</h2>
-        <div class="bar-list" id="glance-site-bars"></div>
-      </div>
-
-      <div class="card glance-card">
-        <h2>VLANs by owner/area</h2>
-        <div class="bar-list" id="glance-vlan-bars"></div>
-      </div>
-
-      <div class="card glance-card">
-        <h2>Uplinks by speed</h2>
-        <div class="bar-list" id="glance-speed-bars"></div>
-      </div>
-    </div>
-
-    <div class="topology-heading-row">
-      <h2 class="section-heading">Network topology</h2>
-      <button type="button" class="link-button" data-panel="panel-topology">Open full view <svg class="icon"><use href="#icon-arrow"/></svg></button>
-    </div>
-    <div class="legend-row">
-      <span class="legend-item"><span class="swatch" style="background:var(--layer-core)"></span>Core</span>
-      <span class="legend-item"><span class="swatch" style="background:var(--layer-security)"></span>Security / Firewall</span>
-      <span class="legend-item"><span class="swatch" style="background:var(--layer-access)"></span>Access</span>
-      <span class="legend-item"><span class="swatch" style="background:var(--layer-legacy)"></span>Legacy / 1G</span>
-      <span class="legend-item">Line thickness = link speed</span>
-    </div>
-    <div class="card topology-card" style="margin-bottom:28px">
-      <div class="table-wrap topology-mount"></div>
+      </aside>
     </div>
 
     <div class="card">
@@ -184,6 +188,7 @@
   </section>
 
   <section id="panel-devices" class="panel">
+    <h2 class="section-heading">Devices</h2>
     <div class="card">
       <div class="filters">
         <input type="search" id="device-search" placeholder="Search by name, IP, model…" />
@@ -213,9 +218,8 @@
         </table>
       </div>
     </div>
-  </section>
 
-  <section id="panel-hosts" class="panel">
+    <h2 class="section-heading">Hosts &amp; systems</h2>
     <div class="card">
       <div class="table-wrap">
         <table>
@@ -226,6 +230,9 @@
         </table>
       </div>
     </div>
+
+    <h2 class="section-heading">Critical infrastructure</h2>
+    <div class="grid-2" id="infra-grid"></div>
   </section>
 
   <section id="panel-services" class="panel">
@@ -338,10 +345,6 @@
         </table>
       </div>
     </div>
-  </section>
-
-  <section id="panel-infra" class="panel">
-    <div class="grid-2" id="infra-grid"></div>
   </section>
 
   <section id="panel-ports" class="panel">

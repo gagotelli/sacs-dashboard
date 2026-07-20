@@ -222,7 +222,7 @@
     const attnItems = [
       { label: "Licenses to action", value: licensesNeedingAction, panel: "panel-licenses" },
       { label: "Legacy uplinks", value: legacyCount, panel: "panel-devices" },
-      { label: "No DHCP failover", value: noRedundancyHosts, panel: "panel-hosts" },
+      { label: "No DHCP failover", value: noRedundancyHosts, panel: "panel-devices" },
     ];
     const attnTotal = attnItems.reduce((s, i) => s + i.value, 0);
     document.getElementById("glance-attention-ring").innerHTML = donutSvg(

@@ -219,7 +219,7 @@ nav.tabs button.active .icon { opacity: 1; color: var(--layer-core); }
 
 main {
   padding: 24px;
-  max-width: 1320px;
+  max-width: 1560px;
   margin: 0 auto;
 }
 
@@ -460,11 +460,32 @@ tbody tr:hover { background: var(--surface-2); }
 .link-button .icon { width: 13px; height: 13px; }
 .link-button:hover { text-decoration: underline; }
 
+.overview-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+  margin-bottom: 28px;
+}
+
+.overview-main { min-width: 0; }
+.overview-main .topology-card { margin-bottom: 0; }
+
+@media (min-width: 1080px) {
+  .overview-layout { grid-template-columns: minmax(0, 1fr) 360px; }
+  .overview-side {
+    position: sticky;
+    top: 84px;
+    max-height: calc(100vh - 104px);
+    overflow-y: auto;
+    padding-right: 2px;
+  }
+}
+
 .glance-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 12px;
-  margin-bottom: 28px;
 }
 
 .glance-card { padding: 16px 18px; }
