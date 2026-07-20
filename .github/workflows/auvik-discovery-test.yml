@@ -10,18 +10,17 @@ jobs:
           AUVIK_API_KEY: ${{ secrets.AUVIK_API_KEY }}
           AUVIK_API_DOMAIN: ${{ secrets.AUVIK_API_DOMAIN }}
         run: |
-          echo "=== authentication/info ==="
+          TENANT_ID="1382977535538767613"
+
+          echo "=== devices via tenants[]= ==="
           curl -sS -g -u "$AUVIK_API_USERNAME:$AUVIK_API_KEY" \
-            "https://$AUVIK_API_DOMAIN/v1/authentication/info" \
-            -o auth.json -w "\nHTTP %{http_code}\n"
-          jq '.' auth.json | head -c 3000
+            "https://$AUVIK_API_DOMAIN/v1/inventory/device/info?tenants[]=$TENANT_ID&page[first]=5" \
+            -o d1.json -w "\nHTTP %{http_code}\n"
+          jq '.' d1.json | head -c 4000
 
           echo ""
-          echo "=== tenants matching 'Andrew' ==="
+          echo "=== devices via filter[tenants]= ==="
           curl -sS -g -u "$AUVIK_API_USERNAME:$AUVIK_API_KEY" \
-            "https://$AUVIK_API_DOMAIN/v1/tenants" \
-            -o tenants.json -w "\nHTTP %{http_code}\n"
-          jq '[.data[]? | select(.attributes.name // "" | test("Andrew"; "i"))]' tenants.json | head -c 3000
-          echo ""
-          echo "=== raw tenants.json head (in case shape differs) ==="
-          jq '.' tenants.json | head -c 2000
+            "https://$AUVIK_API_DOMAIN/v1/inventory/device/info?filter[tenants]=$TENANT_ID&page[first]=5" \
+            -o d2.json -w "\nHTTP %{http_code}\n"
+          jq '.' d2.json | head -c 4000
