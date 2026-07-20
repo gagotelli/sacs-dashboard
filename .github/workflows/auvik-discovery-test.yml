@@ -10,8 +10,18 @@ jobs:
           AUVIK_API_KEY: ${{ secrets.AUVIK_API_KEY }}
           AUVIK_API_DOMAIN: ${{ secrets.AUVIK_API_DOMAIN }}
         run: |
+          echo "=== authentication/info ==="
           curl -sS -g -u "$AUVIK_API_USERNAME:$AUVIK_API_KEY" \
-            "https://$AUVIK_API_DOMAIN/v1/inventory/device/info?page[first]=3" \
-            -o response.json -w "\nHTTP %{http_code}\n"
-          echo "--- pretty-printed (truncated to 6000 chars) ---"
-          jq '.' response.json | head -c 6000
+            "https://$AUVIK_API_DOMAIN/v1/authentication/info" \
+            -o auth.json -w "\nHTTP %{http_code}\n"
+          jq '.' auth.json | head -c 3000
+
+          echo ""
+          echo "=== tenants matching 'Andrew' ==="
+          curl -sS -g -u "$AUVIK_API_USERNAME:$AUVIK_API_KEY" \
+            "https://$AUVIK_API_DOMAIN/v1/tenants" \
+            -o tenants.json -w "\nHTTP %{http_code}\n"
+          jq '[.data[]? | select(.attributes.name // "" | test("Andrew"; "i"))]' tenants.json | head -c 3000
+          echo ""
+          echo "=== raw tenants.json head (in case shape differs) ==="
+          jq '.' tenants.json | head -c 2000
