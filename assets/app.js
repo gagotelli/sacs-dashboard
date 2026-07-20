@@ -68,6 +68,18 @@
   }
 
   // ---------------------------------------------------------------------
+  // Logout
+  // ---------------------------------------------------------------------
+  function initLogout() {
+    const btn = document.getElementById("logout-button");
+    if (!btn) return;
+    btn.addEventListener("click", () => {
+      sessionStorage.removeItem("sacs-gate-ok");
+      location.reload();
+    });
+  }
+
+  // ---------------------------------------------------------------------
   // Theme toggle
   // ---------------------------------------------------------------------
   function initTheme() {
@@ -196,7 +208,12 @@
     }));
     document.getElementById("glance-site-bars").innerHTML = barListHtml(siteCounts, "var(--layer-core)");
 
-    const vlanCounts = VLAN_GROUPS.map((g) => ({ label: g.category, value: g.vlans.length }));
+    const vlanByOwner = {};
+    VLANS.forEach((v) => { const k = v.owner || "Unknown"; vlanByOwner[k] = (vlanByOwner[k] || 0) + 1; });
+    const vlanCounts = Object.keys(vlanByOwner)
+      .map((k) => ({ label: k, value: vlanByOwner[k] }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 8);
     document.getElementById("glance-vlan-bars").innerHTML = barListHtml(vlanCounts, "var(--layer-core)");
 
     const speedBuckets = {};
@@ -218,7 +235,7 @@
     const bySite = { SAH: 0, BBC: 0 };
     DEVICES.forEach((d) => { if (bySite[d.site] !== undefined) bySite[d.site]++; });
     const legacyCount = DEVICES.filter((d) => d.layer === "legacy").length;
-    const totalVlans = VLAN_GROUPS.reduce((n, g) => n + g.vlans.length, 0);
+    const totalVlans = VLANS.length;
     const apInfra = CRITICAL_INFRA.find((c) => c.category === "Wireless Infrastructure");
     const totalAps = apInfra ? apInfra.items.find((i) => i.name === "Total APs") : null;
     const licensesNeedingAction = LICENSES.filter((l) => {
@@ -749,7 +766,95 @@
   }
 
   // ---------------------------------------------------------------------
-  // CNS roadmap notes
+  // Roadmap
+  // ---------------------------------------------------------------------
+  function renderRoadmap() {
+    document.getElementById("roadmap-overall-position").textContent = ROADMAP_HEADER.overallPosition;
+    document.getElementById("roadmap-immediate-decision").textContent = ROADMAP_HEADER.immediateDecision;
+    document.getElementById("roadmap-budget").textContent = ROADMAP_HEADER.budget12mo;
+
+    document.getElementById("roadmap-program-status-body").innerHTML = ROADMAP_PROGRAM_STATUS.map((p) => `
+      <tr><td class="name">${esc(p.program)}</td><td class="note">${esc(p.status)}</td><td class="note">${esc(p.cost)}</td></tr>
+    `).join("");
+
+    document.getElementById("roadmap-area-status-body").innerHTML = ROADMAP_AREA_STATUS.map((a) => `
+      <tr>
+        <td class="name">${esc(a.area)}</td>
+        <td><span class="badge"><span class="dot status-dot-${a.status}" style="background:currentColor"></span>${esc(a.status)}</span></td>
+        <td class="note">${esc(a.message)}</td>
+        <td class="note">${esc(a.action)}</td>
+      </tr>`).join("");
+
+    document.getElementById("roadmap-critical-actions-body").innerHTML = ROADMAP_CRITICAL_ACTIONS.map((c) => `
+      <tr>
+        <td class="ip">${esc(c.priority)}</td>
+        <td class="name">${esc(c.action)}</td>
+        <td class="note">${esc(c.why)}</td>
+        <td class="note">${esc(c.budget)}</td>
+        <td class="note">${esc(c.target)}</td>
+      </tr>`).join("");
+
+    document.getElementById("roadmap-deliverables-body").innerHTML = ROADMAP_DELIVERABLES.map((d) => `
+      <tr><td class="name">${esc(d.deliverable)}</td><td class="note">${esc(d.outcome)}</td></tr>
+    `).join("");
+
+    document.getElementById("roadmap-access-switches-body").innerHTML = ROADMAP_ACCESS_SWITCHES.map((s) => `
+      <tr><td class="name">${esc(s.item)}</td><td class="note">${esc(s.observation)}</td><td class="note">${esc(s.action)}</td><td class="ip">${esc(s.budget)}</td></tr>
+    `).join("");
+
+    document.getElementById("roadmap-pricing-refs-body").innerHTML = ROADMAP_PRICING_REFS.map((p) => `
+      <tr><td class="name">${esc(p.item)}</td><td class="note">${esc(p.pricing)}</td><td class="note">${esc(p.use)}</td></tr>
+    `).join("");
+
+    document.getElementById("wifi-cert-design").textContent = WIFI_CERT_PROJECT.design;
+    const wq = WIFI_CERT_PROJECT.quote;
+    document.getElementById("wifi-cert-quote-body").innerHTML = `
+      <tr><td class="name">Vendor</td><td class="note">${esc(wq.vendor)}</td></tr>
+      <tr><td class="name">Quote ref</td><td class="note">${esc(wq.ref)}</td></tr>
+      <tr><td class="name">Date</td><td class="note">${esc(wq.date)}</td></tr>
+      <tr><td class="name">Scope</td><td class="note">${esc(wq.scope)}</td></tr>
+      <tr><td class="name">Licensing</td><td class="note">${esc(wq.licensing)}</td></tr>
+      <tr><td class="name">Total (ex tax)</td><td class="note">${esc(wq.totalExTax)}</td></tr>
+      <tr><td class="name">Total (inc tax)</td><td class="note">${esc(wq.totalIncTax)}</td></tr>
+    `;
+
+    document.getElementById("firewall-ha-description").textContent = FIREWALL_HA_PROJECT.description;
+    const fq = FIREWALL_HA_PROJECT.quote;
+    document.getElementById("firewall-ha-quote-body").innerHTML = `
+      <tr><td class="name">Vendor</td><td class="note">${esc(fq.vendor)}</td></tr>
+      <tr><td class="name">Quote ref</td><td class="note">${esc(fq.ref)}</td></tr>
+      <tr><td class="name">Date</td><td class="note">${esc(fq.date)}</td></tr>
+      <tr><td class="name">Product</td><td class="note">${esc(fq.product)}</td></tr>
+      <tr><td class="name">Term</td><td class="note">${esc(fq.term)}</td></tr>
+      <tr><td class="name">Total (inc tax)</td><td class="note">${esc(fq.totalIncTax)}</td></tr>
+      <tr><td class="name">Credit applied</td><td class="note">${esc(fq.credit)}</td></tr>
+    `;
+
+    document.getElementById("meraki-aruba-overview").textContent = MERAKI_ARUBA_MIGRATION.overview;
+    document.getElementById("meraki-aruba-estate-body").innerHTML = MERAKI_ARUBA_MIGRATION.estate.map((e) => `
+      <tr><td class="name">${esc(e.metric)}</td><td class="note">${esc(e.value)}</td></tr>
+    `).join("");
+    document.getElementById("meraki-aruba-timeline").innerHTML = MERAKI_ARUBA_MIGRATION.timeline.map((t) => `<li>${esc(t)}</li>`).join("");
+
+    document.getElementById("roadmap-cleanup-stages-body").innerHTML = ROADMAP_CLEANUP_STAGES.map((s) => `
+      <tr><td class="ip">${esc(s.stage)}</td><td class="name">${esc(s.work)}</td><td class="note">${esc(s.outcome)}</td><td class="note">${esc(s.risk)}</td></tr>
+    `).join("");
+
+    document.getElementById("roadmap-cleanup-areas-body").innerHTML = ROADMAP_CLEANUP_AREAS.map((a) => `
+      <tr><td class="name">${esc(a.area)}</td><td class="note">${esc(a.action)}</td><td class="note">${esc(a.benefit)}</td></tr>
+    `).join("");
+
+    document.getElementById("roadmap-phases-body").innerHTML = ROADMAP_PHASES.map((p) => `
+      <tr><td class="name">${esc(p.phase)}</td><td class="note">${esc(p.timeframe)}</td><td class="note">${esc(p.actions)}</td><td class="ip">${esc(p.budget)}</td></tr>
+    `).join("");
+
+    document.getElementById("roadmap-recommendations-body").innerHTML = ROADMAP_RECOMMENDATIONS.map((r) => `
+      <tr><td class="name">${esc(r.recommendation)}</td><td class="note">${esc(r.decision)}</td></tr>
+    `).join("");
+  }
+
+  // ---------------------------------------------------------------------
+  // CNS roadmap notes (reference, from the source topology diagram)
   // ---------------------------------------------------------------------
   function renderCns() {
     const el = document.getElementById("cns-grid");
@@ -776,6 +881,7 @@
   document.addEventListener("DOMContentLoaded", () => {
     initTabs();
     initTheme();
+    initLogout();
     renderStatusBanner();
     renderKpis();
     renderGlance();
@@ -788,6 +894,7 @@
     renderCctv();
     renderCriticalInfra();
     renderPorts();
+    renderRoadmap();
     renderCns();
     renderDocs();
   });

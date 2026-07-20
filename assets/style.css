@@ -156,6 +156,12 @@ header.app-header::after {
   margin-top: 1px;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .theme-toggle {
   display: inline-flex;
   align-items: center;

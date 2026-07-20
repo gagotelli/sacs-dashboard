@@ -23,7 +23,7 @@ const DOC_INDEX = [
   {
     category: "Security Roadmap",
     items: [
-      { title: "CNS roadmap", desc: "Firewall/DMZ redesign notes and the SCEP certificate flow", href: "#cns" },
+      { title: "Roadmap", desc: "Infrastructure upgrade plan, budgets, and project status", href: "#roadmap" },
     ],
   },
   {

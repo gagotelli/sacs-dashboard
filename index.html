@@ -26,6 +26,7 @@
   <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></symbol>
   <symbol id="icon-services" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="1.6"/><path d="M9 9h6M9 13h6M9 17h4"/></symbol>
   <symbol id="icon-camera" viewBox="0 0 24 24"><rect x="3" y="7" width="14" height="11" rx="1.6"/><path d="M17 10.5 21 8v9l-4-2.5"/><circle cx="10" cy="12.5" r="3"/></symbol>
+  <symbol id="icon-logout" viewBox="0 0 24 24"><path d="M9 4H5a1 1 0 00-1 1v14a1 1 0 001 1h4"/><path d="M15 8l4 4-4 4"/><path d="M19 12H9"/></symbol>
 </svg>
 
 <div id="app-content" style="display:none">
@@ -37,10 +38,16 @@
       <div class="subtitle">SAH &amp; BBC campuses — core, security, access &amp; distribution</div>
     </div>
   </div>
-  <button class="theme-toggle" id="theme-toggle" type="button">
-    <svg class="icon" width="15" height="15" id="theme-icon"><use href="#icon-moon"/></svg>
-    <span id="theme-label">Dark</span>
-  </button>
+  <div class="header-actions">
+    <button class="theme-toggle" id="theme-toggle" type="button">
+      <svg class="icon" width="15" height="15" id="theme-icon"><use href="#icon-moon"/></svg>
+      <span id="theme-label">Dark</span>
+    </button>
+    <button class="theme-toggle" id="logout-button" type="button">
+      <svg class="icon" width="15" height="15"><use href="#icon-logout"/></svg>
+      <span>Log out</span>
+    </button>
+  </div>
 </header>
 
 <nav class="tabs">
@@ -54,7 +61,7 @@
   <button data-panel="panel-cctv"><svg class="icon"><use href="#icon-camera"/></svg>CCTV</button>
   <button data-panel="panel-infra"><svg class="icon"><use href="#icon-infra"/></svg>Critical Infrastructure</button>
   <button data-panel="panel-ports"><svg class="icon"><use href="#icon-ports"/></svg>Port &amp; Speed Summary</button>
-  <button data-panel="panel-cns"><svg class="icon"><use href="#icon-map"/></svg>CNS Roadmap</button>
+  <button data-panel="panel-roadmap"><svg class="icon"><use href="#icon-map"/></svg>Roadmap</button>
   <button data-panel="panel-docs"><svg class="icon"><use href="#icon-docs"/></svg>Documentation</button>
 </nav>
 
@@ -162,10 +169,10 @@
         <span class="nav-card-title">Port &amp; Speed Summary</span>
         <span class="nav-card-desc">Uplink port and speed reference, by segment</span>
       </button>
-      <button class="nav-card" data-panel="panel-cns">
+      <button class="nav-card" data-panel="panel-roadmap">
         <span class="nav-card-icon layer-security"><svg class="icon"><use href="#icon-map"/></svg></span>
-        <span class="nav-card-title">CNS Roadmap</span>
-        <span class="nav-card-desc">Firewall/DMZ redesign notes and the SCEP certificate flow</span>
+        <span class="nav-card-title">Roadmap</span>
+        <span class="nav-card-desc">Infrastructure upgrade plan, budgets, and project status</span>
       </button>
       <button class="nav-card" data-panel="panel-docs">
         <span class="nav-card-icon layer-core"><svg class="icon"><use href="#icon-docs"/></svg></span>
@@ -378,12 +385,156 @@
     </div>
   </section>
 
-  <section id="panel-cns" class="panel">
+  <section id="panel-roadmap" class="panel">
+    <div class="card">
+      <h2>Overall position</h2>
+      <p class="muted-text" id="roadmap-overall-position"></p>
+      <h3>Immediate management decision</h3>
+      <p class="muted-text" id="roadmap-immediate-decision"></p>
+      <h3>Indicative 12-month budget</h3>
+      <p class="muted-text" id="roadmap-budget" style="margin-bottom:0"></p>
+    </div>
+
+    <div class="card">
+      <h2>Program status</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Program</th><th>Status</th><th>Cost</th></tr></thead>
+          <tbody id="roadmap-program-status-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Area status</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Area</th><th>Status</th><th>Message</th><th>Action</th></tr></thead>
+          <tbody id="roadmap-area-status-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Critical actions — do these first</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Action</th><th>Why it matters</th><th>Indicative budget</th><th>Target</th></tr></thead>
+          <tbody id="roadmap-critical-actions-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Critical Phase 1 deliverables</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Deliverable</th><th>Outcome</th></tr></thead>
+          <tbody id="roadmap-deliverables-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h2>Access switch upgrade recommendations</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Switch</th><th>Observation</th><th>Action</th><th>Budget</th></tr></thead>
+            <tbody id="roadmap-access-switches-body"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Pricing references (indicative)</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Item</th><th>Observed pricing</th><th>Use</th></tr></thead>
+            <tbody id="roadmap-pricing-refs-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Wi-Fi certificate authentication upgrade</h2>
+      <p class="muted-text" id="wifi-cert-design"></p>
+      <div class="table-wrap">
+        <table id="wifi-cert-quote-table">
+          <tbody id="wifi-cert-quote-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Firewall high availability</h2>
+      <p class="muted-text" id="firewall-ha-description"></p>
+      <div class="table-wrap">
+        <table id="firewall-ha-quote-table">
+          <tbody id="firewall-ha-quote-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Meraki → Aruba migration</h2>
+      <p class="muted-text" id="meraki-aruba-overview"></p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Metric</th><th>Current state</th></tr></thead>
+          <tbody id="meraki-aruba-estate-body"></tbody>
+        </table>
+      </div>
+      <h3 style="margin-top:14px">Proposed timeline</h3>
+      <ul id="meraki-aruba-timeline"></ul>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h2>Network simplification / DMZ clean-up plan</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Work package</th><th>Outcome</th><th>Risk control</th></tr></thead>
+            <tbody id="roadmap-cleanup-stages-body"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Clean-up areas</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Area</th><th>Action</th><th>Benefit</th></tr></thead>
+            <tbody id="roadmap-cleanup-areas-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Staged roadmap and budget</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Phase</th><th>Timeframe</th><th>Actions</th><th>Indicative budget</th></tr></thead>
+          <tbody id="roadmap-phases-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Management recommendation</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Recommendation</th><th>Decision requested</th></tr></thead>
+          <tbody id="roadmap-recommendations-body"></tbody>
+        </table>
+      </div>
+    </div>
+
     <div class="card" style="margin-bottom:16px">
       <p class="muted-text" style="margin:0">
         Reference notes carried over from the CNS (core network security) pages of
-        the source diagram — the firewall/DMZ L2 design's now/transition/end state,
-        and the certificate/SCEP flow used for device onboarding. Documentation only.
+        the source topology diagram — the firewall/DMZ L2 design's now/transition/end state,
+        and the certificate/SCEP flow used for device onboarding.
       </p>
     </div>
     <div class="grid-2" id="cns-grid"></div>
@@ -419,6 +570,7 @@
 <script src="data/critical-infra.js"></script>
 <script src="data/ports.js"></script>
 <script src="data/cns-notes.js"></script>
+<script src="data/roadmap.js"></script>
 <script src="data/docs.js"></script>
 <script src="data/status.js"></script>
 <script src="assets/app.js"></script>
