@@ -10,7 +10,7 @@ jobs:
           AUVIK_API_KEY: ${{ secrets.AUVIK_API_KEY }}
           AUVIK_API_DOMAIN: ${{ secrets.AUVIK_API_DOMAIN }}
         run: |
-          curl -sS -u "$AUVIK_API_USERNAME:$AUVIK_API_KEY" \
+          curl -sS -g -u "$AUVIK_API_USERNAME:$AUVIK_API_KEY" \
             "https://$AUVIK_API_DOMAIN/v1/inventory/device/info?page[first]=3" \
             -o response.json -w "\nHTTP %{http_code}\n"
           echo "--- pretty-printed (truncated to 6000 chars) ---"
