@@ -42,11 +42,8 @@
   // Tabs
   // ---------------------------------------------------------------------
   function initTabs() {
-    const buttons = document.querySelectorAll("nav.tabs button");
-    const navCards = document.querySelectorAll(".nav-card");
-
     function activate(panelId) {
-      buttons.forEach((b) => b.classList.toggle("active", b.dataset.panel === panelId));
+      document.querySelectorAll("nav.tabs button").forEach((b) => b.classList.toggle("active", b.dataset.panel === panelId));
       document.querySelectorAll(".panel").forEach((p) => p.classList.toggle("active", p.id === panelId));
     }
     function go(panelId, updateHash) {
@@ -55,11 +52,16 @@
       if (updateHash) history.replaceState(null, "", "#" + panelId.replace("panel-", ""));
     }
 
-    buttons.forEach((btn) => btn.addEventListener("click", () => go(btn.dataset.panel, true)));
-    navCards.forEach((card) => card.addEventListener("click", () => {
-      go(card.dataset.panel, true);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }));
+    // Delegated so it also covers elements rendered later (e.g. the doc index).
+    document.addEventListener("click", (e) => {
+      const el = e.target.closest("[data-panel]");
+      if (!el) return;
+      e.preventDefault();
+      go(el.dataset.panel, true);
+      if (el.classList.contains("nav-card") || el.classList.contains("doc-row")) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    });
 
     const wanted = location.hash.replace("#", "");
     if (wanted) go("panel-" + wanted, false);
@@ -443,6 +445,44 @@
   }
 
   // ---------------------------------------------------------------------
+  // Documentation index
+  // ---------------------------------------------------------------------
+  function renderDocs() {
+    const indexEl = document.getElementById("doc-index");
+    indexEl.innerHTML = DOC_INDEX.map((cat) => `
+      <div class="card doc-card">
+        <h2>${esc(cat.category)}</h2>
+        <div class="doc-list">
+          ${cat.items.map((item) => {
+            const tag = item.external ? "a" : "button";
+            const attrs = item.external
+              ? `href="${esc(item.href)}" target="_blank" rel="noopener"`
+              : `type="button" data-panel="panel-${esc(item.href.replace('#', ''))}"`;
+            const icon = item.external ? "icon-external" : "icon-arrow";
+            return `
+              <${tag} class="doc-row" ${attrs}>
+                <span class="doc-row-text">
+                  <span class="doc-row-title">${esc(item.title)}</span>
+                  <span class="doc-row-desc">${esc(item.desc)}</span>
+                </span>
+                <svg class="icon doc-row-icon"><use href="#${icon}"/></svg>
+              </${tag}>`;
+          }).join("")}
+        </div>
+      </div>
+    `).join("");
+
+    const runbookEl = document.getElementById("runbooks");
+    runbookEl.innerHTML = RUNBOOKS.map((r) => `
+      <div class="card runbook-card">
+        <h2>${esc(r.title)}</h2>
+        <p class="muted-text">${esc(r.summary)}</p>
+        <ol>${r.steps.map((s) => `<li>${esc(s)}</li>`).join("")}</ol>
+      </div>
+    `).join("");
+  }
+
+  // ---------------------------------------------------------------------
   // CNS roadmap notes
   // ---------------------------------------------------------------------
   function renderCns() {
@@ -480,5 +520,6 @@
     renderCriticalInfra();
     renderPorts();
     renderCns();
+    renderDocs();
   });
 })();
