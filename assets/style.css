@@ -129,12 +129,12 @@ header.app-header::after {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
   background: #ffffff;
   border: 1px solid var(--border);
-  padding: 4px;
+  padding: 5px;
   flex-shrink: 0;
 }
 .brand-mark img {
@@ -248,52 +248,6 @@ main {
   max-width: 62ch;
 }
 
-.nav-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 12px;
-  margin-bottom: 28px;
-}
-
-.nav-card {
-  appearance: none;
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-  background: var(--surface-1);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 16px;
-  cursor: pointer;
-  font: inherit;
-  color: var(--text-primary);
-  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-}
-.nav-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  border-color: var(--border);
-}
-.nav-card:active { transform: translateY(0); }
-
-.nav-card-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
-}
-.nav-card-icon .icon { width: 18px; height: 18px; stroke-width: 1.6; }
-.nav-card-icon.layer-core { background: rgba(var(--layer-core-rgb), 0.12); color: var(--layer-core); }
-.nav-card-icon.layer-access { background: rgba(var(--layer-access-rgb), 0.12); color: var(--layer-access); }
-.nav-card-icon.layer-legacy { background: rgba(var(--layer-legacy-rgb), 0.14); color: var(--layer-legacy); }
-.nav-card-icon.layer-security { background: rgba(var(--layer-security-rgb), 0.14); color: var(--layer-security); }
-
-.nav-card-title { font-size: 14px; font-weight: 700; }
-.nav-card-desc { font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; }
 
 .muted-text {
   font-size: 13px;

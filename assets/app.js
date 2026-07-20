@@ -58,7 +58,7 @@
       if (!el) return;
       e.preventDefault();
       go(el.dataset.panel, true);
-      if (el.classList.contains("nav-card") || el.classList.contains("doc-row") || el.classList.contains("legend-row-link")) {
+      if (el.classList.contains("doc-row") || el.classList.contains("legend-row-link")) {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     });
