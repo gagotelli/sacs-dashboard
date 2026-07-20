@@ -1,0 +1,55 @@
+name: ManageEngine API discovery (test)
+on: workflow_dispatch
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Exchange refresh token and sample the requests API
+        env:
+          ZOHO_CLIENT_ID: ${{ secrets.ZOHO_CLIENT_ID }}
+          ZOHO_CLIENT_SECRET: ${{ secrets.ZOHO_CLIENT_SECRET }}
+          ZOHO_REFRESH_TOKEN: ${{ secrets.ZOHO_REFRESH_TOKEN }}
+        run: |
+          echo "=== refreshing access token ==="
+          curl -sS -X POST "https://accounts.zoho.com/oauth/v2/token" \
+            --data-urlencode "grant_type=refresh_token" \
+            --data-urlencode "client_id=$ZOHO_CLIENT_ID" \
+            --data-urlencode "client_secret=$ZOHO_CLIENT_SECRET" \
+            --data-urlencode "refresh_token=$ZOHO_REFRESH_TOKEN" \
+            -o token.json -w "\nHTTP %{http_code}\n"
+
+          ACCESS_TOKEN=$(jq -r '.access_token' token.json)
+          if [ "$ACCESS_TOKEN" = "null" ] || [ -z "$ACCESS_TOKEN" ]; then
+            echo "Token exchange failed, response was:"
+            jq '.' token.json
+            exit 1
+          fi
+          echo "Got access token (len ${#ACCESS_TOKEN})"
+
+          echo ""
+          echo "=== GET /api/v3/requests (small page, list_info only, no ticket content) ==="
+          INPUT_DATA='{"list_info":{"row_count":3,"start_index":1,"get_total_count":true,"fields_required":["id","status","priority"]}}'
+          curl -sS -G "https://sacs.sdpondemand.manageengine.com/api/v3/requests" \
+            -H "Authorization: Zoho-oauthtoken $ACCESS_TOKEN" \
+            -H "Accept: application/vnd.manageengine.sdp.v3+json" \
+            --data-urlencode "input_data=$INPUT_DATA" \
+            -o requests.json -w "\nHTTP %{http_code}\n"
+          echo "--- response_status ---"
+          jq '.response_status' requests.json
+          echo "--- list_info ---"
+          jq '.list_info' requests.json
+          echo "--- first request keys (structure only) ---"
+          jq '.requests[0] | keys' requests.json 2>/dev/null || echo "(no requests array / different shape)"
+          echo "--- first request status + priority (no subject/requester) ---"
+          jq '.requests[0] | {id, status, priority}' requests.json 2>/dev/null
+
+          echo ""
+          echo "=== GET /api/v3/requests with status filter (urgent priority sample) ==="
+          INPUT_DATA_URGENT='{"list_info":{"row_count":3,"start_index":1,"get_total_count":true,"fields_required":["id","status","priority"],"search_criteria":{"field":"priority.name","condition":"is","value":"Urgent"}}}'
+          curl -sS -G "https://sacs.sdpondemand.manageengine.com/api/v3/requests" \
+            -H "Authorization: Zoho-oauthtoken $ACCESS_TOKEN" \
+            -H "Accept: application/vnd.manageengine.sdp.v3+json" \
+            --data-urlencode "input_data=$INPUT_DATA_URGENT" \
+            -o urgent.json -w "\nHTTP %{http_code}\n"
+          jq '.response_status' urgent.json
+          jq '.list_info' urgent.json
