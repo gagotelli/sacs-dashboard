@@ -43,23 +43,26 @@
   // ---------------------------------------------------------------------
   function initTabs() {
     const buttons = document.querySelectorAll("nav.tabs button");
-    function activate(btn) {
-      buttons.forEach((b) => b.classList.remove("active"));
-      document.querySelectorAll(".panel").forEach((p) => p.classList.remove("active"));
-      btn.classList.add("active");
-      document.getElementById(btn.dataset.panel).classList.add("active");
+    const navCards = document.querySelectorAll(".nav-card");
+
+    function activate(panelId) {
+      buttons.forEach((b) => b.classList.toggle("active", b.dataset.panel === panelId));
+      document.querySelectorAll(".panel").forEach((p) => p.classList.toggle("active", p.id === panelId));
     }
-    buttons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        activate(btn);
-        history.replaceState(null, "", "#" + btn.dataset.panel.replace("panel-", ""));
-      });
-    });
+    function go(panelId, updateHash) {
+      if (!document.getElementById(panelId)) return;
+      activate(panelId);
+      if (updateHash) history.replaceState(null, "", "#" + panelId.replace("panel-", ""));
+    }
+
+    buttons.forEach((btn) => btn.addEventListener("click", () => go(btn.dataset.panel, true)));
+    navCards.forEach((card) => card.addEventListener("click", () => {
+      go(card.dataset.panel, true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }));
+
     const wanted = location.hash.replace("#", "");
-    if (wanted) {
-      const match = Array.from(buttons).find((b) => b.dataset.panel === "panel-" + wanted);
-      if (match) activate(match);
-    }
+    if (wanted) go("panel-" + wanted, false);
   }
 
   // ---------------------------------------------------------------------
@@ -67,22 +70,27 @@
   // ---------------------------------------------------------------------
   function initTheme() {
     const btn = document.getElementById("theme-toggle");
+    const iconUse = document.querySelector("#theme-icon use");
+    const label = document.getElementById("theme-label");
     const root = document.documentElement;
     const stored = localStorage.getItem("sacs-theme");
     if (stored) root.setAttribute("data-theme", stored);
-    const setLabel = () => {
-      const current = root.getAttribute("data-theme") ||
+
+    function current() {
+      return root.getAttribute("data-theme") ||
         (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-      btn.textContent = current === "dark" ? "☀ Light" : "☾ Dark";
-    };
-    setLabel();
+    }
+    function sync() {
+      const c = current();
+      iconUse.setAttribute("href", c === "dark" ? "#icon-sun" : "#icon-moon");
+      label.textContent = c === "dark" ? "Light" : "Dark";
+    }
+    sync();
     btn.addEventListener("click", () => {
-      const current = root.getAttribute("data-theme") ||
-        (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-      const next = current === "dark" ? "light" : "dark";
+      const next = current() === "dark" ? "light" : "dark";
       root.setAttribute("data-theme", next);
       localStorage.setItem("sacs-theme", next);
-      setLabel();
+      sync();
       renderTopology();
     });
   }
@@ -193,7 +201,25 @@
     const svgParts = [];
     svgParts.push(`<svg id="topology-svg" viewBox="0 0 ${totalWidth} ${totalHeight}" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, -apple-system, sans-serif">`);
 
-    // links first (behind nodes)
+    // soft colored group backgrounds, echoing the source diagram's layer boxes
+    function groupBox(deviceList, labelY, rgbVar) {
+      if (!deviceList.length) return "";
+      const xs = deviceList.map((d) => pos[d.id].x);
+      const xs2 = deviceList.map((d) => pos[d.id].x + pos[d.id].w);
+      const ys2 = deviceList.map((d) => pos[d.id].y + pos[d.id].h);
+      const pad = 16;
+      const top = labelY - 22;
+      const x = Math.min(...xs) - pad;
+      const width = Math.max(...xs2) - Math.min(...xs) + pad * 2;
+      const height = Math.max(...ys2) - top + pad;
+      return `<rect x="${x}" y="${top}" width="${width}" height="${height}" rx="16" fill="rgba(var(${rgbVar}), 0.07)" stroke="rgba(var(${rgbVar}), 0.22)"/>`;
+    }
+    svgParts.push(groupBox(core, 55, "--layer-core-rgb"));
+    svgParts.push(groupBox(security, 160, "--layer-security-rgb"));
+    svgParts.push(groupBox(sah, 290, "--layer-access-rgb"));
+    svgParts.push(groupBox(bbc, 290, "--layer-access-rgb"));
+
+    // links (behind nodes, above group backgrounds)
     links.forEach((l) => {
       let from, to;
       if (l.backbone) {
