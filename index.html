@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SACS Network Dashboard</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🖧</text></svg>" />
+<link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div>
+    <h1>SACS Network Dashboard</h1>
+    <div class="subtitle">SAH &amp; BBC campuses — core, security, access &amp; distribution</div>
+  </div>
+  <button class="theme-toggle" id="theme-toggle" type="button">☾ Dark</button>
+</header>
+
+<nav class="tabs">
+  <button class="active" data-panel="panel-overview">Overview</button>
+  <button data-panel="panel-topology">Topology</button>
+  <button data-panel="panel-devices">Devices</button>
+  <button data-panel="panel-hosts">Hosts &amp; Systems</button>
+  <button data-panel="panel-licenses">Licenses</button>
+  <button data-panel="panel-vlans">VLANs</button>
+  <button data-panel="panel-infra">Critical Infrastructure</button>
+  <button data-panel="panel-ports">Port &amp; Speed Summary</button>
+  <button data-panel="panel-cns">CNS Roadmap</button>
+</nav>
+
+<main>
+  <div class="status-banner"><span id="status-banner-text"></span></div>
+
+  <section id="panel-overview" class="panel active">
+    <div class="kpi-row" id="kpi-row"></div>
+
+    <div class="card">
+      <h2>About this dashboard</h2>
+      <p style="font-size:13px;color:var(--text-secondary);line-height:1.6;margin:0 0 8px">
+        This is a reference dashboard for the SACS network, built from the
+        <em>SACS Topology (Current Final, with CNS)</em> diagram: core switching,
+        security/firewall, SAH and BBC access &amp; distribution layers, VLANs,
+        critical infrastructure services, and port/speed documentation.
+      </p>
+      <p style="font-size:13px;color:var(--text-secondary);line-height:1.6;margin:0">
+        <strong>Status is not live yet.</strong> Every device shows "Unknown" until
+        a poller is wired up against the vendor APIs available on-site (Meraki,
+        Palo Alto, ClearPass). See <code>README.md</code> in this repo for the
+        integration plan and the exact file to populate.
+      </p>
+    </div>
+  </section>
+
+  <section id="panel-topology" class="panel">
+    <div class="legend-row">
+      <span class="legend-item"><span class="swatch" style="background:var(--layer-core)"></span>Core</span>
+      <span class="legend-item"><span class="swatch" style="background:var(--layer-security)"></span>Security / Firewall</span>
+      <span class="legend-item"><span class="swatch" style="background:var(--layer-access)"></span>Access</span>
+      <span class="legend-item"><span class="swatch" style="background:var(--layer-legacy)"></span>Legacy / 1G</span>
+      <span class="legend-item"><span class="dot status-dot-unknown"></span>Status: unknown (no poller wired up)</span>
+      <span class="legend-item">Line thickness = link speed</span>
+    </div>
+    <div class="card">
+      <div class="table-wrap" id="topology-wrap"></div>
+    </div>
+  </section>
+
+  <section id="panel-devices" class="panel">
+    <div class="card">
+      <div class="filters">
+        <input type="search" id="device-search" placeholder="Search by name, IP, model…" />
+        <select id="device-site-filter">
+          <option value="all">All sites</option>
+          <option value="SAH">SAH</option>
+          <option value="BBC">BBC</option>
+          <option value="Core">Core / Shared</option>
+        </select>
+        <select id="device-layer-filter">
+          <option value="all">All layers</option>
+          <option value="core">Core</option>
+          <option value="security">Security</option>
+          <option value="access">Access</option>
+          <option value="legacy">Legacy / 1G</option>
+        </select>
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px" id="device-count"></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th><th>Model</th><th>Site</th><th>Layer</th><th>IP</th><th>Uplink</th><th>Status</th><th>Notes</th>
+            </tr>
+          </thead>
+          <tbody id="device-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="panel-hosts" class="panel">
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Name</th><th>Role</th><th>IP</th><th>OS</th><th>Hosted on</th><th>Redundancy</th><th>Notes</th></tr>
+          </thead>
+          <tbody id="hosts-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="panel-licenses" class="panel">
+    <div class="kpi-row" id="license-kpi-row"></div>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>System</th><th>Product</th><th>Kind</th><th>License type</th><th>Expires</th><th>Status</th><th>Notes</th></tr>
+          </thead>
+          <tbody id="license-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="panel-vlans" class="panel">
+    <div class="grid-2" id="vlan-groups"></div>
+  </section>
+
+  <section id="panel-infra" class="panel">
+    <div class="grid-2" id="infra-grid"></div>
+  </section>
+
+  <section id="panel-ports" class="panel">
+    <div class="grid-2" id="port-grid"></div>
+  </section>
+
+  <section id="panel-cns" class="panel">
+    <div class="card" style="margin-bottom:16px">
+      <p style="font-size:13px;color:var(--text-secondary);margin:0">
+        Reference notes carried over from the CNS (core network security) pages of
+        the source diagram — the firewall/DMZ L2 design's now/transition/end state,
+        and the certificate/SCEP flow used for device onboarding. Documentation only.
+      </p>
+    </div>
+    <div class="grid-2" id="cns-grid"></div>
+  </section>
+</main>
+
+<footer class="app-footer">SACS Network Dashboard — generated from the network topology diagram. Not for public distribution.</footer>
+
+<script src="data/devices.js"></script>
+<script src="data/hosts.js"></script>
+<script src="data/licenses.js"></script>
+<script src="data/vlans.js"></script>
+<script src="data/critical-infra.js"></script>
+<script src="data/ports.js"></script>
+<script src="data/cns-notes.js"></script>
+<script src="data/status.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+// VLAN reference table, from the topology diagram's "VLAN Summary" legend.
+const VLAN_GROUPS = [
+  {
+    category: "Management",
+    vlans: [
+      { id: 32, name: "SAH CCTV MGMT" },
+      { id: 33, name: "BBC CCTV MGMT" },
+      { id: 50, name: "SWITCH MGMT" },
+      { id: 102, name: "SERVER MGMT" },
+      { id: 600, name: "PRINT MGMT" },
+      { id: 610, name: "WAP MGMT" },
+    ],
+  },
+  {
+    category: "Servers & Storage",
+    vlans: [
+      { id: 70, name: "iSCSI" },
+      { id: 90, name: "Live Migration" },
+      { id: 100, name: "Corp Servers" },
+      { id: 101, name: "Staff Servers" },
+    ],
+  },
+  {
+    category: "Staff",
+    vlans: [
+      { id: 200, name: "Staff Ground" },
+      { id: 250, name: "Staff WLAN" },
+      { id: 260, name: "Staff L6" },
+      { id: 270, name: "Staff L7" },
+      { id: 2101, name: "SAH Staff WiFi" },
+      { id: 2108, name: "BBC Staff WiFi" },
+    ],
+  },
+  {
+    category: "Student",
+    vlans: [
+      { id: 300, name: "Student Ground" },
+      { id: 351, name: "Student WLAN" },
+      { id: 360, name: "Student L6" },
+      { id: 370, name: "Student L7" },
+      { id: 555, name: "iPad VLAN 96" },
+      { id: 560, name: "iPad VLAN 4" },
+      { id: 570, name: "Junior School WLAN" },
+      { id: 2116, name: "SAH Student WiFi" },
+      { id: 2120, name: "BBC Student WiFi" },
+    ],
+  },
+  {
+    category: "AV / CCTV / Transit",
+    vlans: [
+      { id: 112, name: "BBC CCTV" },
+      { id: 630, name: "SAH AV" },
+      { id: 631, name: "BBC AV" },
+      { id: 640, name: "SAH AV Project" },
+      { id: 641, name: "BBC AV Project" },
+      { id: 2601, name: "SchoolBench" },
+      { id: 2602, name: "CP MGMT" },
+      { id: 2603, name: "CP DATA" },
+      { id: 2604, name: "Arctic Wolf" },
+      { id: 3501, name: "CCTV" },
+      { id: 3502, name: "Server" },
+      { id: 3503, name: "Server Test" },
+      { id: 3504, name: "Net MGMT" },
+      { id: 3505, name: "Staff" },
+      { id: 3506, name: "Provisioning" },
+      { id: 3507, name: "Student" },
+      { id: 3508, name: "AV" },
+    ],
+  },
+];
