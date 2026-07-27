@@ -7,23 +7,34 @@ const DOC_INDEX = [
     category: "Network Reference",
     items: [
       { title: "Topology map", desc: "Core, security, and SAH/BBC access & distribution layers", href: "#topology" },
-      { title: "Device inventory", desc: "Every switch — name, model, site, IP, uplink", href: "#devices" },
-      { title: "VLAN reference", desc: "All 42 documented VLANs by category", href: "#vlans" },
-      { title: "Port & speed summary", desc: "Uplink port and speed reference, by segment", href: "#ports" },
+      { title: "Devices & infrastructure", desc: "Switches, servers/hypervisors, and the cloud, MDR & wireless summary", href: "#devices" },
+      { title: "VLAN reference", desc: "All 41 documented VLANs — searchable, with audit status", href: "#vlans" },
+      { title: "Port & speed summary", desc: "Uplink port and speed reference, plus layer-3 interfaces", href: "#ports" },
     ],
   },
   {
     category: "Systems & Compliance",
     items: [
-      { title: "Hosts & systems", desc: "Servers, hypervisors, and appliances behind the network", href: "#devices" },
+      { title: "Services", desc: "Business services — owner, criticality, MFA, internet exposure", href: "#services" },
       { title: "License tracker", desc: "Expiry tracking for OS, firewall, and subscription licenses", href: "#licenses" },
-      { title: "Critical infrastructure", desc: "DCs, DHCP, CCTV, cloud services, security, wireless", href: "#devices" },
+      { title: "CCTV fleet", desc: "245 cameras across SAH & BBC, recording platform, camera models", href: "#cctv" },
     ],
   },
   {
     category: "Security Roadmap",
     items: [
       { title: "Roadmap", desc: "Infrastructure upgrade plan, budgets, and project status", href: "#roadmap" },
+    ],
+  },
+  {
+    category: "Documents & Guides",
+    items: [
+      {
+        title: "IT Team — Infrastructure library",
+        desc: "SharePoint: PDFs, guides, and spreadsheets (SACS sign-in required)",
+        href: "https://standrewscs.sharepoint.com/sites/SACSITTeam/05Infrastructure",
+        external: true,
+      },
     ],
   },
   {
