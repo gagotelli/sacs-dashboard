@@ -131,11 +131,14 @@ jobs:
           # Only status and priority fields are requested — never subjects
           # or requester names.
           echo "=== sampling tickets to discover status and priority names ==="
+          # category / request_type describe what a ticket is ABOUT without
+          # naming anyone, so they are safe to publish. Subject, requester and
+          # description are deliberately never requested.
           sample() {  # $1 = asc|desc
             local q
             q=$(jq -nc --arg o "$1" \
               '{list_info:{row_count:100,start_index:1,get_total_count:false,
-                           fields_required:["status","priority"],
+                           fields_required:["status","priority","category","request_type"],
                            sort_field:"created_time",sort_order:$o}}')
             curl -sS -G "$API/requests" \
               -H "Authorization: Zoho-oauthtoken $ACCESS_TOKEN" \
@@ -155,6 +158,11 @@ jobs:
             ([ .[] | .requests[]? | .priority?.name? // empty ]
              + ["Low","Medium","High","Urgent"])
             | unique' s1.json s2.json)
+          # Cap the category list: each name costs one count query, and a long
+          # tail of rare categories is noise on the chart anyway.
+          ALL_CATEGORIES=$(jq -s -c '
+            [ .[] | .requests[]? | .category?.name? // empty ] | unique | .[0:14]' s1.json s2.json)
+          echo "categories found: $(echo "$ALL_CATEGORIES" | jq -c .)"
 
           # Anything not obviously finished counts as open.
           OPEN_STATUSES=$(echo "$ALL_STATUSES" | jq -c '
@@ -207,6 +215,39 @@ jobs:
           URGENT=$(echo "$BY_PRIORITY" | jq -r '
             ([ .[] | select(.label | ascii_downcase | test("urgent|critical|p1")) | .value ] | add) // 0')
 
+          # What open tickets are ABOUT, by category. Counts only — this is the
+          # safe substitute for publishing subject lines from a public repo.
+          BY_CATEGORY="[]"
+          while IFS= read -r name; do
+            [ -z "$name" ] && continue
+            crit=$(jq -nc --arg n "$name" --argjson v "$OPEN_STATUSES" \
+              '[{field:"status.name",condition:"is",values:$v},
+                {field:"category.name",condition:"is",value:$n,logical_operator:"AND"}]')
+            n=$(count_for "$crit")
+            echo "  category '$name' (open only): $n"
+            BY_CATEGORY=$(echo "$BY_CATEGORY" | jq -c --arg l "$name" --argjson v "$n" '. + [{label:$l,value:$v}]')
+          done < <(echo "$ALL_CATEGORIES" | jq -r '.[]')
+          BY_CATEGORY=$(echo "$BY_CATEGORY" | jq -c '[ .[] | select(.value > 0) ] | sort_by(-.value)')
+
+          # Open tickets per status x priority, so the page can show where the
+          # urgent work actually sits rather than just how much there is.
+          MATRIX="[]"
+          while IFS= read -r st; do
+            [ -z "$st" ] && continue
+            row="[]"
+            while IFS= read -r pr; do
+              [ -z "$pr" ] && continue
+              crit=$(jq -nc --arg s "$st" --arg p "$pr" \
+                '[{field:"status.name",condition:"is",value:$s},
+                  {field:"priority.name",condition:"is",value:$p,logical_operator:"AND"}]')
+              n=$(count_for "$crit")
+              row=$(echo "$row" | jq -c --arg l "$pr" --argjson v "$n" '. + [{label:$l,value:$v}]')
+            done < <(echo "$ALL_PRIORITIES" | jq -r '.[]')
+            if [ "$(echo "$row" | jq '[.[].value] | add // 0')" -gt 0 ]; then
+              MATRIX=$(echo "$MATRIX" | jq -c --arg s "$st" --argjson r "$row" '. + [{status:$s,cells:$r}]')
+            fi
+          done < <(echo "$OPEN_STATUSES" | jq -r '.[]')
+
           # Drop empty buckets — the default names were unioned in blind, so
           # some may not exist in this portal at all.
           BY_STATUS=$(echo "$BY_STATUS"     | jq -c '[ .[] | select(.value > 0) ]')
@@ -227,9 +268,14 @@ jobs:
             --argjson urgent "$URGENT" \
             --argjson byStatus "$BY_STATUS" \
             --argjson byPriority "$BY_PRIORITY" \
+            --argjson byCategory "$BY_CATEGORY" \
+            --argjson matrix "$MATRIX" \
+            --arg portal "https://sacs.sdpondemand.manageengine.com/app/itdesk/ui/requests" \
             '{updatedAt:$updatedAt,source:"ManageEngine ServiceDesk Plus",
+              portalUrl:$portal,
               total:$total,open:$open,urgent:$urgent,
-              byStatus:$byStatus,byPriority:$byPriority}' > summary.json
+              byStatus:$byStatus,byPriority:$byPriority,
+              byCategory:$byCategory,openMatrix:$matrix}' > summary.json
 
           {
             echo "// ManageEngine ServiceDesk Plus ticket summary."

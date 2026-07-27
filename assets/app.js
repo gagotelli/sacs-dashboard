@@ -242,6 +242,100 @@
   // ---------------------------------------------------------------------
   // Network at a glance (charts derived from inventory data — not live telemetry)
   // ---------------------------------------------------------------------
+  // Full Tickets tab. Everything here is an aggregate — see the privacy note
+  // rendered on the page for why subjects and requesters are never fetched.
+  function renderTicketsPage() {
+    const updatedEl = document.getElementById("ticket-updated");
+    const linkEl = document.getElementById("ticket-portal-link");
+    const kpiEl = document.getElementById("ticket-kpi-row");
+
+    const portal = TICKET_SUMMARY.portalUrl || "https://sacs.sdpondemand.manageengine.com/app/itdesk/ui/requests";
+    linkEl.href = portal;
+
+    if (TICKET_SUMMARY.total == null) {
+      updatedEl.textContent = "Not connected to ManageEngine yet.";
+      kpiEl.innerHTML = "";
+      return;
+    }
+
+    updatedEl.textContent = TICKET_SUMMARY.updatedAt
+      ? `Last synced ${new Date(TICKET_SUMMARY.updatedAt).toLocaleString()} · ${esc(TICKET_SUMMARY.source || "")}`
+      : "";
+
+    const closed = (TICKET_SUMMARY.total || 0) - (TICKET_SUMMARY.open || 0);
+    kpiEl.innerHTML = [
+      { value: TICKET_SUMMARY.total, label: "Total tickets" },
+      { value: TICKET_SUMMARY.open, label: "Currently open" },
+      { value: TICKET_SUMMARY.urgent, label: "Urgent &amp; open", urgent: true },
+      { value: closed, label: "Closed / resolved" },
+    ].map((k) => `
+      <div class="kpi-tile">
+        <div class="value"${k.urgent && k.value > 0 ? ' style="color:var(--status-critical)"' : ""}>${esc(Number(k.value || 0).toLocaleString())}</div>
+        <div class="label">${k.label}</div>
+      </div>`).join("");
+
+    // Priority — same ordinal ramp and ordering as the Overview card.
+    const prio = (TICKET_SUMMARY.byPriority || [])
+      .map((p) => ({ value: p.value, label: p.label, rank: priorityRank(p.label) }))
+      .sort((a, b) => a.rank - b.rank || b.value - a.value)
+      .map((p) => ({
+        value: p.value,
+        label: String(p.label).split(":")[0].trim(),
+        title: p.label,
+        color: PRIORITY_RANK_COLOR[p.rank] || "var(--prio-none)",
+      }));
+    document.getElementById("ticket-priority-donut").innerHTML = prio.length
+      ? donutSvg(prio, { size: 148, centerValue: TICKET_SUMMARY.open, centerLabel: "open" })
+      : "";
+    document.getElementById("ticket-priority-legend").innerHTML = legendHtml(prio);
+
+    document.getElementById("ticket-status-bars").innerHTML =
+      barListHtml(TICKET_SUMMARY.byStatus || [], "var(--layer-core)");
+
+    const cats = TICKET_SUMMARY.byCategory || [];
+    document.getElementById("ticket-category-bars").innerHTML = cats.length
+      ? barListHtml(cats, "var(--layer-access)")
+      : `<p class="muted-text" style="margin:0">No category breakdown in the last sync — re-run the
+         sync workflow to populate it.</p>`;
+
+    renderTicketMatrix();
+  }
+
+  // Priority columns are ordered by severity; cells shade with their share of
+  // the busiest cell so the hotspots are findable at a glance.
+  function renderTicketMatrix() {
+    const head = document.getElementById("ticket-matrix-head");
+    const body = document.getElementById("ticket-matrix-body");
+    const matrix = TICKET_SUMMARY.openMatrix || [];
+
+    if (!matrix.length) {
+      head.innerHTML = "";
+      body.innerHTML = `<tr><td class="note">No status/priority breakdown in the last sync — re-run the sync workflow to populate it.</td></tr>`;
+      return;
+    }
+
+    const cols = (matrix[0].cells || [])
+      .map((c) => c.label)
+      .sort((a, b) => priorityRank(a) - priorityRank(b));
+
+    const max = Math.max(1, ...matrix.flatMap((r) => (r.cells || []).map((c) => c.value)));
+
+    head.innerHTML = `<th>Status</th>` +
+      cols.map((c) => `<th title="${esc(c)}">${esc(String(c).split(":")[0].trim())}</th>`).join("") +
+      `<th>Total</th>`;
+
+    body.innerHTML = matrix.map((row) => {
+      const byLabel = Object.fromEntries((row.cells || []).map((c) => [c.label, c.value]));
+      const total = (row.cells || []).reduce((s, c) => s + c.value, 0);
+      const cells = cols.map((c) => {
+        const v = byLabel[c] || 0;
+        const shade = v === 0 ? 0 : 0.12 + 0.5 * (v / max);
+        return `<td class="matrix-cell" style="background:rgba(var(--layer-core-rgb), ${shade.toFixed(3)})">${v ? esc(v) : "—"}</td>`;
+      }).join("");
+      return `<tr><td class="name">${esc(row.status)}</td>${cells}<td class="matrix-total">${esc(total)}</td></tr>`;
+    }).join("");
+  }
+
   function renderGlance() {
     const layerCounts = ["core", "security", "access", "legacy"].map((l) => ({
       value: DEVICES.filter((d) => d.layer === l).length,
@@ -963,6 +1057,7 @@
     renderStatusBanner();
     renderKpis();
     renderTickets();
+    renderTicketsPage();
     renderGlance();
     renderTopology();
     renderDeviceTable();

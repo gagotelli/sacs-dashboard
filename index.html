@@ -40,7 +40,7 @@
     </div>
   </div>
   <div class="header-actions">
-    <button class="theme-toggle ticket-button" id="ticket-button" type="button" data-panel="panel-overview">
+    <button class="theme-toggle ticket-button" id="ticket-button" type="button" data-panel="panel-tickets">
       <svg class="icon" width="15" height="15"><use href="#icon-ticket"/></svg>
       <span id="ticket-button-label">Tickets: not connected</span>
     </button>
@@ -64,6 +64,7 @@
   <button data-panel="panel-vlans"><svg class="icon"><use href="#icon-vlans"/></svg>VLANs</button>
   <button data-panel="panel-cctv"><svg class="icon"><use href="#icon-camera"/></svg>CCTV</button>
   <button data-panel="panel-ports"><svg class="icon"><use href="#icon-ports"/></svg>Port &amp; Speed Summary</button>
+  <button data-panel="panel-tickets"><svg class="icon"><use href="#icon-ticket"/></svg>Tickets</button>
   <button data-panel="panel-roadmap"><svg class="icon"><use href="#icon-map"/></svg>Roadmap</button>
   <button data-panel="panel-docs"><svg class="icon"><use href="#icon-docs"/></svg>Documentation</button>
 </nav>
@@ -355,6 +356,63 @@
         <table>
           <thead><tr><th>Interface</th><th>IP</th><th>VRF</th><th>Status</th><th>Purpose / notes</th></tr></thead>
           <tbody id="layer3-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="panel-tickets" class="panel">
+    <div class="ticket-hero">
+      <div>
+        <h2 class="section-heading" style="margin-bottom:4px">Support tickets</h2>
+        <p class="muted-text" style="margin:0" id="ticket-updated"></p>
+      </div>
+      <a class="link-button" id="ticket-portal-link" href="#" target="_blank" rel="noopener">
+        Open in ManageEngine <svg class="icon"><use href="#icon-external"/></svg>
+      </a>
+    </div>
+
+    <div class="kpi-row" id="ticket-kpi-row"></div>
+
+    <div class="card" id="ticket-privacy-note">
+      <h2>Why there are no ticket subjects here</h2>
+      <p class="muted-text" style="margin-bottom:0">
+        This dashboard is served from a public repository, and its sign-in is
+        client-side only — anything stored here is readable by anyone. Helpdesk
+        subjects routinely name students and staff, so this page shows what
+        tickets are <em>about</em> (category, priority, status) and never who
+        they are about. Use the ManageEngine link above for individual tickets,
+        where real authentication applies.
+      </p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h2>Open tickets by priority</h2>
+        <div class="glance-donut-row">
+          <div id="ticket-priority-donut"></div>
+          <div class="legend-col" id="ticket-priority-legend"></div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>All tickets by status</h2>
+        <div class="bar-list" id="ticket-status-bars"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>What open tickets are about</h2>
+      <p class="muted-text">Category breakdown of everything currently open.</p>
+      <div class="bar-list" id="ticket-category-bars"></div>
+    </div>
+
+    <div class="card">
+      <h2>Where the open work sits</h2>
+      <p class="muted-text">Open tickets by status and priority — cell shading tracks the count.</p>
+      <div class="table-wrap">
+        <table id="ticket-matrix-table">
+          <thead><tr id="ticket-matrix-head"></tr></thead>
+          <tbody id="ticket-matrix-body"></tbody>
         </table>
       </div>
     </div>
