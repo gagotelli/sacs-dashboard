@@ -11,6 +11,15 @@ on:
   schedule:
     - cron: "0 * * * *"
   workflow_dispatch:
+    inputs:
+      grant_code:
+        description: >-
+          Optional. Paste a fresh Zoho grant code here to run using it
+          directly, bypassing the stored refresh token. Generate it at
+          api-console.zoho.com (Self Client, Generate Code, scope
+          SDPOnDemand.requests.ALL). Single-use and expires in ~10 minutes.
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -26,6 +35,7 @@ jobs:
           ZOHO_CLIENT_ID: ${{ secrets.ZOHO_CLIENT_ID }}
           ZOHO_CLIENT_SECRET: ${{ secrets.ZOHO_CLIENT_SECRET }}
           ZOHO_REFRESH_TOKEN: ${{ secrets.ZOHO_REFRESH_TOKEN }}
+          GRANT_CODE: ${{ inputs.grant_code }}
         run: |
           set -euo pipefail
           API="https://sacs.sdpondemand.manageengine.com/api/v3"
@@ -37,6 +47,31 @@ jobs:
           # first; if that fails, fall back to treating it as a grant code.
           # A grant code left in the secret is useless otherwise, so trying it
           # can only help — but it is single-use, hence the warning below.
+          ACCESS_TOKEN=""
+
+          # A grant code pasted into the workflow input wins: it is the
+          # recovery path when the stored refresh token is wrong or dead,
+          # and it avoids copying tokens between a terminal and GitHub —
+          # the step that has repeatedly corrupted the stored value.
+          if [ -n "${GRANT_CODE:-}" ]; then
+            echo "=== exchanging the grant code supplied as a workflow input ==="
+            curl -sS -X POST "https://accounts.zoho.com/oauth/v2/token" \
+              --data-urlencode "grant_type=authorization_code" \
+              --data-urlencode "client_id=$ZOHO_CLIENT_ID" \
+              --data-urlencode "client_secret=$ZOHO_CLIENT_SECRET" \
+              --data-urlencode "code=$GRANT_CODE" \
+              -o token0.json
+            ACCESS_TOKEN=$(jq -r '.access_token // empty' token0.json)
+            if [ -z "$ACCESS_TOKEN" ]; then
+              echo "grant code rejected: $(jq -r '.error // "unknown"' token0.json)"
+              echo "Codes are single-use and expire in ~10 minutes — generate a"
+              echo "fresh one and re-run straight away."
+              exit 1
+            fi
+            echo "OK: grant code accepted."
+          fi
+
+          if [ -z "$ACCESS_TOKEN" ]; then
           echo "=== refreshing access token ==="
           curl -sS -X POST "https://accounts.zoho.com/oauth/v2/token" \
             --data-urlencode "grant_type=refresh_token" \
@@ -69,6 +104,7 @@ jobs:
             echo "WARNING: stored value was a GRANT CODE, not a refresh token."
             echo "It has now been consumed, so this sync will succeed exactly once."
             echo "Store a real refresh_token to make this run unattended."
+          fi
           fi
 
           # Count-only query: row_count 1 so no ticket rows come back in bulk,
