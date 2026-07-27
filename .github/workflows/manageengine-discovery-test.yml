@@ -81,3 +81,37 @@ jobs:
           jq -r '.requests[0] | keys | join(", ")' req.json 2>/dev/null || echo "(none returned)"
           echo "--- status / priority value shape (no subjects or names) ---"
           jq -c '.requests[0] | {status: .status.name, priority: .priority.name}' req.json 2>/dev/null || true
+
+          # The real sync needs the exact status and priority names this portal
+          # uses, so it can ask for a count per bucket instead of paging through
+          # 15k tickets. Enumerate them from the metadata endpoints.
+          echo ""
+          echo "=== metadata: status names ==="
+          curl -sS -G "https://sacs.sdpondemand.manageengine.com/api/v3/status" \
+            -H "Authorization: Zoho-oauthtoken $ACCESS_TOKEN" \
+            -H "Accept: application/vnd.manageengine.sdp.v3+json" \
+            -o status.json -w "HTTP %{http_code}\n"
+          jq -r '.status[]? | "\(.name)  [in_progress=\(.in_progress)]"' status.json 2>/dev/null \
+            || jq -r 'keys | join(", ")' status.json
+
+          echo ""
+          echo "=== metadata: priority names ==="
+          curl -sS -G "https://sacs.sdpondemand.manageengine.com/api/v3/priority" \
+            -H "Authorization: Zoho-oauthtoken $ACCESS_TOKEN" \
+            -H "Accept: application/vnd.manageengine.sdp.v3+json" \
+            -o priority.json -w "HTTP %{http_code}\n"
+          jq -r '.priority[]? | .name' priority.json 2>/dev/null \
+            || jq -r 'keys | join(", ")' priority.json
+
+          # Confirm a filtered count works — this is the exact query shape the
+          # scheduled sync will use for each bucket (count only, no ticket rows).
+          echo ""
+          echo "=== filtered count probe: status is Open ==="
+          OPEN_Q='{"list_info":{"row_count":1,"start_index":1,"get_total_count":true,"fields_required":["id"],"search_criteria":[{"field":"status.name","condition":"is","value":"Open"}]}}'
+          curl -sS -G "https://sacs.sdpondemand.manageengine.com/api/v3/requests" \
+            -H "Authorization: Zoho-oauthtoken $ACCESS_TOKEN" \
+            -H "Accept: application/vnd.manageengine.sdp.v3+json" \
+            --data-urlencode "input_data=$OPEN_Q" \
+            -o open.json -w "HTTP %{http_code}\n"
+          jq -c '.response_status[0]? // .response_status' open.json
+          echo "open total_count: $(jq -r '.list_info.total_count // "n/a"' open.json)"
