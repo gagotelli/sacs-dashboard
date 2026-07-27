@@ -51,15 +51,31 @@ jobs:
           echo "HTTP $code"
           jq -r '.data[]? | "  \(.id)  \(.attributes.domainPrefix // "?")  \(.attributes.tenantType // "?")"' t.json 2>/dev/null \
             || head -c 400 t.json
+
+          # This key lives in an MSP instance managing many other clients. An
+          # unscoped inventory query fans out across all of them and is denied
+          # on tenants that are not ours, so scope every request to the client
+          # tenant (the multiClient entry is just the parent grouping).
+          TENANT_ID=$(jq -r '[.data[]? | select(.attributes.tenantType == "client") | .id] | first // empty' t.json)
+          if [ -z "$TENANT_ID" ]; then
+            TENANT_ID=$(jq -r '.data[0].id // empty' t.json)
+          fi
+          echo "scoping to tenant: $TENANT_ID"
           echo ""
 
           echo "=== 3. inventory/device/info (schema + aggregates only) ==="
           code=$(curl "${AUTH[@]}" -o d.json -w "%{http_code}" \
-            "https://$DOMAIN/v1/inventory/device/info?page[first]=100" || true)
-          echo "HTTP $code"
+            "https://$DOMAIN/v1/inventory/device/info?tenants=$TENANT_ID&page[first]=100" || true)
+          echo "HTTP $code (tenants=)"
           if [ "$code" != "200" ]; then
-            echo "Device info denied — the role needs API access to device info."
-            head -c 500 d.json; echo
+            echo "retrying with filter[tenants]= ..."
+            code=$(curl "${AUTH[@]}" -o d.json -w "%{http_code}" \
+              "https://$DOMAIN/v1/inventory/device/info?filter[tenants]=$TENANT_ID&page[first]=100" || true)
+            echo "HTTP $code (filter[tenants]=)"
+          fi
+          if [ "$code" != "200" ]; then
+            echo "Device info still denied:"
+            head -c 600 d.json; echo
             exit 1
           fi
           echo "devices returned: $(jq '[.data[]?] | length' d.json)"
