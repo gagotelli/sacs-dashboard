@@ -47,16 +47,17 @@ jobs:
           fi
           echo ""
 
+          SKIPPED_T2=""
           if [ -z "$ACCESS_TOKEN" ] && [ "${{ inputs.consume_grant_code }}" != "true" ]; then
             echo "=== TEST 2 skipped (consume_grant_code not set) ==="
-            echo "The stored value is not a valid refresh token. It is either a"
-            echo "grant code (exchange step skipped) or an access token."
-            echo "Re-run with consume_grant_code=true to find out — but that"
-            echo "burns the code if it is still unused."
-            exit 1
+            echo "Not a valid refresh token. Falling through to TEST 3, which is"
+            echo "non-destructive: if the value is an access token it will simply"
+            echo "work against the API below."
+            SKIPPED_T2="yes"
+            echo ""
           fi
 
-          if [ -z "$ACCESS_TOKEN" ]; then
+          if [ -z "$ACCESS_TOKEN" ] && [ -z "$SKIPPED_T2" ]; then
             echo "=== TEST 2: treat stored value as an authorization (grant) code ==="
             curl -sS -X POST "https://accounts.zoho.com/oauth/v2/token" \
               --data-urlencode "grant_type=authorization_code" \
