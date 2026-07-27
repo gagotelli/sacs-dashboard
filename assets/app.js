@@ -184,15 +184,34 @@
       return;
     }
 
-    noteEl.hidden = true;
-    labelEl.textContent = `${TICKET_SUMMARY.open ?? TICKET_SUMMARY.total} open · ${TICKET_SUMMARY.urgent ?? 0} urgent`;
-
     const priorityCounts = (TICKET_SUMMARY.byPriority || []).map((p) => ({
-      value: p.count,
-      label: p.priority,
-      color: TICKET_PRIORITY_COLOR[p.priority] || "var(--status-unknown)",
+      value: p.value,
+      label: p.label,
+      color: TICKET_PRIORITY_COLOR[p.label] || "var(--status-unknown)",
     }));
-    donutEl.innerHTML = donutSvg(priorityCounts, { centerValue: TICKET_SUMMARY.open ?? TICKET_SUMMARY.total, centerLabel: "open" });
+
+    // A sync can return the total but fail to resolve the per-bucket
+    // breakdown. Reporting "0 open" in that case would state a number we
+    // did not actually establish, so show the total and say so instead.
+    const haveBreakdown = priorityCounts.length > 0;
+
+    if (!haveBreakdown) {
+      labelEl.textContent = `Tickets: ${TICKET_SUMMARY.total.toLocaleString()} total`;
+      donutEl.innerHTML = donutSvg(
+        [{ value: 1, color: "var(--status-unknown)", label: "Total" }],
+        { centerValue: TICKET_SUMMARY.total, centerLabel: "total" }
+      );
+      legendEl.innerHTML = "";
+      noteEl.textContent =
+        "Total is live, but the open/priority breakdown could not be read from " +
+        "ManageEngine on the last sync — treat only the total as current.";
+      noteEl.hidden = false;
+      return;
+    }
+
+    noteEl.hidden = true;
+    labelEl.textContent = `${TICKET_SUMMARY.open} open · ${TICKET_SUMMARY.urgent ?? 0} urgent`;
+    donutEl.innerHTML = donutSvg(priorityCounts, { centerValue: TICKET_SUMMARY.open, centerLabel: "open" });
     legendEl.innerHTML = legendHtml(priorityCounts);
   }
 
