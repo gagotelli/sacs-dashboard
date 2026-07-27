@@ -1,0 +1,40 @@
+name: Sync live device status from Auvik
+
+# Populates data/status.js so the topology map, KPI tiles and device table
+# show real up/down state instead of "Unknown".
+#
+# Writes status only for devices already published in data/devices.js —
+# Auvik discovers the full estate, and this repo is public.
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build data/status.js from Auvik
+        env:
+          AUVIK_API_USERNAME: ${{ secrets.AUVIK_API_USERNAME }}
+          AUVIK_API_KEY: ${{ secrets.AUVIK_API_KEY }}
+          AUVIK_API_DOMAIN: ${{ secrets.AUVIK_API_DOMAIN }}
+        run: node scripts/auvik-status.js
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- data/status.js; then
+            echo "no change"
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/status.js
+          git commit -m "Update live device status from Auvik"
+          git push

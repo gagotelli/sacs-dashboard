@@ -13,10 +13,13 @@
     legacy: "Legacy / 1G",
     security: "Security",
   };
+  // Accepts both the palette names and the values data/status.js emits, so a
+  // live "down" does not render as an empty status cell.
   const STATUS_LABEL = {
     up: "Up",
     warning: "Warning",
     serious: "Degraded",
+    down: "Down",
     critical: "Down",
     unknown: "Unknown",
   };
@@ -1133,10 +1136,34 @@
   // ---------------------------------------------------------------------
   function renderStatusBanner() {
     const el = document.getElementById("status-banner-text");
-    if (DEVICE_STATUS.updatedAt) {
-      el.innerHTML = `Live status last updated <strong>${esc(DEVICE_STATUS.updatedAt)}</strong> from <strong>${esc(DEVICE_STATUS.source)}</strong>.`;
-    } else {
+    const banner = el.closest(".status-banner");
+
+    if (!DEVICE_STATUS.updatedAt) {
       el.innerHTML = `<strong>Live status is not wired up yet.</strong> Every device below shows "Unknown" until a poller populates <code>data/status.js</code> — see README.md.`;
+      if (banner) banner.style.borderLeftColor = "var(--status-unknown)";
+      return;
+    }
+
+    const entries = Object.values(DEVICE_STATUS.devices || {});
+    const down = entries.filter((d) => d.status === "down").length;
+    const warn = entries.filter((d) => d.status === "warning").length;
+    const up = entries.filter((d) => d.status === "up").length;
+    const when = new Date(DEVICE_STATUS.updatedAt).toLocaleString();
+
+    // A device published here but absent from the poller is genuinely unknown,
+    // so say so rather than letting it read as healthy.
+    const notReporting = (DEVICE_STATUS.published || entries.length) - entries.length;
+
+    let health = `<strong>${up} up</strong>`;
+    if (warn) health += ` · <strong>${warn} warning</strong>`;
+    if (down) health += ` · <strong>${down} down</strong>`;
+    if (notReporting > 0) health += ` · ${notReporting} not reporting`;
+
+    el.innerHTML = `${health} — live from <strong>${esc(DEVICE_STATUS.source || "poller")}</strong>, updated ${esc(when)}.`;
+    if (banner) {
+      banner.style.borderLeftColor = down
+        ? "var(--status-critical)"
+        : warn ? "var(--status-warning)" : "var(--status-good)";
     }
   }
 

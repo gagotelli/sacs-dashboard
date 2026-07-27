@@ -655,10 +655,15 @@ tbody tr:hover { background: var(--surface-2); }
 .topo-link-label { font-size: 9px; fill: var(--text-muted); }
 .topo-group-label { font-size: 12px; fill: var(--text-secondary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
 
-.status-dot-good { fill: var(--status-good); }
+/* Two vocabularies meet here: the palette names (good/serious/critical) and
+   the status values data/status.js actually emits (up/warning/down/unknown).
+   Both are mapped, or live "up" and "down" dots fall back to black. */
+.status-dot-good,
+.status-dot-up { fill: var(--status-good); }
 .status-dot-warning { fill: var(--status-warning); }
 .status-dot-serious { fill: var(--status-serious); }
-.status-dot-critical { fill: var(--status-critical); }
+.status-dot-critical,
+.status-dot-down { fill: var(--status-critical); }
 .status-dot-unknown { fill: var(--status-unknown); }
 
 footer.app-footer {

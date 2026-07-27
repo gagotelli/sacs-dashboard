@@ -1,0 +1,145 @@
+#!/usr/bin/env node
+// Builds data/status.js from Auvik's device inventory.
+//
+// Only devices already published in data/devices.js get an entry. Auvik
+// discovers the whole estate — staff laptops, printers, cameras — and this
+// repo is public, so unmatched Auvik devices are counted but never written.
+//
+// Env: AUVIK_API_USERNAME, AUVIK_API_KEY, AUVIK_API_DOMAIN (optional)
+
+const fs = require("fs");
+const path = require("path");
+
+const ROOT = path.resolve(__dirname, "..");
+const DOMAIN = process.env.AUVIK_API_DOMAIN || "auvikapi.au1.my.auvik.com";
+const USER = process.env.AUVIK_API_USERNAME || "";
+const KEY = process.env.AUVIK_API_KEY || "";
+
+const auth = "Basic " + Buffer.from(`${USER}:${KEY}`).toString("base64");
+
+async function api(url) {
+  const res = await fetch(url, { headers: { Authorization: auth, Accept: "application/json" } });
+  const text = await res.text();
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url.replace(/\?.*/, "")}\n${text.slice(0, 400)}`);
+  return JSON.parse(text);
+}
+
+// A device's `ip` in devices.js can name more than one address, e.g. the
+// L7 stack is "172.16.50.129 / .110". Expand those into comparable addresses,
+// including shorthand ".110" which inherits the preceding /24.
+function expandIps(raw) {
+  if (!raw) return [];
+  const parts = String(raw).split(/[\/,]/).map((s) => s.trim()).filter(Boolean);
+  const out = [];
+  let base = null;
+  for (const p of parts) {
+    const full = p.match(/^\d{1,3}(\.\d{1,3}){3}$/);
+    if (full) {
+      out.push(p);
+      base = p.split(".").slice(0, 3).join(".");
+    } else {
+      const short = p.match(/^\.?(\d{1,3})$/);
+      if (short && base) out.push(`${base}.${short[1]}`);
+    }
+  }
+  return out;
+}
+
+const normName = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+
+function mapStatus(onlineStatus) {
+  const s = String(onlineStatus || "").toLowerCase();
+  if (s === "online") return "up";
+  if (s === "offline") return "down";
+  if (s.includes("warn") || s === "degraded") return "warning";
+  return "unknown";
+}
+
+async function main() {
+  if (!USER || !KEY) throw new Error("AUVIK_API_USERNAME and AUVIK_API_KEY must be set");
+
+  const tenants = await api(`https://${DOMAIN}/v1/tenants`);
+  const client = (tenants.data || []).find((t) => t.attributes?.tenantType === "client")
+    || (tenants.data || [])[0];
+  if (!client) throw new Error("no tenant returned");
+  console.log(`tenant: ${client.id} (${client.attributes?.domainPrefix || "?"})`);
+
+  // Page through the whole inventory — one page of 100 is not the estate.
+  let url = `https://${DOMAIN}/v1/inventory/device/info?tenants=${client.id}&page[first]=100`;
+  const devices = [];
+  let pages = 0;
+  while (url && pages < 50) {
+    const body = await api(url);
+    devices.push(...(body.data || []));
+    url = body.links?.next || null;
+    pages++;
+  }
+  console.log(`auvik devices: ${devices.length} across ${pages} page(s)`);
+
+  const byIp = new Map();
+  const byName = new Map();
+  for (const d of devices) {
+    for (const ip of d.attributes?.ipAddresses || []) if (!byIp.has(ip)) byIp.set(ip, d);
+    const n = normName(d.attributes?.deviceName);
+    if (n && !byName.has(n)) byName.set(n, d);
+  }
+
+  const src = fs.readFileSync(path.join(ROOT, "data/devices.js"), "utf8");
+  const DEVICES = new Function(src + "; return DEVICES;")();
+
+  const out = {};
+  const unmatched = [];
+  for (const dev of DEVICES) {
+    let hit = null;
+    for (const ip of expandIps(dev.ip)) {
+      if (byIp.has(ip)) { hit = byIp.get(ip); break; }
+    }
+    if (!hit) hit = byName.get(normName(dev.name)) || null;
+    if (!hit) { unmatched.push(dev.name); continue; }
+
+    const a = hit.attributes || {};
+    out[dev.id] = {
+      status: mapStatus(a.onlineStatus),
+      lastSeen: a.lastSeenTime || null,
+      vendor: a.vendorName || null,
+      model: a.makeModel || null,
+      firmware: a.firmwareVersion || null,
+    };
+  }
+
+  const matched = Object.keys(out).length;
+  console.log(`matched ${matched} of ${DEVICES.length} published devices`);
+  if (unmatched.length) console.log(`unmatched: ${unmatched.join(", ")}`);
+  const counts = Object.values(out).reduce((m, v) => ((m[v.status] = (m[v.status] || 0) + 1), m), {});
+  console.log("status counts:", JSON.stringify(counts));
+
+  const payload = {
+    updatedAt: new Date().toISOString(),
+    source: "Auvik",
+    matched,
+    published: DEVICES.length,
+    // Deliberately a count, not a list: naming Auvik's other discovered
+    // devices would publish inventory this repo does not otherwise expose.
+    discoveredNotPublished: devices.length - matched,
+    devices: out,
+  };
+
+  const banner = [
+    "// Live device status, generated from Auvik by",
+    "// .github/workflows/sync-auvik-status.yml — do not edit by hand.",
+    "//",
+    "// Only devices already listed in data/devices.js appear here. Auvik",
+    "// discovers the full estate including endpoints this public repo does",
+    "// not publish, so those are counted and otherwise dropped.",
+    "//",
+    '// Status values: "up" | "warning" | "down" | "unknown"',
+  ].join("\n");
+
+  fs.writeFileSync(
+    path.join(ROOT, "data/status.js"),
+    `${banner}\nconst DEVICE_STATUS = ${JSON.stringify(payload, null, 2)};\n`
+  );
+  console.log("wrote data/status.js");
+}
+
+main().catch((e) => { console.error(e.message); process.exit(1); });
