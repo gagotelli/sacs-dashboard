@@ -25,6 +25,16 @@
   --status-critical: #d03b3b;
   --status-unknown: #898781;
 
+  /* Ticket priority is an ordinal severity scale, so it gets a single-hue
+     ordinal ramp (most urgent = furthest from the surface) rather than the
+     reserved status colors, which are not separable enough to serve as a
+     5-way categorical set. Steps validated for light and dark surfaces. */
+  --prio-1: #1c5cab;
+  --prio-2: #2a78d6;
+  --prio-3: #5598e7;
+  --prio-4: #86b6ef;
+  --prio-none: #898781;
+
   --accent-gradient: linear-gradient(90deg, #2a78d6, #1baf7a, #eda100);
 }
 
@@ -49,6 +59,14 @@
     --layer-access-rgb: 0, 131, 0;
     --layer-legacy-rgb: 213, 81, 129;
     --layer-security-rgb: 201, 133, 0;
+
+    /* Dark surface inverts the ordinal ramp: most urgent stays the step
+       furthest from the surface, which here is the lightest. */
+    --prio-1: #6da7ec;
+    --prio-2: #3987e5;
+    --prio-3: #256abf;
+    --prio-4: #184f95;
+    --prio-none: #898781;
   }
 }
 :root[data-theme="dark"] {
@@ -71,6 +89,14 @@
   --layer-access-rgb: 0, 131, 0;
   --layer-legacy-rgb: 213, 81, 129;
   --layer-security-rgb: 201, 133, 0;
+
+  /* Dark surface inverts the ordinal ramp: most urgent stays the step
+     furthest from the surface, which here is the lightest. */
+  --prio-1: #6da7ec;
+  --prio-2: #3987e5;
+  --prio-3: #256abf;
+  --prio-4: #184f95;
+  --prio-none: #898781;
 }
 
 * { box-sizing: border-box; }
@@ -516,8 +542,11 @@ tbody tr:hover { background: var(--surface-2); }
   gap: 8px;
   font-size: 12.5px;
 }
-.legend-row-label { color: var(--text-secondary); flex: 1; min-width: 0; }
-.legend-value { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text-primary); }
+/* min-width:0 lets this shrink below its content, so a long single word
+   ("Unassigned") would otherwise overflow across its own value. */
+.legend-row-label { color: var(--text-secondary); flex: 1; min-width: 0; overflow-wrap: anywhere; }
+/* Never let a long category name push into its own value. */
+.legend-value { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text-primary); flex-shrink: 0; margin-left: 6px; }
 
 .legend-row-link {
   appearance: none;

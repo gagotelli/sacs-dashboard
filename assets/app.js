@@ -143,7 +143,7 @@
 
   function legendHtml(items) {
     return items.map((i) => `
-      <div class="legend-row-item">
+      <div class="legend-row-item"${i.title ? ` title="${esc(i.title)}"` : ""}>
         <span class="swatch" style="background:${i.color}"></span>
         <span class="legend-row-label">${esc(i.label)}</span>
         <span class="legend-value">${esc(i.value)}</span>
@@ -163,11 +163,27 @@
   // ---------------------------------------------------------------------
   // Support tickets (ManageEngine ServiceDesk Plus)
   // ---------------------------------------------------------------------
-  const TICKET_PRIORITY_COLOR = {
-    Urgent: "var(--status-critical)",
-    High: "var(--status-warning)",
-    Medium: "var(--status-unknown)",
-    Low: "var(--status-good)",
+  // ServiceDesk Plus priorities are renamed per portal — SACS uses SLA-style
+  // names ("Critical: Drop Everything", "Normal: End of Next Day", "1 Week",
+  // "Term Break") rather than Urgent/High/Medium/Low. Rank by the urgency
+  // words in the name so the ordering survives a rename, and colour by rank
+  // from an ordinal ramp. Unranked names land mid-scale rather than vanishing.
+  function priorityRank(label) {
+    const s = String(label || "").toLowerCase();
+    if (/unassigned|none|not set|^-$/.test(s)) return 5;
+    if (/critical|urgent|emergency|drop everything|\bp1\b/.test(s)) return 1;
+    if (/high|next day|same day|\bp2\b/.test(s)) return 2;
+    if (/normal|medium|week|\bp3\b/.test(s)) return 3;
+    if (/low|term break|planned|month|quarter|\bp4\b/.test(s)) return 4;
+    return 3;
+  }
+
+  const PRIORITY_RANK_COLOR = {
+    1: "var(--prio-1)",
+    2: "var(--prio-2)",
+    3: "var(--prio-3)",
+    4: "var(--prio-4)",
+    5: "var(--prio-none)",
   };
 
   function renderTickets() {
@@ -184,11 +200,19 @@
       return;
     }
 
-    const priorityCounts = (TICKET_SUMMARY.byPriority || []).map((p) => ({
-      value: p.value,
-      label: p.label,
-      color: TICKET_PRIORITY_COLOR[p.label] || "var(--status-unknown)",
-    }));
+    // Most urgent first, so the donut and legend read in severity order.
+    // These SLA names are far too long for the side rail ("Critical: Drop
+    // Everything"), so show the part before the colon and keep the full
+    // name on hover.
+    const priorityCounts = (TICKET_SUMMARY.byPriority || [])
+      .map((p) => ({ value: p.value, label: p.label, rank: priorityRank(p.label) }))
+      .sort((a, b) => a.rank - b.rank || b.value - a.value)
+      .map((p) => ({
+        value: p.value,
+        label: String(p.label).split(":")[0].trim(),
+        title: p.label,
+        color: PRIORITY_RANK_COLOR[p.rank] || "var(--prio-none)",
+      }));
 
     // A sync can return the total but fail to resolve the per-bucket
     // breakdown. Reporting "0 open" in that case would state a number we
