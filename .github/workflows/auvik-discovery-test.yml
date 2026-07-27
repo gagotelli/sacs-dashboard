@@ -1,26 +1,97 @@
 name: Auvik API discovery (test)
 on: workflow_dispatch
+
+# Verifies the Auvik credentials and reports what the account can actually
+# reach, one permission at a time — the previous account failed here because
+# its role had "API - Device Details" set to No access.
+#
+# Auvik returns every discovered device, including workstations, printers and
+# cameras that this public repo does not publish. So this test prints schema,
+# counts and aggregates only — never a full device dump.
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch a small sample of device inventory
+      - uses: actions/checkout@v4
+
+      - name: Verify credentials and probe each endpoint
         env:
           AUVIK_API_USERNAME: ${{ secrets.AUVIK_API_USERNAME }}
           AUVIK_API_KEY: ${{ secrets.AUVIK_API_KEY }}
           AUVIK_API_DOMAIN: ${{ secrets.AUVIK_API_DOMAIN }}
         run: |
-          TENANT_ID="1382977535538767613"
-
-          echo "=== devices via tenants[]= ==="
-          curl -sS -g -u "$AUVIK_API_USERNAME:$AUVIK_API_KEY" \
-            "https://$AUVIK_API_DOMAIN/v1/inventory/device/info?tenants[]=$TENANT_ID&page[first]=5" \
-            -o d1.json -w "\nHTTP %{http_code}\n"
-          jq '.' d1.json | head -c 4000
-
+          # Region comes from the portal host: sacsmain.au1.my.auvik.com
+          DOMAIN="${AUVIK_API_DOMAIN:-auvikapi.au1.my.auvik.com}"
+          echo "API domain: $DOMAIN"
+          echo "username set: $([ -n "$AUVIK_API_USERNAME" ] && echo yes || echo NO)"
+          echo "api key set:  $([ -n "$AUVIK_API_KEY" ] && echo yes || echo NO)"
           echo ""
-          echo "=== devices via filter[tenants]= ==="
-          curl -sS -g -u "$AUVIK_API_USERNAME:$AUVIK_API_KEY" \
-            "https://$AUVIK_API_DOMAIN/v1/inventory/device/info?filter[tenants]=$TENANT_ID&page[first]=5" \
-            -o d2.json -w "\nHTTP %{http_code}\n"
-          jq '.' d2.json | head -c 4000
+
+          # -g disables curl's URL globbing, which otherwise chokes on the
+          # square brackets in Auvik's JSON:API query params.
+          AUTH=(-sS -g -u "$AUVIK_API_USERNAME:$AUVIK_API_KEY")
+
+          echo "=== 1. authentication/verify ==="
+          code=$(curl "${AUTH[@]}" -o v.json -w "%{http_code}" \
+            "https://$DOMAIN/v1/authentication/verify" || true)
+          echo "HTTP $code"
+          if [ "$code" != "200" ]; then
+            echo "Credentials rejected. Check the username is the Auvik login email"
+            echo "and that the API key was generated for that same user."
+            head -c 400 v.json; echo
+            exit 1
+          fi
+          echo "credentials OK"
+          echo ""
+
+          echo "=== 2. tenants (which sites this key can see) ==="
+          code=$(curl "${AUTH[@]}" -o t.json -w "%{http_code}" \
+            "https://$DOMAIN/v1/tenants" || true)
+          echo "HTTP $code"
+          jq -r '.data[]? | "  \(.id)  \(.attributes.domainPrefix // "?")  \(.attributes.tenantType // "?")"' t.json 2>/dev/null \
+            || head -c 400 t.json
+          echo ""
+
+          echo "=== 3. inventory/device/info (schema + aggregates only) ==="
+          code=$(curl "${AUTH[@]}" -o d.json -w "%{http_code}" \
+            "https://$DOMAIN/v1/inventory/device/info?page[first]=100" || true)
+          echo "HTTP $code"
+          if [ "$code" != "200" ]; then
+            echo "Device info denied — the role needs API access to device info."
+            head -c 500 d.json; echo
+            exit 1
+          fi
+          echo "devices returned: $(jq '[.data[]?] | length' d.json)"
+          echo "attribute fields available:"
+          jq -r '.data[0].attributes | keys | join(", ")' d.json 2>/dev/null
+          echo ""
+          echo "by deviceType:"
+          jq -r '[.data[]?.attributes.deviceType // "unknown"] | group_by(.) | map("  \(.[0]): \(length)") | .[]' d.json 2>/dev/null
+          echo ""
+          echo "onlineStatus values present:"
+          jq -r '[.data[]?.attributes.onlineStatus // "n/a"] | group_by(.) | map("  \(.[0]): \(length)") | .[]' d.json 2>/dev/null
+          echo ""
+
+          # The join that matters: can we match Auvik devices to the devices
+          # already published in data/devices.js, by management IP?
+          echo "=== 4. match against data/devices.js by IP ==="
+          node -e '
+            const fs = require("fs");
+            const src = fs.readFileSync("data/devices.js", "utf8");
+            // new Function scopes the file, so its const DEVICES cannot
+            // collide with a binding out here.
+            const DEVICES = new Function(src + "; return DEVICES;")();
+            const auvik = JSON.parse(fs.readFileSync("d.json", "utf8")).data || [];
+            const byIp = new Map();
+            for (const a of auvik) {
+              for (const ip of (a.attributes.ipAddresses || [])) byIp.set(ip, a);
+            }
+            let hit = 0;
+            const misses = [];
+            for (const d of DEVICES) {
+              if (d.ip && byIp.has(d.ip)) hit++; else misses.push(d.name);
+            }
+            console.log(`  matched ${hit} of ${DEVICES.length} published devices by IP`);
+            if (misses.length) console.log("  unmatched:", misses.join(", "));
+          '
