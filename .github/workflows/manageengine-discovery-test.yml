@@ -4,58 +4,80 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Exchange refresh token and sample the requests API
+      - name: Identify what ZOHO_REFRESH_TOKEN actually holds, then sample the API
         env:
           ZOHO_CLIENT_ID: ${{ secrets.ZOHO_CLIENT_ID }}
           ZOHO_CLIENT_SECRET: ${{ secrets.ZOHO_CLIENT_SECRET }}
           ZOHO_REFRESH_TOKEN: ${{ secrets.ZOHO_REFRESH_TOKEN }}
         run: |
-          echo "=== secret shape check (no secret values printed) ==="
-          echo "ZOHO_CLIENT_ID length: ${#ZOHO_CLIENT_ID}  prefix: ${ZOHO_CLIENT_ID:0:5}...  suffix: ...${ZOHO_CLIENT_ID: -4}"
+          # Zoho's grant code, access token and refresh token are all
+          # "1000.<32hex>.<32hex>" and all exactly 70 chars, so shape alone
+          # cannot tell them apart. Try the stored value all three ways and
+          # report which one it is. Only field names and booleans are printed,
+          # never a token value.
+          echo "=== shape check (no values printed) ==="
+          echo "ZOHO_CLIENT_ID length: ${#ZOHO_CLIENT_ID}  suffix: ...${ZOHO_CLIENT_ID: -4}"
           echo "ZOHO_CLIENT_SECRET length: ${#ZOHO_CLIENT_SECRET}"
-          echo "ZOHO_REFRESH_TOKEN length: ${#ZOHO_REFRESH_TOKEN}  prefix: ${ZOHO_REFRESH_TOKEN:0:5}...  suffix: ...${ZOHO_REFRESH_TOKEN: -4}"
+          echo "ZOHO_REFRESH_TOKEN length: ${#ZOHO_REFRESH_TOKEN}  suffix: ...${ZOHO_REFRESH_TOKEN: -4}"
           echo ""
 
-          echo "=== refreshing access token ==="
+          ACCESS_TOKEN=""
+
+          echo "=== TEST 1: treat stored value as a refresh_token ==="
           curl -sS -X POST "https://accounts.zoho.com/oauth/v2/token" \
             --data-urlencode "grant_type=refresh_token" \
             --data-urlencode "client_id=$ZOHO_CLIENT_ID" \
             --data-urlencode "client_secret=$ZOHO_CLIENT_SECRET" \
             --data-urlencode "refresh_token=$ZOHO_REFRESH_TOKEN" \
-            -o token.json -w "\nHTTP %{http_code}\n"
-
-          ACCESS_TOKEN=$(jq -r '.access_token' token.json)
-          if [ "$ACCESS_TOKEN" = "null" ] || [ -z "$ACCESS_TOKEN" ]; then
-            echo "Token exchange failed, response was:"
-            jq '.' token.json
-            exit 1
+            -o t1.json -w "HTTP %{http_code}\n"
+          echo "response fields: $(jq -r 'keys | join(", ")' t1.json)"
+          echo "error (if any): $(jq -r '.error // "none"' t1.json)"
+          if [ "$(jq -r '.access_token // "null"' t1.json)" != "null" ]; then
+            echo "=> RESULT: stored value IS a valid refresh token."
+            ACCESS_TOKEN=$(jq -r '.access_token' t1.json)
           fi
-          echo "Got access token (len ${#ACCESS_TOKEN})"
-
           echo ""
-          echo "=== GET /api/v3/requests (small page, list_info only, no ticket content) ==="
-          INPUT_DATA='{"list_info":{"row_count":3,"start_index":1,"get_total_count":true,"fields_required":["id","status","priority"]}}'
+
+          if [ -z "$ACCESS_TOKEN" ]; then
+            echo "=== TEST 2: treat stored value as an authorization (grant) code ==="
+            curl -sS -X POST "https://accounts.zoho.com/oauth/v2/token" \
+              --data-urlencode "grant_type=authorization_code" \
+              --data-urlencode "client_id=$ZOHO_CLIENT_ID" \
+              --data-urlencode "client_secret=$ZOHO_CLIENT_SECRET" \
+              --data-urlencode "code=$ZOHO_REFRESH_TOKEN" \
+              -o t2.json -w "HTTP %{http_code}\n"
+            echo "response fields: $(jq -r 'keys | join(", ")' t2.json)"
+            echo "error (if any): $(jq -r '.error // "none"' t2.json)"
+            if [ "$(jq -r '.access_token // "null"' t2.json)" != "null" ]; then
+              echo "=> RESULT: stored value was a GRANT CODE, not a refresh token."
+              echo "   (that is the bug — the exchange step was skipped)"
+              echo "   did this response also include a refresh_token? $(jq -r 'has("refresh_token")' t2.json)"
+              ACCESS_TOKEN=$(jq -r '.access_token' t2.json)
+            fi
+            echo ""
+          fi
+
+          if [ -z "$ACCESS_TOKEN" ]; then
+            echo "=== TEST 3: treat stored value as an access token directly ==="
+            ACCESS_TOKEN="$ZOHO_REFRESH_TOKEN"
+            echo "(will show up as a working API call below if so)"
+            echo ""
+          fi
+
+          echo "=== API CALL: GET /api/v3/requests (counts only) ==="
+          INPUT_DATA='{"list_info":{"row_count":1,"start_index":1,"get_total_count":true,"fields_required":["id","status","priority"]}}'
           curl -sS -G "https://sacs.sdpondemand.manageengine.com/api/v3/requests" \
             -H "Authorization: Zoho-oauthtoken $ACCESS_TOKEN" \
             -H "Accept: application/vnd.manageengine.sdp.v3+json" \
             --data-urlencode "input_data=$INPUT_DATA" \
-            -o requests.json -w "\nHTTP %{http_code}\n"
+            -o req.json -w "HTTP %{http_code}\n"
+          echo "--- top-level fields ---"
+          jq -r 'keys | join(", ")' req.json
           echo "--- response_status ---"
-          jq '.response_status' requests.json
-          echo "--- list_info ---"
-          jq '.list_info' requests.json
-          echo "--- first request keys (structure only) ---"
-          jq '.requests[0] | keys' requests.json 2>/dev/null || echo "(no requests array / different shape)"
-          echo "--- first request status + priority (no subject/requester) ---"
-          jq '.requests[0] | {id, status, priority}' requests.json 2>/dev/null
-
-          echo ""
-          echo "=== GET /api/v3/requests with status filter (urgent priority sample) ==="
-          INPUT_DATA_URGENT='{"list_info":{"row_count":3,"start_index":1,"get_total_count":true,"fields_required":["id","status","priority"],"search_criteria":{"field":"priority.name","condition":"is","value":"Urgent"}}}'
-          curl -sS -G "https://sacs.sdpondemand.manageengine.com/api/v3/requests" \
-            -H "Authorization: Zoho-oauthtoken $ACCESS_TOKEN" \
-            -H "Accept: application/vnd.manageengine.sdp.v3+json" \
-            --data-urlencode "input_data=$INPUT_DATA_URGENT" \
-            -o urgent.json -w "\nHTTP %{http_code}\n"
-          jq '.response_status' urgent.json
-          jq '.list_info' urgent.json
+          jq -c '.response_status' req.json
+          echo "--- list_info (total count lives here) ---"
+          jq -c '.list_info' req.json
+          echo "--- available fields on a request object ---"
+          jq -r '.requests[0] | keys | join(", ")' req.json 2>/dev/null || echo "(none returned)"
+          echo "--- status / priority value shape (no subjects or names) ---"
+          jq -c '.requests[0] | {status: .status.name, priority: .priority.name}' req.json 2>/dev/null || true
