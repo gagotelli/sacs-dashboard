@@ -4,12 +4,12 @@
 // Aggregate counts only, by design: no ticket subjects, requester
 // names, or descriptions ever leave ManageEngine. This repo is public.
 const TICKET_SUMMARY = {
-  "updatedAt": "2026-07-27T22:31:00Z",
+  "updatedAt": "2026-07-27T22:57:33Z",
   "source": "ManageEngine ServiceDesk Plus",
   "portalUrl": "https://sacs.sdpondemand.manageengine.com/app/itdesk/ui/requests",
-  "total": 15658,
-  "open": 546,
-  "urgent": 12,
+  "total": 15661,
+  "open": 549,
+  "urgent": 13,
   "byStatus": [
     {
       "label": "Closed",
@@ -21,7 +21,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Open",
-      "value": 491
+      "value": 494
     },
     {
       "label": "Resolved",
@@ -39,11 +39,11 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Critical: Drop Everything",
-      "value": 12
+      "value": 13
     },
     {
       "label": "Normal: End of Next Day",
-      "value": 304
+      "value": 306
     },
     {
       "label": "Term Break",
@@ -155,7 +155,7 @@ const TICKET_SUMMARY = {
         },
         {
           "label": "Critical: Drop Everything",
-          "value": 7
+          "value": 8
         },
         {
           "label": "High",
@@ -171,7 +171,7 @@ const TICKET_SUMMARY = {
         },
         {
           "label": "Normal: End of Next Day",
-          "value": 275
+          "value": 277
         },
         {
           "label": "Term Break",
@@ -185,6 +185,30 @@ const TICKET_SUMMARY = {
     }
   ],
   "recentOpen": [
+    {
+      "id": "23010000045618699",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785193006648",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045618685",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785192769439",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045618669",
+      "status": "Open",
+      "priority": "Critical: Drop Everything",
+      "category": null,
+      "created": "1785191881449",
+      "dueBy": null
+    },
     {
       "id": "23010000045625005",
       "status": "Open",
@@ -960,30 +984,6 @@ const TICKET_SUMMARY = {
       "category": null,
       "created": "1784779782477",
       "dueBy": "1785384584867"
-    },
-    {
-      "id": "23010000045505651",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": "Z. Software (Staff & Students)",
-      "created": "1784777159757",
-      "dueBy": "1785381963547"
-    },
-    {
-      "id": "23010000045505640",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": "Audio Visual - Services",
-      "created": "1784776676185",
-      "dueBy": "1785381477115"
-    },
-    {
-      "id": "23010000045505621",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": "Z. Audio Visual",
-      "created": "1784775690356",
-      "dueBy": "1785380492141"
     }
   ]
 };
