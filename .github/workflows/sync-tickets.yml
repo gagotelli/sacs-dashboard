@@ -36,6 +36,7 @@ jobs:
           ZOHO_CLIENT_SECRET: ${{ secrets.ZOHO_CLIENT_SECRET }}
           ZOHO_REFRESH_TOKEN: ${{ secrets.ZOHO_REFRESH_TOKEN }}
           GRANT_CODE: ${{ inputs.grant_code }}
+          GH_SECRET_WRITE_TOKEN: ${{ secrets.GH_SECRET_WRITE_TOKEN }}
         run: |
           set -euo pipefail
           API="https://sacs.sdpondemand.manageengine.com/api/v3"
@@ -48,6 +49,29 @@ jobs:
           # A grant code left in the secret is useless otherwise, so trying it
           # can only help — but it is single-use, hence the warning below.
           ACCESS_TOKEN=""
+
+          # An authorization_code exchange returns a refresh token; a
+          # refresh_token grant does not. Whenever we get one, store it so the
+          # next scheduled run needs no human step. Without the PAT this is a
+          # no-op and the sync still works, it just is not self-sustaining.
+          persist_refresh_token() {  # $1 = token response json
+            local rt
+            rt=$(jq -r '.refresh_token // empty' "$1")
+            # Explicit if, not "[ -z ] && return": under set -e an AND-list
+            # whose first command fails is a well-known way to abort a job.
+            if [ -z "$rt" ]; then return 0; fi
+            echo "::add-mask::$rt"
+            if [ -z "${GH_SECRET_WRITE_TOKEN:-}" ]; then
+              echo "A refresh token was issued but GH_SECRET_WRITE_TOKEN is not set,"
+              echo "so it cannot be saved — this run succeeds once and the schedule"
+              echo "will still fail. Add that secret to make this self-sustaining."
+              return 0
+            fi
+            npm install --no-save --silent --no-fund --no-audit libsodium-wrappers >/dev/null 2>&1
+            SECRET_NAME=ZOHO_REFRESH_TOKEN SECRET_VALUE="$rt" node scripts/set-github-secret.js \
+              && echo "ZOHO_REFRESH_TOKEN updated — future runs need no grant code." \
+              || echo "Could not store the refresh token; see the error above."
+          }
 
           # A grant code pasted into the workflow input wins: it is the
           # recovery path when the stored refresh token is wrong or dead,
@@ -69,6 +93,7 @@ jobs:
               exit 1
             fi
             echo "OK: grant code accepted."
+            persist_refresh_token token0.json
           fi
 
           if [ -z "$ACCESS_TOKEN" ]; then
@@ -101,9 +126,8 @@ jobs:
               echo "store the refresh_token field from the exchange RESPONSE."
               exit 1
             fi
-            echo "WARNING: stored value was a GRANT CODE, not a refresh token."
-            echo "It has now been consumed, so this sync will succeed exactly once."
-            echo "Store a real refresh_token to make this run unattended."
+            echo "NOTE: stored value was a GRANT CODE, not a refresh token."
+            persist_refresh_token token2.json
           fi
           fi
 
