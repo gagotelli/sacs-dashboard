@@ -1,0 +1,168 @@
+name: Sync ManageEngine ticket counts
+
+# Writes aggregate ticket counts into data/tickets.js.
+#
+# Only ever asks the API for `id` plus a total_count — never subjects,
+# requester names, or descriptions. This repo is public and helpdesk tickets
+# routinely contain student and staff details, so nothing beyond bucket counts
+# is allowed to leave ManageEngine.
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch counts and write data/tickets.js
+        env:
+          ZOHO_CLIENT_ID: ${{ secrets.ZOHO_CLIENT_ID }}
+          ZOHO_CLIENT_SECRET: ${{ secrets.ZOHO_CLIENT_SECRET }}
+          ZOHO_REFRESH_TOKEN: ${{ secrets.ZOHO_REFRESH_TOKEN }}
+        run: |
+          set -euo pipefail
+          API="https://sacs.sdpondemand.manageengine.com/api/v3"
+          HDR_ACCEPT="Accept: application/vnd.manageengine.sdp.v3+json"
+
+          echo "=== refreshing access token ==="
+          curl -sS -X POST "https://accounts.zoho.com/oauth/v2/token" \
+            --data-urlencode "grant_type=refresh_token" \
+            --data-urlencode "client_id=$ZOHO_CLIENT_ID" \
+            --data-urlencode "client_secret=$ZOHO_CLIENT_SECRET" \
+            --data-urlencode "refresh_token=$ZOHO_REFRESH_TOKEN" \
+            -o token.json
+          ACCESS_TOKEN=$(jq -r '.access_token // empty' token.json)
+          if [ -z "$ACCESS_TOKEN" ]; then
+            echo "Token refresh failed: $(jq -r '.error // "unknown"' token.json)"
+            echo "ZOHO_REFRESH_TOKEN must hold the refresh_token from an"
+            echo "authorization_code exchange, not the grant code itself."
+            exit 1
+          fi
+          echo "access token acquired"
+
+          api_get() {  # $1 = path
+            curl -sS -G "$API/$1" \
+              -H "Authorization: Zoho-oauthtoken $ACCESS_TOKEN" \
+              -H "$HDR_ACCEPT"
+          }
+
+          # Count-only query: row_count 1 so no ticket rows come back in bulk,
+          # and fields_required is just id. The number we want is total_count.
+          count_for() {  # $1 = search_criteria JSON array, or "" for no filter
+            local q
+            if [ -z "$1" ]; then
+              q=$(jq -nc '{list_info:{row_count:1,start_index:1,get_total_count:true,fields_required:["id"]}}')
+            else
+              q=$(jq -nc --argjson c "$1" '{list_info:{row_count:1,start_index:1,get_total_count:true,fields_required:["id"],search_criteria:$c}}')
+            fi
+            curl -sS -G "$API/requests" \
+              -H "Authorization: Zoho-oauthtoken $ACCESS_TOKEN" \
+              -H "$HDR_ACCEPT" \
+              --data-urlencode "input_data=$q" -o c.json
+            jq -r '.list_info.total_count // 0' c.json
+          }
+
+          echo "=== discovering status and priority names ==="
+          api_get status   > statuses.json
+          api_get priority > priorities.json
+
+          # Prefer the API's own in_progress flag to decide what counts as open;
+          # fall back to name matching if this portal doesn't expose it.
+          OPEN_STATUSES=$(jq -r '
+            [ .status[]?
+              | select(if has("in_progress") and .in_progress != null
+                       then .in_progress
+                       else (.name | ascii_downcase | test("close|resolve|cancel|complete") | not)
+                       end)
+              | .name ]' statuses.json)
+          ALL_STATUSES=$(jq -r '[ .status[]?   | .name ]' statuses.json)
+          ALL_PRIORITIES=$(jq -r '[ .priority[]? | .name ]' priorities.json)
+
+          echo "open statuses: $(echo "$OPEN_STATUSES" | jq -c .)"
+          echo "all statuses:  $(echo "$ALL_STATUSES"  | jq -c .)"
+          echo "priorities:    $(echo "$ALL_PRIORITIES" | jq -c .)"
+
+          TOTAL=$(count_for "")
+          echo "total tickets: $TOTAL"
+
+          OPEN_CRIT=$(jq -nc --argjson v "$OPEN_STATUSES" \
+            '[{field:"status.name",condition:"is",values:$v}]')
+          OPEN=$(count_for "$OPEN_CRIT")
+          echo "open tickets: $OPEN"
+
+          # Counts per status, across all tickets. Read names line by line —
+          # status and priority names contain spaces ("On Hold", "In Progress").
+          BY_STATUS="[]"
+          while IFS= read -r name; do
+            [ -z "$name" ] && continue
+            crit=$(jq -nc --arg n "$name" '[{field:"status.name",condition:"is",value:$n}]')
+            n=$(count_for "$crit")
+            echo "  status '$name': $n"
+            BY_STATUS=$(echo "$BY_STATUS" | jq -c --arg l "$name" --argjson v "$n" '. + [{label:$l,value:$v}]')
+          done < <(echo "$ALL_STATUSES" | jq -r '.[]')
+
+          # Counts per priority, restricted to open tickets — a priority
+          # breakdown over closed history would not be actionable.
+          BY_PRIORITY="[]"
+          while IFS= read -r name; do
+            [ -z "$name" ] && continue
+            crit=$(jq -nc --arg n "$name" --argjson v "$OPEN_STATUSES" \
+              '[{field:"status.name",condition:"is",values:$v},
+                {field:"priority.name",condition:"is",value:$n,logical_operator:"AND"}]')
+            n=$(count_for "$crit")
+            echo "  priority '$name' (open only): $n"
+            BY_PRIORITY=$(echo "$BY_PRIORITY" | jq -c --arg l "$name" --argjson v "$n" '. + [{label:$l,value:$v}]')
+          done < <(echo "$ALL_PRIORITIES" | jq -r '.[]')
+
+          # Open tickets with no priority set still need to appear, or the
+          # donut will not add up to the open total.
+          ASSIGNED=$(echo "$BY_PRIORITY" | jq '[.[].value] | add // 0')
+          UNASSIGNED=$(( OPEN - ASSIGNED ))
+          if [ "$UNASSIGNED" -gt 0 ]; then
+            BY_PRIORITY=$(echo "$BY_PRIORITY" | jq -c --argjson v "$UNASSIGNED" '. + [{label:"Unassigned",value:$v}]')
+          fi
+
+          URGENT=$(echo "$BY_PRIORITY" | jq -r '
+            ([ .[] | select(.label | ascii_downcase | test("urgent|critical|p1")) | .value ] | add) // 0')
+
+          jq -n \
+            --arg updatedAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --argjson total "$TOTAL" \
+            --argjson open "$OPEN" \
+            --argjson urgent "$URGENT" \
+            --argjson byStatus "$BY_STATUS" \
+            --argjson byPriority "$BY_PRIORITY" \
+            '{updatedAt:$updatedAt,source:"ManageEngine ServiceDesk Plus",
+              total:$total,open:$open,urgent:$urgent,
+              byStatus:$byStatus,byPriority:$byPriority}' > summary.json
+
+          {
+            echo "// ManageEngine ServiceDesk Plus ticket summary."
+            echo "// Generated by .github/workflows/sync-tickets.yml — do not edit by hand."
+            echo "//"
+            echo "// Aggregate counts only, by design: no ticket subjects, requester"
+            echo "// names, or descriptions ever leave ManageEngine. This repo is public."
+            echo "const TICKET_SUMMARY = $(cat summary.json);"
+          } > data/tickets.js
+
+          echo "=== data/tickets.js ==="
+          cat data/tickets.js
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- data/tickets.js; then
+            echo "no change"
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/tickets.js
+          git commit -m "Update ManageEngine ticket counts"
+          git push
