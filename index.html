@@ -407,6 +407,26 @@
     </div>
 
     <div class="card">
+      <div class="ticket-hero" style="margin-bottom:10px">
+        <h2 style="margin:0">Most recent open tickets</h2>
+        <span class="muted-text" style="margin:0" id="ticket-list-count"></span>
+      </div>
+      <div class="filters">
+        <input type="search" id="ticket-list-search" placeholder="Search by ID, category, status…" />
+        <select id="ticket-list-priority"><option value="all">All priorities</option></select>
+        <select id="ticket-list-status"><option value="all">All statuses</option></select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Priority</th><th>Ticket</th><th>Status</th><th>Category</th><th>Created</th><th>Age</th><th>Due</th><th></th></tr>
+          </thead>
+          <tbody id="ticket-list-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
       <h2>Where the open work sits</h2>
       <p class="muted-text">Open tickets by status and priority — cell shading tracks the count.</p>
       <div class="table-wrap">

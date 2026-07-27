@@ -299,6 +299,96 @@
          sync workflow to populate it.</p>`;
 
     renderTicketMatrix();
+    renderTicketList();
+  }
+
+  // Sentinel for the "no priority set" filter option. Must not begin or end
+  // with whitespace — that is normalised away in an option value.
+  const TICKET_NO_PRIORITY = "__unassigned__";
+
+  function ticketAgeLabel(ms) {
+    if (!ms) return "—";
+    const days = Math.floor((Date.now() - Number(ms)) / 86400000);
+    if (days < 0) return "—";
+    if (days === 0) return "today";
+    if (days === 1) return "1 day";
+    if (days < 31) return `${days} days`;
+    const months = Math.floor(days / 30);
+    return months === 1 ? "1 month" : `${months} months`;
+  }
+
+  function renderTicketList() {
+    const body = document.getElementById("ticket-list-body");
+    const countEl = document.getElementById("ticket-list-count");
+    const rows = TICKET_SUMMARY.recentOpen || [];
+    const portal = (TICKET_SUMMARY.portalUrl || "").replace(/\/requests\/?$/, "");
+
+    if (!rows.length) {
+      body.innerHTML = `<tr><td class="note" colspan="8">No ticket list in the last sync — re-run the sync workflow to populate it.</td></tr>`;
+      countEl.textContent = "";
+      return;
+    }
+
+    const search = (document.getElementById("ticket-list-search").value || "").toLowerCase();
+    const prioFilter = document.getElementById("ticket-list-priority").value;
+    const statusFilter = document.getElementById("ticket-list-status").value;
+
+    const filtered = rows.filter((r) => {
+      // Tickets with no priority render as "Unassigned", so that has to be
+      // selectable too — otherwise those rows are visible but unfilterable.
+      if (prioFilter === TICKET_NO_PRIORITY) {
+        if (r.priority) return false;
+      } else if (prioFilter !== "all" && r.priority !== prioFilter) {
+        return false;
+      }
+      if (statusFilter !== "all" && r.status !== statusFilter) return false;
+      if (!search) return true;
+      return [r.id, r.category, r.status, r.priority]
+        .filter(Boolean).join(" ").toLowerCase().includes(search);
+    });
+
+    countEl.textContent = `${filtered.length} of ${rows.length} shown · newest first · subjects intentionally omitted`;
+
+    body.innerHTML = filtered.map((r) => {
+      const rank = priorityRank(r.priority);
+      const color = PRIORITY_RANK_COLOR[rank] || "var(--prio-none)";
+      const shortPrio = String(r.priority || "Unassigned").split(":")[0].trim();
+      const created = r.created ? new Date(Number(r.created)).toLocaleDateString() : "—";
+      const due = r.dueBy ? new Date(Number(r.dueBy)).toLocaleDateString() : "—";
+      const overdue = r.dueBy && Number(r.dueBy) < Date.now();
+      const href = portal ? `${portal}/requests/${encodeURIComponent(r.id)}` : "#";
+      return `<tr>
+        <td><span class="badge" title="${esc(r.priority || "")}"><span class="swatch" style="background:${color}"></span>${esc(shortPrio)}</span></td>
+        <td class="name">#${esc(r.id)}</td>
+        <td>${esc(r.status || "—")}</td>
+        <td class="note">${esc(r.category || "—")}</td>
+        <td class="ip">${esc(created)}</td>
+        <td class="ip">${esc(ticketAgeLabel(r.created))}</td>
+        <td class="ip"${overdue ? ' style="color:var(--status-critical);font-weight:600"' : ""}>${esc(due)}</td>
+        <td><a class="doc-row-icon" href="${esc(href)}" target="_blank" rel="noopener" title="Open ticket in ManageEngine"><svg class="icon"><use href="#icon-external"/></svg></a></td>
+      </tr>`;
+    }).join("");
+  }
+
+  function initTicketListFilters() {
+    const rows = TICKET_SUMMARY.recentOpen || [];
+    const prioSel = document.getElementById("ticket-list-priority");
+    const statusSel = document.getElementById("ticket-list-status");
+    if (!prioSel || !statusSel) return;
+
+    [...new Set(rows.map((r) => r.priority).filter(Boolean))]
+      .sort((a, b) => priorityRank(a) - priorityRank(b))
+      .forEach((p) => prioSel.insertAdjacentHTML("beforeend", `<option value="${esc(p)}">${esc(p)}</option>`));
+    if (rows.some((r) => !r.priority)) {
+      prioSel.insertAdjacentHTML("beforeend", `<option value="${TICKET_NO_PRIORITY}">Unassigned</option>`);
+    }
+    [...new Set(rows.map((r) => r.status).filter(Boolean))].sort()
+      .forEach((s) => statusSel.insertAdjacentHTML("beforeend", `<option value="${esc(s)}">${esc(s)}</option>`));
+
+    ["ticket-list-search", "ticket-list-priority", "ticket-list-status"].forEach((id) => {
+      const el = document.getElementById(id);
+      el.addEventListener(el.tagName === "SELECT" ? "change" : "input", renderTicketList);
+    });
   }
 
   // Priority columns are ordered by severity; cells shade with their share of
@@ -1057,6 +1147,7 @@
     renderStatusBanner();
     renderKpis();
     renderTickets();
+    initTicketListFilters();
     renderTicketsPage();
     renderGlance();
     renderTopology();

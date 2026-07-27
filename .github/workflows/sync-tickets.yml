@@ -261,8 +261,33 @@ jobs:
               '. + [{label:"Other",value:$v}]')
           fi
 
+          # The 100 most recent open tickets, as a browsable list. Note the
+          # fields: id, status, priority, category and timestamps only. Subject
+          # and requester are free text that names students and staff, and this
+          # repo is public — the row links to ManageEngine for those instead.
+          echo "=== fetching the 100 most recent open tickets (no subjects) ==="
+          RECENT_Q=$(jq -nc --argjson v "$OPEN_STATUSES" \
+            '{list_info:{row_count:100,start_index:1,get_total_count:false,
+                         fields_required:["id","status","priority","category","created_time","due_by_time"],
+                         sort_field:"created_time",sort_order:"desc",
+                         search_criteria:[{field:"status.name",condition:"is",values:$v}]}}')
+          curl -sS -G "$API/requests" \
+            -H "Authorization: Zoho-oauthtoken $ACCESS_TOKEN" \
+            -H "$HDR_ACCEPT" \
+            --data-urlencode "input_data=$RECENT_Q" -o recent.json
+          RECENT=$(jq -c '[ .requests[]? | {
+              id: .id,
+              status: (.status?.name // null),
+              priority: (.priority?.name // null),
+              category: (.category?.name // null),
+              created: (.created_time?.value // null),
+              dueBy: (.due_by_time?.value // null)
+            } ]' recent.json 2>/dev/null || echo "[]")
+          echo "recent rows: $(echo "$RECENT" | jq 'length')"
+
           jq -n \
             --arg updatedAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --argjson recent "$RECENT" \
             --argjson total "$TOTAL" \
             --argjson open "$OPEN" \
             --argjson urgent "$URGENT" \
@@ -275,7 +300,8 @@ jobs:
               portalUrl:$portal,
               total:$total,open:$open,urgent:$urgent,
               byStatus:$byStatus,byPriority:$byPriority,
-              byCategory:$byCategory,openMatrix:$matrix}' > summary.json
+              byCategory:$byCategory,openMatrix:$matrix,
+              recentOpen:$recent}' > summary.json
 
           {
             echo "// ManageEngine ServiceDesk Plus ticket summary."
