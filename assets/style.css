@@ -1,79 +1,14 @@
+/* Dark is the default: this is a NOC wall-display first, a document second.
+   The dark surfaces below are the ones the priority ramp was validated
+   against, so they are deliberately unchanged — the darker chrome comes
+   from the nav rail, not from re-tinting the chart surfaces. */
 :root {
-  color-scheme: light;
-  --surface-1: #fcfcfb;
-  --surface-2: #f9f9f7;
-  --surface-3: #ffffff;
-  --text-primary: #0b0b0b;
-  --text-secondary: #52514e;
-  --text-muted: #898781;
-  --gridline: #e1e0d9;
-  --baseline: #c3c2b7;
-  --border: rgba(11, 11, 11, 0.10);
-
-  --layer-core: #2a78d6;
-  --layer-access: #008300;
-  --layer-legacy: #e87ba4;
-  --layer-security: #eda100;
-  --layer-core-rgb: 42, 120, 214;
-  --layer-access-rgb: 0, 131, 0;
-  --layer-legacy-rgb: 232, 123, 164;
-  --layer-security-rgb: 237, 161, 0;
-
-  --status-good: #0ca30c;
-  --status-warning: #fab219;
-  --status-serious: #ec835a;
-  --status-critical: #d03b3b;
-  --status-unknown: #898781;
-
-  /* Ticket priority is an ordinal severity scale, so it gets a single-hue
-     ordinal ramp (most urgent = furthest from the surface) rather than the
-     reserved status colors, which are not separable enough to serve as a
-     5-way categorical set. Steps validated for light and dark surfaces. */
-  --prio-1: #1c5cab;
-  --prio-2: #2a78d6;
-  --prio-3: #5598e7;
-  --prio-4: #86b6ef;
-  --prio-none: #898781;
-
-  --accent-gradient: linear-gradient(90deg, #2a78d6, #1baf7a, #eda100);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:where(:not([data-theme="light"])) {
-    color-scheme: dark;
-    --surface-1: #1a1a19;
-    --surface-2: #0d0d0d;
-    --surface-3: #232322;
-    --text-primary: #ffffff;
-    --text-secondary: #c3c2b7;
-    --text-muted: #898781;
-    --gridline: #2c2c2a;
-    --baseline: #383835;
-    --border: rgba(255, 255, 255, 0.10);
-
-    --layer-core: #3987e5;
-    --layer-access: #008300;
-    --layer-legacy: #d55181;
-    --layer-security: #c98500;
-    --layer-core-rgb: 57, 135, 229;
-    --layer-access-rgb: 0, 131, 0;
-    --layer-legacy-rgb: 213, 81, 129;
-    --layer-security-rgb: 201, 133, 0;
-
-    /* Dark surface inverts the ordinal ramp: most urgent stays the step
-       furthest from the surface, which here is the lightest. */
-    --prio-1: #6da7ec;
-    --prio-2: #3987e5;
-    --prio-3: #256abf;
-    --prio-4: #184f95;
-    --prio-none: #898781;
-  }
-}
-:root[data-theme="dark"] {
   color-scheme: dark;
   --surface-1: #1a1a19;
   --surface-2: #0d0d0d;
   --surface-3: #232322;
+  --rail: #12182a;
+  --rail-hover: #1d2740;
   --text-primary: #ffffff;
   --text-secondary: #c3c2b7;
   --text-muted: #898781;
@@ -90,12 +25,48 @@
   --layer-legacy-rgb: 213, 81, 129;
   --layer-security-rgb: 201, 133, 0;
 
-  /* Dark surface inverts the ordinal ramp: most urgent stays the step
-     furthest from the surface, which here is the lightest. */
+  --status-good: #0ca30c;
+  --status-warning: #fab219;
+  --status-serious: #ec835a;
+  --status-critical: #d03b3b;
+  --status-unknown: #898781;
+
   --prio-1: #6da7ec;
   --prio-2: #3987e5;
   --prio-3: #256abf;
   --prio-4: #184f95;
+  --prio-none: #898781;
+
+  --accent-gradient: linear-gradient(90deg, #2a78d6, #1baf7a, #eda100);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --surface-2: #f9f9f7;
+  --surface-3: #ffffff;
+  --rail: #12182a;
+  --rail-hover: #1d2740;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --gridline: #e1e0d9;
+  --baseline: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.10);
+
+  --layer-core: #2a78d6;
+  --layer-access: #008300;
+  --layer-legacy: #e87ba4;
+  --layer-security: #eda100;
+  --layer-core-rgb: 42, 120, 214;
+  --layer-access-rgb: 0, 131, 0;
+  --layer-legacy-rgb: 232, 123, 164;
+  --layer-security-rgb: 237, 161, 0;
+
+  --prio-1: #1c5cab;
+  --prio-2: #2a78d6;
+  --prio-3: #5598e7;
+  --prio-4: #86b6ef;
   --prio-none: #898781;
 }
 
@@ -497,14 +468,11 @@ tbody tr:hover { background: var(--surface-2); }
 .overview-main { min-width: 0; }
 .overview-main .topology-card { margin-bottom: 0; }
 
+/* One column in the rail: two columns squeezed the legend labels so hard
+   that words wrapped mid-word. */
 @media (min-width: 1080px) {
-  .overview-layout { grid-template-columns: minmax(0, 1fr) 480px; }
+  .overview-layout { grid-template-columns: minmax(0, 1fr) 340px; }
   .overview-side { position: sticky; top: 84px; }
-  .overview-side .glance-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-
-@media (min-width: 1080px) and (max-width: 1339px) {
-  .overview-layout { grid-template-columns: minmax(0, 1fr) 360px; }
   .overview-side .glance-grid { grid-template-columns: 1fr; }
 }
 
@@ -543,8 +511,9 @@ tbody tr:hover { background: var(--surface-2); }
   font-size: 12.5px;
 }
 /* min-width:0 lets this shrink below its content, so a long single word
-   ("Unassigned") would otherwise overflow across its own value. */
-.legend-row-label { color: var(--text-secondary); flex: 1; min-width: 0; overflow-wrap: anywhere; }
+   ("Unassigned") would otherwise overflow across its own value. break-word
+   (not anywhere) so ordinary words are never split mid-syllable. */
+.legend-row-label { color: var(--text-secondary); flex: 1; min-width: 0; overflow-wrap: break-word; }
 /* Never let a long category name push into its own value. */
 .legend-value { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text-primary); flex-shrink: 0; margin-left: 6px; }
 
@@ -751,3 +720,161 @@ footer.app-footer {
   font-size: 12.5px;
   margin-top: 10px;
 }
+
+/* ============================================================
+   NOC layout — dark icon rail, dense widget grid, alert tiles
+   ============================================================ */
+
+.app-shell { display: flex; min-height: 100vh; }
+
+.rail {
+  width: 68px;
+  flex-shrink: 0;
+  background: var(--rail);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 20;
+}
+.rail-logo {
+  display: flex; align-items: center; justify-content: center;
+  padding: 10px 0 12px;
+}
+.rail-logo img {
+  width: 34px; height: 34px; object-fit: contain;
+  background: #fff; border-radius: 8px; padding: 3px;
+}
+
+.rail-item {
+  appearance: none;
+  border: 0;
+  background: none;
+  color: rgba(255, 255, 255, 0.62);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 9px 2px;
+  font: inherit;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.rail-item .icon { width: 19px; height: 19px; }
+.rail-item span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 2px;
+}
+.rail-item:hover { background: var(--rail-hover); color: #fff; }
+.rail-item.active {
+  background: var(--rail-hover);
+  color: #fff;
+  border-left-color: var(--layer-core);
+}
+
+.app-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.app-main main { flex: 1; width: 100%; }
+
+/* The top tab strip is redundant once the rail exists, but it stays in the
+   DOM as the accessible nav and the small-screen fallback. */
+@media (min-width: 900px) { nav.tabs { display: none; } }
+@media (max-width: 899px) {
+  .rail { display: none; }
+}
+
+/* Widget chrome: thin, titled panels packed tightly, LogicMonitor style. */
+.card {
+  border-radius: 6px;
+  padding: 0;
+  margin-bottom: 12px;
+  box-shadow: none;
+  overflow: hidden;
+}
+.card > h2 {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin: 0;
+  padding: 9px 12px;
+  background: var(--surface-3);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+}
+/* Everything after the title bar gets the padding the card used to have. */
+.card > *:not(h2) { margin-left: 14px; margin-right: 14px; }
+.card > *:nth-child(1):not(h2) { margin-top: 14px; }
+.card > *:last-child { margin-bottom: 14px; }
+.card > .table-wrap { margin-left: 0; margin-right: 0; }
+.card > .table-wrap table { font-size: 12.5px; }
+
+.topology-card { padding: 0; }
+.topology-card > .table-wrap { margin: 0; padding: 12px; }
+
+.kpi-tile { border-radius: 6px; padding: 11px 13px; }
+.kpi-tile .value { font-size: 23px; }
+.kpi-row { gap: 10px; margin-bottom: 14px; }
+
+main { padding: 16px; max-width: none; }
+.glance-grid { gap: 10px; }
+.grid-2 { gap: 12px; }
+
+/* Alert status tiles — one per subsystem, coloured by worst live state.
+   Status colours carry an icon and a label, never colour alone. */
+.alert-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.alert-tile {
+  appearance: none;
+  border: 0;
+  border-radius: 5px;
+  padding: 9px 11px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  text-align: left;
+  transition: filter 0.12s ease;
+}
+.alert-tile:hover { filter: brightness(1.12); }
+.alert-tile .icon { width: 15px; height: 15px; flex-shrink: 0; }
+.alert-tile-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.alert-tile-count { font-variant-numeric: tabular-nums; opacity: 0.95; flex-shrink: 0; }
+
+.alert-good     { background: var(--status-good); }
+.alert-warning  { background: var(--status-warning); color: #1a1a19; }
+.alert-serious  { background: var(--status-serious); color: #1a1a19; }
+.alert-critical { background: var(--status-critical); }
+.alert-unknown  { background: var(--status-unknown); }
+
+/* Semicircle gauges */
+.gauge-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.gauge-card { text-align: center; }
+.gauge-card > svg { display: block; margin: 6px auto 0; }
+.gauge-value { fill: var(--text-primary); font-weight: 700; font-size: 26px; font-variant-numeric: tabular-nums; }
+.gauge-caption { font-size: 11.5px; color: var(--text-secondary); padding-bottom: 12px; }
+.gauge-track { stroke: var(--gridline); }
+
+.section-heading { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin: 2px 0 8px; }

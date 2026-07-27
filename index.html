@@ -31,6 +31,22 @@
 </svg>
 
 <div id="app-content" style="display:none">
+<div class="app-shell">
+<aside class="rail">
+  <div class="rail-logo"><img src="assets/sacs-crest.png" alt="" /></div>
+  <button class="rail-item active" data-panel="panel-overview" title="Overview"><svg class="icon"><use href="#icon-home"/></svg><span>Dash</span></button>
+  <button class="rail-item" data-panel="panel-topology" title="Topology"><svg class="icon"><use href="#icon-topology"/></svg><span>Topology</span></button>
+  <button class="rail-item" data-panel="panel-devices" title="Devices & Infrastructure"><svg class="icon"><use href="#icon-devices"/></svg><span>Devices</span></button>
+  <button class="rail-item" data-panel="panel-services" title="Services"><svg class="icon"><use href="#icon-services"/></svg><span>Services</span></button>
+  <button class="rail-item" data-panel="panel-licenses" title="Licenses"><svg class="icon"><use href="#icon-license"/></svg><span>Licenses</span></button>
+  <button class="rail-item" data-panel="panel-vlans" title="VLANs"><svg class="icon"><use href="#icon-vlans"/></svg><span>VLANs</span></button>
+  <button class="rail-item" data-panel="panel-cctv" title="CCTV"><svg class="icon"><use href="#icon-camera"/></svg><span>CCTV</span></button>
+  <button class="rail-item" data-panel="panel-ports" title="Port & Speed Summary"><svg class="icon"><use href="#icon-ports"/></svg><span>Ports</span></button>
+  <button class="rail-item" data-panel="panel-tickets" title="Tickets"><svg class="icon"><use href="#icon-ticket"/></svg><span>Tickets</span></button>
+  <button class="rail-item" data-panel="panel-roadmap" title="Roadmap"><svg class="icon"><use href="#icon-map"/></svg><span>Roadmap</span></button>
+  <button class="rail-item" data-panel="panel-docs" title="Documentation"><svg class="icon"><use href="#icon-docs"/></svg><span>Docs</span></button>
+</aside>
+<div class="app-main">
 <header class="app-header">
   <div class="brand">
     <span class="brand-mark"><img src="assets/sacs-crest.png" alt="St Andrew's Cathedral School crest" /></span>
@@ -73,15 +89,12 @@
   <div class="status-banner"><span id="status-banner-text"></span></div>
 
   <section id="panel-overview" class="panel active">
-    <div class="hero">
-      <h2>Everything the SACS IT team needs, in one place</h2>
-      <p>
-        A living reference for the SAH &amp; BBC network — topology, every switch and
-        server, VLANs, licenses, and vendor contacts. Built so anyone on the team can
-        jump straight to an answer instead of hunting through diagrams and chat history.
-      </p>
-    </div>
+    <h2 class="section-heading">Alert status by area</h2>
+    <div class="alert-grid" id="alert-grid"></div>
 
+    <div class="gauge-row" id="gauge-row"></div>
+
+    <h2 class="section-heading">Inventory</h2>
     <div class="kpi-row" id="kpi-row"></div>
 
     <div class="overview-layout">
@@ -610,6 +623,8 @@
 </main>
 
 <footer class="app-footer">SACS Network Dashboard — generated from the network topology diagram. Not for public distribution.</footer>
+</div>
+</div>
 </div>
 
 <script src="assets/gate.js"></script>

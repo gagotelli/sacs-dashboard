@@ -46,7 +46,7 @@
   // ---------------------------------------------------------------------
   function initTabs() {
     function activate(panelId) {
-      document.querySelectorAll("nav.tabs button").forEach((b) => b.classList.toggle("active", b.dataset.panel === panelId));
+      document.querySelectorAll("nav.tabs button, .rail-item").forEach((b) => b.classList.toggle("active", b.dataset.panel === panelId));
       document.querySelectorAll(".panel").forEach((p) => p.classList.toggle("active", p.id === panelId));
     }
     function go(panelId, updateHash) {
@@ -91,9 +91,10 @@
     const stored = localStorage.getItem("sacs-theme");
     if (stored) root.setAttribute("data-theme", stored);
 
+    // Dark is the stylesheet's unconditional default now, so the OS
+    // preference must not be consulted here or the toggle label inverts.
     function current() {
-      return root.getAttribute("data-theme") ||
-        (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      return root.getAttribute("data-theme") || "dark";
     }
     function sync() {
       const c = current();
@@ -142,6 +143,121 @@
       <text x="${c}" y="${c - 2}" text-anchor="middle" class="donut-total">${esc(centerValue)}</text>
       <text x="${c}" y="${c + 16}" text-anchor="middle" class="donut-total-label">${esc(centerLabel)}</text>
     </svg>`;
+  }
+
+  // Semicircle gauge. Percentages only — the arc length is the encoding, so a
+  // non-ratio value here would be meaningless.
+  function gaugeSvg(pct, color) {
+    const p = Math.max(0, Math.min(100, Number(pct) || 0));
+    const w = 150, h = 84, cx = 75, cy = 74, r = 58, sw = 13;
+    const len = Math.PI * r;
+    const arc = (c, dash) =>
+      `<path d="M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}" fill="none" stroke="${c}"` +
+      ` stroke-width="${sw}" stroke-linecap="butt"` +
+      (dash == null ? "" : ` stroke-dasharray="${dash.toFixed(2)} ${(len - dash).toFixed(2)}"`) + `/>`;
+    return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${p.toFixed(0)} percent">
+      ${arc("var(--gridline)", null)}
+      ${arc(color, (p / 100) * len)}
+      <text x="${cx}" y="${cy - 8}" text-anchor="middle" class="gauge-value">${p.toFixed(0)}%</text>
+    </svg>`;
+  }
+
+  function gaugeColor(pct, invert) {
+    const p = Number(pct) || 0;
+    const good = invert ? p <= 5 : p >= 95;
+    const warn = invert ? p <= 20 : p >= 80;
+    return good ? "var(--status-good)" : warn ? "var(--status-warning)" : "var(--status-critical)";
+  }
+
+  function renderGauges() {
+    const el = document.getElementById("gauge-row");
+    if (!el) return;
+
+    const statuses = Object.values(DEVICE_STATUS.devices || {});
+    const upPct = statuses.length
+      ? (statuses.filter((d) => d.status === "up").length / statuses.length) * 100
+      : null;
+
+    const licOk = LICENSES.filter((l) => !["critical", "warning"].includes(licenseStatus(l))).length;
+    const licPct = LICENSES.length ? (licOk / LICENSES.length) * 100 : null;
+
+    const camPct = typeof CCTV_SUMMARY !== "undefined" && CCTV_SUMMARY.totalCameras
+      ? (CCTV_SUMMARY.activeCameras / CCTV_SUMMARY.totalCameras) * 100
+      : null;
+
+    const vlanUp = VLANS.filter((v) => String(v.status).toLowerCase() === "up").length;
+    const vlanPct = VLANS.length ? (vlanUp / VLANS.length) * 100 : null;
+
+    const gauges = [
+      { label: "Devices reporting up", pct: upPct, panel: "panel-devices" },
+      { label: "Licenses in good standing", pct: licPct, panel: "panel-licenses" },
+      { label: "Cameras active", pct: camPct, panel: "panel-cctv" },
+      { label: "VLANs up", pct: vlanPct, panel: "panel-vlans" },
+    ];
+
+    el.innerHTML = gauges.map((g) => {
+      const body = g.pct == null
+        ? `<p class="muted-text" style="padding:18px 0">No data</p>`
+        : gaugeSvg(g.pct, gaugeColor(g.pct));
+      return `<div class="card gauge-card" data-panel="${esc(g.panel)}" style="cursor:pointer">
+        <h2>${esc(g.label)}</h2>
+        ${body}
+        <div class="gauge-caption">${esc(g.label)}</div>
+      </div>`;
+    }).join("");
+  }
+
+  // One tile per operational area, coloured by the worst live state in it.
+  // Every tile carries an icon and a written count, so the colour is never
+  // the only thing communicating the state.
+  function renderAlertTiles() {
+    const el = document.getElementById("alert-grid");
+    if (!el) return;
+
+    const statusOf = (ids) => {
+      const vals = ids.map((id) => deviceStatus(id));
+      if (vals.some((v) => v === "down" || v === "critical")) return "critical";
+      if (vals.some((v) => v === "warning" || v === "serious")) return "warning";
+      if (vals.length && vals.every((v) => v === "up")) return "good";
+      return "unknown";
+    };
+    // A group where some members simply are not polled reads as "unknown",
+    // which is honest but opaque on its own — so say how many report.
+    const reportLabel = (ids) => {
+      const known = ids.filter((id) => deviceStatus(id) !== "unknown").length;
+      return known === ids.length ? `${ids.length} devices` : `${known}/${ids.length} reporting`;
+    };
+    const byLayer = (layer) => DEVICES.filter((d) => d.layer === layer).map((d) => d.id);
+
+    const licNeedsAction = LICENSES.filter((l) => licenseStatus(l) === "critical").length;
+    const licExpiring = LICENSES.filter((l) => licenseStatus(l) === "warning").length;
+    const urgent = TICKET_SUMMARY.urgent;
+    const openTickets = TICKET_SUMMARY.open;
+    const camDown = typeof CCTV_SUMMARY !== "undefined" && CCTV_SUMMARY.totalCameras
+      ? CCTV_SUMMARY.totalCameras - CCTV_SUMMARY.activeCameras : null;
+    const vlansDown = VLANS.filter((v) => String(v.status).toLowerCase() === "down").length;
+    const noFailover = HOSTS.filter((h) => h.redundancy && /^no known/i.test(h.redundancy)).length;
+
+    const tiles = [
+      { label: "Core switches", state: statusOf(byLayer("core")), count: reportLabel(byLayer("core")), icon: "#icon-devices", panel: "panel-devices" },
+      { label: "Security", state: statusOf(byLayer("security")), count: reportLabel(byLayer("security")), icon: "#icon-infra", panel: "panel-devices" },
+      { label: "Access layer", state: statusOf(byLayer("access")), count: reportLabel(byLayer("access")), icon: "#icon-devices", panel: "panel-devices" },
+      { label: "Legacy 1G uplinks", state: byLayer("legacy").length ? "warning" : "good", count: byLayer("legacy").length, icon: "#icon-ports", panel: "panel-ports" },
+      { label: "Licenses", state: licNeedsAction ? "critical" : licExpiring ? "warning" : "good", count: licNeedsAction || licExpiring || "OK", icon: "#icon-license", panel: "panel-licenses" },
+      { label: "Urgent tickets", state: urgent == null ? "unknown" : urgent > 0 ? "critical" : "good", count: urgent == null ? "n/a" : urgent, icon: "#icon-ticket", panel: "panel-tickets" },
+      { label: "Open tickets", state: openTickets == null ? "unknown" : "good", count: openTickets == null ? "n/a" : openTickets, icon: "#icon-ticket", panel: "panel-tickets" },
+      { label: "CCTV cameras", state: camDown == null ? "unknown" : camDown > 0 ? "warning" : "good", count: camDown == null ? "n/a" : camDown + " down", icon: "#icon-camera", panel: "panel-cctv" },
+      { label: "VLANs", state: vlansDown ? "warning" : "good", count: vlansDown ? vlansDown + " down" : VLANS.length, icon: "#icon-vlans", panel: "panel-vlans" },
+      { label: "DHCP failover", state: noFailover ? "critical" : "good", count: noFailover ? noFailover + " missing" : "OK", icon: "#icon-hosts", panel: "panel-devices" },
+    ];
+
+    el.innerHTML = tiles.map((t) => `
+      <button type="button" class="alert-tile alert-${esc(t.state)}" data-panel="${esc(t.panel)}"
+              title="${esc(t.label)} — ${esc(t.state)}">
+        <svg class="icon"><use href="${esc(t.icon)}"/></svg>
+        <span class="alert-tile-label">${esc(t.label)}</span>
+        <span class="alert-tile-count">${esc(t.count)}</span>
+      </button>`).join("");
   }
 
   function legendHtml(items) {
@@ -1176,6 +1292,8 @@
     renderTickets();
     initTicketListFilters();
     renderTicketsPage();
+    renderAlertTiles();
+    renderGauges();
     renderGlance();
     renderTopology();
     renderDeviceTable();
