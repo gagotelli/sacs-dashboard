@@ -1,5 +1,14 @@
 name: ManageEngine API discovery (test)
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      consume_grant_code:
+        description: >-
+          Also try the stored value as a grant code. This CONSUMES it
+          (grant codes are single-use), so leave off unless the value is
+          known-dead.
+        type: boolean
+        default: false
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -37,6 +46,15 @@ jobs:
             ACCESS_TOKEN=$(jq -r '.access_token' t1.json)
           fi
           echo ""
+
+          if [ -z "$ACCESS_TOKEN" ] && [ "${{ inputs.consume_grant_code }}" != "true" ]; then
+            echo "=== TEST 2 skipped (consume_grant_code not set) ==="
+            echo "The stored value is not a valid refresh token. It is either a"
+            echo "grant code (exchange step skipped) or an access token."
+            echo "Re-run with consume_grant_code=true to find out — but that"
+            echo "burns the code if it is still unused."
+            exit 1
+          fi
 
           if [ -z "$ACCESS_TOKEN" ]; then
             echo "=== TEST 2: treat stored value as an authorization (grant) code ==="
