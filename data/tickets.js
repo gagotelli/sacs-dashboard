@@ -4,10 +4,11 @@
 // Aggregate counts only, by design: no ticket subjects, requester
 // names, or descriptions ever leave ManageEngine. This repo is public.
 const TICKET_SUMMARY = {
-  "updatedAt": "2026-07-27T22:04:56Z",
+  "updatedAt": "2026-07-27T22:31:00Z",
   "source": "ManageEngine ServiceDesk Plus",
-  "total": 15656,
-  "open": 544,
+  "portalUrl": "https://sacs.sdpondemand.manageengine.com/app/itdesk/ui/requests",
+  "total": 15658,
+  "open": 546,
   "urgent": 12,
   "byStatus": [
     {
@@ -20,7 +21,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Open",
-      "value": 489
+      "value": 491
     },
     {
       "label": "Resolved",
@@ -50,7 +51,939 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Unassigned",
+      "value": 15
+    }
+  ],
+  "byCategory": [
+    {
+      "label": "Z. Admin",
+      "value": 22
+    },
+    {
+      "label": "Z. Software (Staff & Students)",
+      "value": 20
+    },
+    {
+      "label": "Print Room",
+      "value": 19
+    },
+    {
+      "label": "Access Request",
+      "value": 18
+    },
+    {
+      "label": "Software Issues",
+      "value": 18
+    },
+    {
+      "label": "Z. Parent",
       "value": 13
+    },
+    {
+      "label": "Z. Hardware",
+      "value": 12
+    },
+    {
+      "label": "Onboarding / Offboarding Issues",
+      "value": 8
+    },
+    {
+      "label": "Z. User Administration",
+      "value": 6
+    },
+    {
+      "label": "Hardware End User",
+      "value": 3
+    },
+    {
+      "label": "Z. Audio Visual",
+      "value": 3
+    },
+    {
+      "label": "Z. Network",
+      "value": 2
+    },
+    {
+      "label": "Z. Printing/Scanning",
+      "value": 1
+    }
+  ],
+  "openMatrix": [
+    {
+      "status": "On Hold",
+      "cells": [
+        {
+          "label": "1 Week",
+          "value": 17
+        },
+        {
+          "label": "Critical: Drop Everything",
+          "value": 5
+        },
+        {
+          "label": "High",
+          "value": 0
+        },
+        {
+          "label": "Low",
+          "value": 0
+        },
+        {
+          "label": "Medium",
+          "value": 0
+        },
+        {
+          "label": "Normal: End of Next Day",
+          "value": 29
+        },
+        {
+          "label": "Term Break",
+          "value": 4
+        },
+        {
+          "label": "Urgent",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "status": "Open",
+      "cells": [
+        {
+          "label": "1 Week",
+          "value": 186
+        },
+        {
+          "label": "Critical: Drop Everything",
+          "value": 7
+        },
+        {
+          "label": "High",
+          "value": 0
+        },
+        {
+          "label": "Low",
+          "value": 0
+        },
+        {
+          "label": "Medium",
+          "value": 0
+        },
+        {
+          "label": "Normal: End of Next Day",
+          "value": 275
+        },
+        {
+          "label": "Term Break",
+          "value": 8
+        },
+        {
+          "label": "Urgent",
+          "value": 0
+        }
+      ]
+    }
+  ],
+  "recentOpen": [
+    {
+      "id": "23010000045625005",
+      "status": "Open",
+      "priority": null,
+      "category": "Print Room",
+      "created": "1785190976115",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045618649",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Parent",
+      "created": "1785190759093",
+      "dueBy": "1785795559563"
+    },
+    {
+      "id": "23010000045616013",
+      "status": "Open",
+      "priority": null,
+      "category": "Print Room",
+      "created": "1785190397422",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045618626",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785190075896",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045618616",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": "Z. Admin",
+      "created": "1785189364180",
+      "dueBy": "1785794165085"
+    },
+    {
+      "id": "23010000045618581",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Parent",
+      "created": "1785187772597",
+      "dueBy": "1785792575587"
+    },
+    {
+      "id": "23010000045618570",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785186620264",
+      "dueBy": "1785791421589"
+    },
+    {
+      "id": "23010000045618541",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Admin",
+      "created": "1785153470213",
+      "dueBy": "1785758271283"
+    },
+    {
+      "id": "23010000045618530",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Access Request",
+      "created": "1785153239536",
+      "dueBy": "1785758042221"
+    },
+    {
+      "id": "23010000045618516",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785146849504",
+      "dueBy": "1785751652029"
+    },
+    {
+      "id": "23010000045618457",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785133046433",
+      "dueBy": "1785737848603"
+    },
+    {
+      "id": "23010000045618440",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785132578399",
+      "dueBy": "1785737380399"
+    },
+    {
+      "id": "23010000045618422",
+      "status": "Open",
+      "priority": "Term Break",
+      "category": null,
+      "created": "1785132577665",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045618407",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785131872908",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045618396",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785131640596",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045618386",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785131639636",
+      "dueBy": "1785736442821"
+    },
+    {
+      "id": "23010000045618361",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785131412669",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045618347",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785130969896",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045618336",
+      "status": "Open",
+      "priority": "Critical: Drop Everything",
+      "category": null,
+      "created": "1785130740568",
+      "dueBy": "1785735543413"
+    },
+    {
+      "id": "23010000045618325",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785130739430",
+      "dueBy": "1785735541585"
+    },
+    {
+      "id": "23010000045618315",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785130299491",
+      "dueBy": "1785735101951"
+    },
+    {
+      "id": "23010000045618292",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785130070473",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045618273",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785129848121",
+      "dueBy": "1785734648731"
+    },
+    {
+      "id": "23010000045618228",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785128935975",
+      "dueBy": "1785733740855"
+    },
+    {
+      "id": "23010000045618211",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785128700564",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045598618",
+      "status": "Open",
+      "priority": null,
+      "category": "Print Room",
+      "created": "1785128470959",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045618189",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785128466370",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045618175",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785128464301",
+      "dueBy": "1785733265811"
+    },
+    {
+      "id": "23010000045598607",
+      "status": "Open",
+      "priority": null,
+      "category": "Print Room",
+      "created": "1785128429553",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045618162",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785128231891",
+      "dueBy": "1785733036351"
+    },
+    {
+      "id": "23010000045618119",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785128004589",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045618092",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785127343370",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045618081",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785127342539",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045618070",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785127340653",
+      "dueBy": "1785732143923"
+    },
+    {
+      "id": "23010000045618047",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785126666053",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045618025",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785125087473",
+      "dueBy": "1785729889843"
+    },
+    {
+      "id": "23010000045586963",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785123744840",
+      "dueBy": "1785728549045"
+    },
+    {
+      "id": "23010000045586952",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785123743356",
+      "dueBy": "1785728545141"
+    },
+    {
+      "id": "23010000045586920",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785123085642",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045586891",
+      "status": "Open",
+      "priority": "Critical: Drop Everything",
+      "category": null,
+      "created": "1785122864434",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045610015",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Hardware",
+      "created": "1785121902681",
+      "dueBy": "1785726706091"
+    },
+    {
+      "id": "23010000045586871",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Printing/Scanning",
+      "created": "1785121087794",
+      "dueBy": "1785725891769"
+    },
+    {
+      "id": "23010000045586828",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785119337714",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045586812",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785118909870",
+      "dueBy": "1785723714225"
+    },
+    {
+      "id": "23010000045586734",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785118687659",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045586719",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785118460788",
+      "dueBy": "1785723264733"
+    },
+    {
+      "id": "23010000045586673",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785117369425",
+      "dueBy": "1785722171555"
+    },
+    {
+      "id": "23010000045586659",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785116291402",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045586630",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785116065093",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045586593",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": "Z. Admin",
+      "created": "1785115178668",
+      "dueBy": "1785719982013"
+    },
+    {
+      "id": "23010000045586538",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Parent",
+      "created": "1785113868312",
+      "dueBy": "1785718669877"
+    },
+    {
+      "id": "23010000045586442",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": "Z. Software (Staff & Students)",
+      "created": "1785110883021",
+      "dueBy": "1785715683131"
+    },
+    {
+      "id": "23010000045586431",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": "Z. Hardware",
+      "created": "1785110662665",
+      "dueBy": "1785715465995"
+    },
+    {
+      "id": "23010000045586419",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Software (Staff & Students)",
+      "created": "1785110033085",
+      "dueBy": "1785714833515"
+    },
+    {
+      "id": "23010000045586408",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. User Administration",
+      "created": "1785110032416",
+      "dueBy": "1785714834501"
+    },
+    {
+      "id": "23010000045586397",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Software (Staff & Students)",
+      "created": "1785110031535",
+      "dueBy": "1785714834215"
+    },
+    {
+      "id": "23010000045586386",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": "Onboarding / Offboarding Issues",
+      "created": "1785109815628",
+      "dueBy": "1785714618773"
+    },
+    {
+      "id": "23010000045586367",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": "Z. Admin",
+      "created": "1785109612984",
+      "dueBy": "1785714417909"
+    },
+    {
+      "id": "23010000045586351",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. User Administration",
+      "created": "1785109392638",
+      "dueBy": "1785714195833"
+    },
+    {
+      "id": "23010000045586262",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": "Z. Network",
+      "created": "1785106205283",
+      "dueBy": "1785711006703"
+    },
+    {
+      "id": "23010000045586251",
+      "status": "Open",
+      "priority": "Critical: Drop Everything",
+      "category": "Z. Software (Staff & Students)",
+      "created": "1785106204398",
+      "dueBy": "1785711006393"
+    },
+    {
+      "id": "23010000045586198",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Parent",
+      "created": "1785105575821",
+      "dueBy": "1785710379931"
+    },
+    {
+      "id": "23010000045586187",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785105360894",
+      "dueBy": "1785710165369"
+    },
+    {
+      "id": "23010000045586166",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Audio Visual",
+      "created": "1785104073603",
+      "dueBy": "1785708876623"
+    },
+    {
+      "id": "23010000045586131",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": "Z. Parent",
+      "created": "1785103647234",
+      "dueBy": "1785708448409"
+    },
+    {
+      "id": "23010000045586115",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": "Z. Communications",
+      "created": "1785103429886",
+      "dueBy": "1785708234321"
+    },
+    {
+      "id": "23010000045586041",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785100197677",
+      "dueBy": "1785705001067"
+    },
+    {
+      "id": "23010000045586013",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": "Access Request",
+      "created": "1785063437232",
+      "dueBy": "1785679201397"
+    },
+    {
+      "id": "23010000045586002",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Parent",
+      "created": "1785058985751",
+      "dueBy": "1785679204511"
+    },
+    {
+      "id": "23010000045551284",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Parent",
+      "created": "1785042562991",
+      "dueBy": "1785679205951"
+    },
+    {
+      "id": "23010000045551270",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Hardware",
+      "created": "1785038288965",
+      "dueBy": "1785679205795"
+    },
+    {
+      "id": "23010000045551250",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785013602326",
+      "dueBy": "1785679201961"
+    },
+    {
+      "id": "23010000045551240",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Parent",
+      "created": "1784966640364",
+      "dueBy": "1785679202189"
+    },
+    {
+      "id": "23010000045551187",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1784927327481",
+      "dueBy": "1785679202891"
+    },
+    {
+      "id": "23010000045551137",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1784873977882",
+      "dueBy": "1785478782297"
+    },
+    {
+      "id": "23010000045551126",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1784872815562",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045551077",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1784870097316",
+      "dueBy": "1785474898901"
+    },
+    {
+      "id": "23010000045551060",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1784869413617",
+      "dueBy": "1785474216707"
+    },
+    {
+      "id": "23010000045551024",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1784866443573",
+      "dueBy": "1785471246443"
+    },
+    {
+      "id": "23010000045551013",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1784865955435",
+      "dueBy": "1785470757615"
+    },
+    {
+      "id": "23010000045541361",
+      "status": "Open",
+      "priority": "Critical: Drop Everything",
+      "category": null,
+      "created": "1784865263919",
+      "dueBy": "1785470068519"
+    },
+    {
+      "id": "23010000045541319",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Edumate (SIS)",
+      "created": "1784861841965",
+      "dueBy": "1785466646795"
+    },
+    {
+      "id": "23010000045541304",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": "Z. Admin",
+      "created": "1784858697454",
+      "dueBy": "1785463499729"
+    },
+    {
+      "id": "23010000045541284",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Systems Administration",
+      "created": "1784854041153",
+      "dueBy": "1785458841923"
+    },
+    {
+      "id": "23010000045541273",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": "Exams",
+      "created": "1784852246713",
+      "dueBy": "1790813820000"
+    },
+    {
+      "id": "23010000045541263",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Access Request",
+      "created": "1784852022970",
+      "dueBy": "1785456827825"
+    },
+    {
+      "id": "23010000045541249",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Software (Staff & Students)",
+      "created": "1784850664211",
+      "dueBy": "1785455465271"
+    },
+    {
+      "id": "23010000045541226",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": "Z. Admin",
+      "created": "1784850446072",
+      "dueBy": "1785455246437"
+    },
+    {
+      "id": "23010000045541211",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Admin",
+      "created": "1784849316708",
+      "dueBy": "1785454120253"
+    },
+    {
+      "id": "23010000045541183",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Parent",
+      "created": "1784848412693",
+      "dueBy": "1785453216163"
+    },
+    {
+      "id": "23010000045541070",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": "Z. Parent",
+      "created": "1784842739194",
+      "dueBy": "1785447540169"
+    },
+    {
+      "id": "23010000045541026",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Admin",
+      "created": "1784842016923",
+      "dueBy": "1785446821543"
+    },
+    {
+      "id": "23010000045541015",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1784840845365",
+      "dueBy": "1785445647195"
+    },
+    {
+      "id": "23010000045505737",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1784782156711",
+      "dueBy": "1785386960271"
+    },
+    {
+      "id": "23010000045505684",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1784780487504",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045538001",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1784780286253",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045505673",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1784779782477",
+      "dueBy": "1785384584867"
+    },
+    {
+      "id": "23010000045505651",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Software (Staff & Students)",
+      "created": "1784777159757",
+      "dueBy": "1785381963547"
+    },
+    {
+      "id": "23010000045505640",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": "Audio Visual - Services",
+      "created": "1784776676185",
+      "dueBy": "1785381477115"
+    },
+    {
+      "id": "23010000045505621",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": "Z. Audio Visual",
+      "created": "1784775690356",
+      "dueBy": "1785380492141"
     }
   ]
 };
