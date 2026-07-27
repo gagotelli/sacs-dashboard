@@ -4,11 +4,53 @@
 // Aggregate counts only, by design: no ticket subjects, requester
 // names, or descriptions ever leave ManageEngine. This repo is public.
 const TICKET_SUMMARY = {
-  "updatedAt": "2026-07-27T21:43:10Z",
+  "updatedAt": "2026-07-27T22:04:56Z",
   "source": "ManageEngine ServiceDesk Plus",
-  "total": 15654,
-  "open": 0,
-  "urgent": 0,
-  "byStatus": [],
-  "byPriority": []
+  "total": 15656,
+  "open": 544,
+  "urgent": 12,
+  "byStatus": [
+    {
+      "label": "Closed",
+      "value": 14685
+    },
+    {
+      "label": "On Hold",
+      "value": 55
+    },
+    {
+      "label": "Open",
+      "value": 489
+    },
+    {
+      "label": "Resolved",
+      "value": 333
+    },
+    {
+      "label": "Other",
+      "value": 94
+    }
+  ],
+  "byPriority": [
+    {
+      "label": "1 Week",
+      "value": 203
+    },
+    {
+      "label": "Critical: Drop Everything",
+      "value": 12
+    },
+    {
+      "label": "Normal: End of Next Day",
+      "value": 304
+    },
+    {
+      "label": "Term Break",
+      "value": 12
+    },
+    {
+      "label": "Unassigned",
+      "value": 13
+    }
+  ]
 };
