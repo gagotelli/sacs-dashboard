@@ -357,4 +357,17 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/tickets.js
           git commit -m "Update ManageEngine ticket counts"
-          git push
+          # Six sync workflows push to main on overlapping schedules, so a
+          # plain push loses the race whenever another lands first. Rebase and
+          # retry: each workflow owns its own data file, so the rebase cannot
+          # conflict — it only needs to move on top of whatever arrived.
+          for attempt in 1 2 3 4 5; do
+            if git push; then
+              exit 0
+            fi
+            echo "push rejected (attempt $attempt) — rebasing onto origin/main"
+            git pull --rebase --autostash origin main || exit 1
+            sleep $((attempt * 3))
+          done
+          echo "still could not push after 5 attempts"
+          exit 1
