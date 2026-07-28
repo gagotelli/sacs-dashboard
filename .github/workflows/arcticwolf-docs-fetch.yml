@@ -1,0 +1,71 @@
+name: Arctic Wolf docs fetch (test)
+on: workflow_dispatch
+
+# The sandbox this repo is developed from can only reach npm/pypi/GitHub, so
+# the runner is used purely as a fetcher for the public Arctic Wolf Ticket API
+# documentation. No credentials are used here — this touches docs only.
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch the Ticket API doc page
+        run: |
+          set -uo pipefail
+          UA='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36'
+          URL='https://docs.arcticwolf.com/en/developer-and-oem/ticket-api/arctic-wolf-ticket-api'
+
+          code=$(curl -sSL -A "$UA" -o page.html -w '%{http_code}' "$URL" || echo 000)
+          echo "GET $URL -> HTTP $code, $(wc -c < page.html) bytes"
+          echo ""
+
+          # Zoomin-style doc portals often render client-side. Strip tags and
+          # see whether real prose came back or just an app shell.
+          python3 - <<'PY'
+          import html, re
+          src = open('page.html', encoding='utf-8', errors='replace').read()
+          body = re.sub(r'(?is)<(script|style|svg)\b.*?</\1>', ' ', src)
+          text = html.unescape(re.sub(r'(?s)<[^>]+>', ' ', body))
+          text = re.sub(r'[ \t\xa0]+', ' ', text)
+          text = re.sub(r'\n\s*\n+', '\n', text).strip()
+          print("=== extracted text (%d chars) ===" % len(text))
+          print(text[:6000])
+          print()
+          print("=== every URL that appears in the raw HTML ===")
+          seen = []
+          for u in re.findall(r'https?://[^\s"\'<>)\\]+', src):
+              if u not in seen:
+                  seen.append(u)
+          for u in seen:
+              print(" ", u)
+          PY
+
+      - name: Look for a machine-readable spec or nearby doc pages
+        run: |
+          set -uo pipefail
+          UA='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36'
+          echo "=== candidate doc / spec URLs ==="
+          for u in \
+            'https://docs.arcticwolf.com/en/developer-and-oem/ticket-api' \
+            'https://docs.arcticwolf.com/en/developer-and-oem' \
+            'https://docs.arcticwolf.com/sitemap.xml' \
+            'https://docs.arcticwolf.com/robots.txt' \
+            'https://api.arcticwolf.com/openapi.json' \
+            'https://api.arcticwolf.com/swagger.json' ; do
+            code=$(curl -sSL -A "$UA" -o o.bin -w '%{http_code}' --max-time 25 "$u" || echo 000)
+            echo "  HTTP $code  $(wc -c < o.bin 2>/dev/null || echo 0)B  $u"
+          done
+
+      - name: Resolve any api-ish hostname the docs mention
+        run: |
+          set -uo pipefail
+          echo "=== DNS for plausible API hosts ==="
+          for h in api.arcticwolf.com api-ticket.arcticwolf.com ticket-api.arcticwolf.com \
+                   api.au.arcticwolf.com au.arcticwolf.com apigw.arcticwolf.com \
+                   gateway.arcticwolf.com api.portal.arcticwolf.com; do
+            if getent hosts "$h" >/dev/null 2>&1; then
+              echo "  $h RESOLVES"
+            else
+              echo "  $h no"
+            fi
+          done
