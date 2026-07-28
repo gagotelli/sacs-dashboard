@@ -23,7 +23,32 @@ jobs:
           echo "tenant id set: $([ -n "${ARCTICWOLF_TENANT_ID:-}" ] && echo yes || echo 'no (expected — we discover it)')"
           echo ""
 
-          BASE="https://api.arcticwolf.com"
+          # api.arcticwolf.com was a guess and it did not resolve at all —
+          # every probe returned curl 000 before any auth was attempted. Find
+          # out which Arctic Wolf hosts actually exist before probing paths.
+          echo "=== DNS / reachability ==="
+          BASE=""
+          for h in api.arcticwolf.com api.arcticwolf.net my.arcticwolf.com \
+                   portal.arcticwolf.com arcticwolf.com api.aws.arcticwolf.com \
+                   api.us.arcticwolf.com apis.arcticwolf.com; do
+            if getent hosts "$h" >/dev/null 2>&1; then
+              code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 12 "https://$h/" 2>/dev/null || echo 000)
+              echo "  $h  resolves  HTTPS / -> $code"
+              [ -z "$BASE" ] && [ "$code" != "000" ] && BASE="https://$h"
+            else
+              echo "  $h  does NOT resolve"
+            fi
+          done
+          echo ""
+          if [ -z "$BASE" ]; then
+            echo "No Arctic Wolf host answered. The API base URL is contract-specific"
+            echo "and is not one of the obvious guesses — it needs to come from the"
+            echo "Arctic Wolf portal or your CSM."
+            exit 0
+          fi
+          echo "probing against $BASE"
+          echo ""
+
 
           # Two auth styles are in circulation for this API; try both and see
           # which the key is issued for.
@@ -57,7 +82,7 @@ jobs:
                  else . end)
                 | if type=="object" then (keys | join(", ")) else type end' r.json 2>/dev/null | head -c 260)"
             else
-              printf '  %s' "$(head -c 120 r.json | tr -d '\n')"
+              printf '  %s' "$(head -c 120 r.json 2>/dev/null | tr -d '\n')"
             fi
             echo ""
           }
