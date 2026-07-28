@@ -1543,6 +1543,14 @@
     return single ? { start: 0, end: Number(single[1]) } : null;
   }
 
+  const ROADMAP_PRIORITY_COLOR = {
+    1: "var(--prio-1)",
+    2: "var(--prio-2)",
+    3: "var(--prio-3)",
+    4: "var(--prio-4)",
+    5: "var(--prio-4)",
+  };
+
   const PHASES = [
     { name: "Phase 1 — Stabilise & simplify", window: "0–90 days", detail: "Restore firewall HA, freeze and document the network, audit the DMZ stack, complete ClearPass." },
     { name: "Phase 2 — Modernise access", window: "60–180 days", detail: "Replace or uplift legacy 1G access uplinks on the priority switches." },
@@ -1582,7 +1590,9 @@
         ${rows.map((r) => {
           const left = (r.win.start / axisMax) * 100;
           const width = Math.max(((r.win.end - r.win.start) / axisMax) * 100, 2);
-          const color = PRIORITY_RANK_COLOR[Math.min(r.priority, 5)] || "var(--prio-none)";
+          // Roadmap priorities are 1..n and are all real priorities — mapping
+          // 5 through PRIORITY_RANK_COLOR would paint it the "unassigned" grey.
+          const color = ROADMAP_PRIORITY_COLOR[Math.min(r.priority, 5)] || "var(--prio-4)";
           return `
             <div class="tl-row">
               <div class="tl-label">

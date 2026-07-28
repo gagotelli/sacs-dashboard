@@ -1216,7 +1216,7 @@ main { padding: 16px; max-width: none; }
    Roadmap timeline
    --------------------------------------------------------------- */
 .timeline { position: relative; }
-.tl-axis { position: relative; height: 18px; margin-left: 300px; margin-right: 150px; }
+.tl-axis { position: relative; height: 18px; margin-left: 300px; margin-right: 200px; }
 .tl-tick {
   position: absolute; transform: translateX(-50%);
   font-size: 11px; color: var(--text-muted); font-variant-numeric: tabular-nums;
@@ -1244,7 +1244,7 @@ main { padding: 16px; max-width: none; }
 }
 .tl-bar:hover { filter: brightness(1.1); }
 .tl-bar-text { font-size: 10.5px; font-weight: 600; color: #fff; white-space: nowrap; }
-.tl-budget { font-size: 11.5px; color: var(--text-secondary); padding-left: 12px; overflow-wrap: break-word; }
+.tl-budget { font-size: 11.5px; color: var(--text-secondary); padding-left: 14px; line-height: 1.45; overflow-wrap: break-word; }
 
 @media (max-width: 900px) {
   .tl-axis, .tl-gridline { margin-left: 0; margin-right: 0; }
