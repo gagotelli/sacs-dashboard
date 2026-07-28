@@ -591,12 +591,14 @@
   // and dueBy per ticket. That is the only real time information in the feed —
   // it covers the most recent open tickets, not the whole backlog, and the
   // notes say so rather than implying these describe all 549.
+  // Benign end first. Green/blue/amber/red escalates the way an operator
+  // already reads status colours; the severity ramp's purple end reads as a
+  // category rather than "this one is fine".
   const AGE_BUCKETS = [
-    { label: "Today", max: 1, color: "var(--prio-4)" },
+    { label: "Today", max: 1, color: "var(--status-good)" },
     { label: "2–7 days", max: 7, color: "var(--prio-3)" },
     { label: "8–30 days", max: 30, color: "var(--prio-2)" },
-    { label: "31–90 days", max: 90, color: "var(--prio-1)" },
-    { label: "Over 90 days", max: Infinity, color: "var(--status-critical)" },
+    { label: "Over 30 days", max: Infinity, color: "var(--prio-1)" },
   ];
 
   // ServiceDesk Plus returns timestamps as epoch milliseconds in a string
@@ -2267,7 +2269,7 @@
   //   2. Every alert here carries severity NONE, so severity ranks nothing.
   //      conditionName is what distinguishes them.
   const STALENESS_COLOR = {
-    "Under 24 hours": "var(--prio-4)",
+    "Under 24 hours": "var(--status-good)",
     "1–7 days": "var(--prio-3)",
     "7–30 days": "var(--prio-2)",
     "Over 30 days": "var(--prio-1)",

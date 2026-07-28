@@ -64,10 +64,16 @@
   --status-critical: #d03b3b;
   --status-unknown: #898781;
 
-  --prio-1: #1c5cab;
-  --prio-2: #2a78d6;
-  --prio-3: #5598e7;
-  --prio-4: #86b6ef;
+  /* Severity scale, used by ticket priority, security priority, roadmap
+     priority and check-in staleness. Was a single-hue blue ramp, which made
+     "Critical" and "Normal" near-indistinguishable at a glance and left the
+     most urgent slice invisible. Distinct hues, validated with
+     scripts/validate_palette.js (light, all pairs): worst CVD ΔE 13.0,
+     worst normal-vision ΔE 16.3 — both pass. Red always means worst. */
+  --prio-1: #e34948;
+  --prio-2: #eda100;
+  --prio-3: #2a78d6;
+  --prio-4: #4a3aa7;
   --prio-none: #898781;
 
   --accent-gradient: linear-gradient(90deg, #2a78d6, #1baf7a, #eda100);
@@ -101,10 +107,13 @@
   --layer-legacy-rgb: 213, 81, 129;
   --layer-security-rgb: 201, 133, 0;
 
-  --prio-1: #6da7ec;
-  --prio-2: #3987e5;
-  --prio-3: #256abf;
-  --prio-4: #184f95;
+  /* Dark equivalents. The dark lightness band is narrow (L 0.48–0.67), so
+     these are the most saturated four hues that still clear every check on
+     #1a1a19: worst CVD ΔE 12.6, worst normal-vision ΔE 17.9. */
+  --prio-1: #b14352;
+  --prio-2: #b18943;
+  --prio-3: #4356b1;
+  --prio-4: #ab7acd;
 }
 
 * { box-sizing: border-box; }
