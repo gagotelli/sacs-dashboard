@@ -8,20 +8,20 @@
 // `score` ranks the queue — it never hides anything. Every open ticket
 // appears in `queue` regardless of score.
 const SECURITY_SUMMARY = {
-  "updatedAt": "2026-07-28T02:58:54.913Z",
+  "updatedAt": "2026-07-28T06:15:06.283Z",
   "source": "Arctic Wolf",
   "portalUrl": "https://dashboard.arcticwolf.com/",
-  "total": 135,
-  "open": 5,
+  "total": 137,
+  "open": 7,
   "closed": 130,
   "byPriority": [
     {
       "label": "NORMAL",
-      "value": 118
+      "value": 119
     },
     {
       "label": "LOW",
-      "value": 10
+      "value": 11
     },
     {
       "label": "HIGH",
@@ -35,22 +35,26 @@ const SECURITY_SUMMARY = {
     },
     {
       "label": "PENDING",
-      "value": 5
+      "value": 7
     }
   ],
   "byType": [
     {
       "label": "INCIDENT",
-      "value": 135
+      "value": 137
     }
   ],
   "openByCategory": [
     {
       "label": "Suspicious login",
-      "value": 2
+      "value": 3
     },
     {
       "label": "Configuration / policy",
+      "value": 1
+    },
+    {
+      "label": "Malware",
       "value": 1
     },
     {
@@ -127,6 +131,32 @@ const SECURITY_SUMMARY = {
       "attachments": 1,
       "assigned": true,
       "score": 60
+    },
+    {
+      "id": 17816989,
+      "priority": "NORMAL",
+      "status": "PENDING",
+      "type": "INCIDENT",
+      "category": "Malware",
+      "createdAt": "2026-07-28T03:32:04Z",
+      "updatedAt": "2026-07-28T03:32:06Z",
+      "comments": 1,
+      "attachments": 1,
+      "assigned": true,
+      "score": 38
+    },
+    {
+      "id": 17817213,
+      "priority": "LOW",
+      "status": "PENDING",
+      "type": "INCIDENT",
+      "category": "Suspicious login",
+      "createdAt": "2026-07-28T05:23:25Z",
+      "updatedAt": "2026-07-28T05:23:33Z",
+      "comments": 1,
+      "attachments": 0,
+      "assigned": true,
+      "score": 13
     }
   ]
 };
