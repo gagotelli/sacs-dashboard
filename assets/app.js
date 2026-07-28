@@ -572,6 +572,10 @@
     document.getElementById("ticket-status-bars").innerHTML =
       barListHtml(TICKET_SUMMARY.byStatus || [], "var(--layer-core)");
 
+    renderTicketAge();
+    renderTicketDue();
+    renderTicketTrend();
+
     const cats = TICKET_SUMMARY.byCategory || [];
     document.getElementById("ticket-category-bars").innerHTML = cats.length
       ? barListHtml(cats, "var(--layer-access)")
@@ -580,6 +584,147 @@
 
     renderTicketMatrix();
     renderTicketList();
+  }
+
+
+  // The three charts below are derived from recentOpen, which carries created
+  // and dueBy per ticket. That is the only real time information in the feed —
+  // it covers the most recent open tickets, not the whole backlog, and the
+  // notes say so rather than implying these describe all 549.
+  const AGE_BUCKETS = [
+    { label: "Today", max: 1, color: "var(--prio-4)" },
+    { label: "2–7 days", max: 7, color: "var(--prio-3)" },
+    { label: "8–30 days", max: 30, color: "var(--prio-2)" },
+    { label: "31–90 days", max: 90, color: "var(--prio-1)" },
+    { label: "Over 90 days", max: Infinity, color: "var(--status-critical)" },
+  ];
+
+  // ServiceDesk Plus returns timestamps as epoch milliseconds in a string
+  // ("1785205030286"). Date.parse gives NaN for those, which silently bucketed
+  // every ticket into the oldest band — so parse numerics explicitly.
+  function ticketTime(v) {
+    if (v == null) return NaN;
+    if (typeof v === "number") return v;
+    const str = String(v).trim();
+    if (/^\d{10,}$/.test(str)) {
+      const n = Number(str);
+      return str.length <= 10 ? n * 1000 : n;
+    }
+    return Date.parse(str);
+  }
+
+  function openSample() {
+    return (TICKET_SUMMARY.recentOpen || []).filter((t) => Number.isFinite(ticketTime(t.created)));
+  }
+
+  function colouredBars(items) {
+    const max = Math.max(...items.map((i) => i.value), 1);
+    return items.map((i) => `
+      <div class="bar-row">
+        <div class="bar-row-label">${esc(i.label)}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${((i.value / max) * 100).toFixed(1)}%; background:${i.color}"></div></div>
+        <div class="bar-row-value">${esc(i.value)}</div>
+      </div>`).join("");
+  }
+
+  function renderTicketAge() {
+    const el = document.getElementById("ticket-age-bars");
+    if (!el) return;
+    const rows = openSample();
+    const noteEl = document.getElementById("ticket-age-note");
+
+    if (!rows.length) {
+      el.innerHTML = `<p class="muted-text" style="margin:0">No per-ticket dates in the last sync.</p>`;
+      if (noteEl) noteEl.textContent = "";
+      return;
+    }
+
+    const now = Date.now();
+    const counts = AGE_BUCKETS.map((b) => ({ label: b.label, color: b.color, value: 0 }));
+    rows.forEach((t) => {
+      const days = (now - ticketTime(t.created)) / 86400000;
+      const idx = AGE_BUCKETS.findIndex((b) => days < b.max);
+      counts[idx === -1 ? AGE_BUCKETS.length - 1 : idx].value++;
+    });
+
+    const stale = counts.slice(3).reduce((n, c) => n + c.value, 0);
+    if (noteEl) {
+      noteEl.textContent = `Newest ${rows.length} open tickets. ` +
+        (stale ? `${stale} have been open more than a month.` : "None older than a month.");
+    }
+    el.innerHTML = colouredBars(counts.filter((c) => c.value > 0));
+  }
+
+  function renderTicketDue() {
+    const el = document.getElementById("ticket-due-bars");
+    if (!el) return;
+    const rows = TICKET_SUMMARY.recentOpen || [];
+    const now = Date.now();
+    const buckets = { Overdue: 0, "Due today": 0, "Due this week": 0, Later: 0, "No due date": 0 };
+
+    rows.forEach((t) => {
+      if (!t.dueBy) { buckets["No due date"]++; return; }
+      const d = (ticketTime(t.dueBy) - now) / 86400000;
+      if (Number.isNaN(d)) { buckets["No due date"]++; return; }
+      if (d < 0) buckets.Overdue++;
+      else if (d < 1) buckets["Due today"]++;
+      else if (d < 7) buckets["Due this week"]++;
+      else buckets.Later++;
+    });
+
+    const colors = {
+      Overdue: "var(--status-critical)", "Due today": "var(--status-warning)",
+      "Due this week": "var(--prio-3)", Later: "var(--prio-4)", "No due date": "var(--prio-none)",
+    };
+    const items = Object.entries(buckets)
+      .filter(([, v]) => v > 0)
+      .map(([label, value]) => ({ label, value, color: colors[label] }));
+
+    const noteEl = document.getElementById("ticket-due-note");
+    if (noteEl) {
+      noteEl.textContent = buckets.Overdue
+        ? `${buckets.Overdue} of the newest ${rows.length} open tickets are past their due date.`
+        : `Nothing in the newest ${rows.length} open tickets is overdue.`;
+    }
+    el.innerHTML = items.length ? colouredBars(items) : `<p class="muted-text" style="margin:0">No due dates in the last sync.</p>`;
+  }
+
+  // A column per day for the last 30 days. This is a real series — each ticket
+  // carries its own created date — unlike the overview trends, which have no
+  // history to draw from.
+  function renderTicketTrend() {
+    const el = document.getElementById("ticket-trend");
+    if (!el) return;
+    const rows = openSample();
+    const noteEl = document.getElementById("ticket-trend-note");
+    if (!rows.length) {
+      el.innerHTML = `<p class="muted-text" style="margin:0">No per-ticket dates in the last sync.</p>`;
+      return;
+    }
+
+    const DAYS = 30;
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const counts = new Array(DAYS).fill(0);
+    let older = 0;
+    rows.forEach((t) => {
+      const d = new Date(ticketTime(t.created)); d.setHours(0, 0, 0, 0);
+      const idx = DAYS - 1 - Math.round((today - d) / 86400000);
+      if (idx >= 0 && idx < DAYS) counts[idx]++; else older++;
+    });
+
+    const max = Math.max(...counts, 1);
+    const W = 100 / DAYS;
+    if (noteEl) {
+      noteEl.textContent = `Still-open tickets by the day they were raised${older ? `, ${older} raised before this window` : ""}.`;
+    }
+    el.innerHTML = `
+      <svg class="ticket-trend-svg" viewBox="0 0 100 40" preserveAspectRatio="none">
+        ${counts.map((c, i) => {
+          const h = (c / max) * 34;
+          return `<rect x="${(i * W + W * 0.15).toFixed(2)}" y="${(36 - h).toFixed(2)}" width="${(W * 0.7).toFixed(2)}" height="${h.toFixed(2)}" rx="0.6" fill="var(--layer-core)"><title>${c} on ${new Date(today - (DAYS - 1 - i) * 86400000).toLocaleDateString()}</title></rect>`;
+        }).join("")}
+      </svg>
+      <div class="ticket-trend-axis"><span>30 days ago</span><span>today</span></div>`;
   }
 
   // Sentinel for the "no priority set" filter option. Must not begin or end
@@ -794,6 +939,11 @@
   };
 
   const meraki = () => (typeof WIRELESS !== "undefined" ? WIRELESS.fleet || {} : {});
+
+  // KIRR is excluded from the map on request. It is still counted everywhere
+  // else — campus availability, the Meraki table and every total — so nothing
+  // silently disappears from the numbers, only from this diagram.
+  const TOPO_EXCLUDE_SITES = /^KIRR$/i;
   const shortSite = (s) => String(s || "").replace(/^SACS-/i, "") || "Unassigned";
 
   // "SAH-L5-AP-BE4C" -> "L5"; "BBC-G-A1-1" -> "G". Falls back to the whole
@@ -835,11 +985,14 @@
       ...mAps.map((s) => shortSite(s.site)),
       ...mSensors.map((s) => shortSite(s.site)),
       ...ciscoAccess.map((d) => d.site).filter(Boolean),
-    ])].sort((a, b) => a.localeCompare(b));
+    ])].filter((s) => !TOPO_EXCLUDE_SITES.test(s))
+      // Widest column first so the tall campuses sit together and the short
+      // ones do not strand a column of whitespace between them.
+      .sort((a, b) => a.localeCompare(b));
 
     // ---- geometry -------------------------------------------------------
-    const NW = 176, NH = 50, GAPX = 18, GAPY = 16;
-    const COLGAP = 46;
+    const NW = 158, NH = 46, GAPX = 14, GAPY = 12;
+    const COLGAP = 34;
 
     // Each site becomes a column; column width is driven by how many switch
     // chips sit side by side in it.
@@ -858,11 +1011,11 @@
       1000
     );
 
-    const yInternet = 30;
-    const yFw = 130;
-    const yCore = 240;
-    const ySiteLabel = 348;
-    const ySwitch = 372;
+    const yInternet = 24;
+    const yFw = 112;
+    const yCore = 206;
+    const ySiteLabel = 300;
+    const ySwitch = 322;
 
     const centreRow = (items, w, gap, y, h) => {
       const total = items.length * w + Math.max(0, items.length - 1) * gap;
@@ -1071,12 +1224,12 @@
           <rect class="topo-node-bg" x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="10"
                 fill="var(--surface-3)" stroke="${color}"${isCluster ? ' stroke-dasharray="5 3"' : ""}/>
           <rect x="${n.x}" y="${n.y}" width="4" height="${n.h}" rx="2" fill="${color}"/>
-          <g class="topo-node-icon" style="color:${color}" transform="translate(${n.x + 13} ${n.y + 15})">
-            <svg width="18" height="18" viewBox="0 0 24 24"><use href="#${TOPO_ICON[n.kind]}"/></svg>
+          <g class="topo-node-icon" style="color:${color}" transform="translate(${n.x + 12} ${n.y + 13})">
+            <svg width="17" height="17" viewBox="0 0 24 24"><use href="#${TOPO_ICON[n.kind]}"/></svg>
           </g>
-          <circle class="status-dot-${n.status}" cx="${n.x + n.w - 12}" cy="${n.y + 12}" r="4.5"/>
-          <text x="${n.x + 39}" y="${n.y + 22}">${esc(n.name)}</text>
-          <text class="sub" x="${n.x + 39}" y="${n.y + 37}">${esc(n.sub)}</text>
+          <circle class="status-dot-${n.status}" cx="${n.x + n.w - 11}" cy="${n.y + 11}" r="4"/>
+          <text x="${n.x + 36}" y="${n.y + 20}">${esc(n.name)}</text>
+          <text class="sub" x="${n.x + 36}" y="${n.y + 34}">${esc(n.sub)}</text>
           ${isCluster ? `<text class="topo-expand" x="${n.x + n.w - 13}" y="${n.y + n.h - 9}">${open ? "− collapse" : "+ expand"}</text>` : ""}
         </g>`);
     });
@@ -2005,11 +2158,6 @@
     document.getElementById("security-category-bars").innerHTML = (S.openByCategory || []).length
       ? barListHtml(S.openByCategory, "var(--layer-access)")
       : `<p class="muted-text" style="margin:0">No open security tickets.</p>`;
-
-    const prio = (S.byPriority || []).slice().sort(
-      (a, b) => (AW_PRIORITY_ORDER[a.label] ?? 9) - (AW_PRIORITY_ORDER[b.label] ?? 9)
-    );
-    document.getElementById("security-priority-bars").innerHTML = barListHtml(prio, "var(--layer-core)");
 
     renderSecurityQueue();
   }

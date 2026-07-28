@@ -129,35 +129,39 @@
       <div class="ov-stats" id="ov-stats"></div>
     </div>
 
-    <div class="ov-row-2">
-      <div class="card">
-        <h2>Campus availability</h2>
-        <div class="ov-campus" id="ov-campus"></div>
-      </div>
-      <div class="card">
-        <h2 class="ov-card-head">Issue inbox
-          <button type="button" class="link-button" data-panel="panel-tickets">View all tickets <svg class="icon"><use href="#icon-arrow"/></svg></button>
-        </h2>
-        <div class="ov-inbox" id="ov-inbox"></div>
-      </div>
-    </div>
-
-    <div class="ov-row-2">
-      <div class="card">
-        <h2 class="ov-card-head">Network topology
-          <button type="button" class="link-button" data-panel="panel-topology">Expand topology <svg class="icon"><use href="#icon-arrow"/></svg></button>
-        </h2>
-        <div class="legend-row ov-mini-legend">
-          <span class="legend-item"><span class="swatch" style="background:var(--layer-core)"></span>Core</span>
-          <span class="legend-item"><span class="swatch" style="background:var(--layer-security)"></span>Security</span>
-          <span class="legend-item"><span class="swatch" style="background:var(--layer-access)"></span>Access</span>
-          <span class="legend-item"><span class="swatch" style="background:var(--layer-legacy)"></span>Wireless</span>
+    <div class="ov-columns">
+      <div class="ov-col">
+        <div class="card">
+          <h2>Campus availability</h2>
+          <div class="ov-campus" id="ov-campus"></div>
         </div>
-        <div class="ov-mini-topo" id="ov-mini-topo"></div>
+
+        <div class="card">
+          <h2 class="ov-card-head">Network topology
+            <button type="button" class="link-button" data-panel="panel-topology">Expand topology <svg class="icon"><use href="#icon-arrow"/></svg></button>
+          </h2>
+          <div class="legend-row ov-mini-legend">
+            <span class="legend-item"><span class="swatch" style="background:var(--layer-security)"></span>Firewall</span>
+            <span class="legend-item"><span class="swatch" style="background:var(--layer-core)"></span>Core</span>
+            <span class="legend-item"><span class="swatch" style="background:var(--layer-access)"></span>Switches</span>
+            <span class="legend-item"><span class="swatch" style="background:var(--layer-legacy)"></span>Wireless</span>
+          </div>
+          <div class="ov-mini-topo" id="ov-mini-topo"></div>
+        </div>
       </div>
-      <div class="card">
-        <h2 class="ov-card-head">Network trends (24h)</h2>
-        <div class="ov-trends" id="ov-trends"></div>
+
+      <div class="ov-col">
+        <div class="card">
+          <h2 class="ov-card-head">Issue inbox
+            <button type="button" class="link-button" data-panel="panel-tickets">View all tickets <svg class="icon"><use href="#icon-arrow"/></svg></button>
+          </h2>
+          <div class="ov-inbox" id="ov-inbox"></div>
+        </div>
+
+        <div class="card">
+          <h2 class="ov-card-head">Network trends (24h)</h2>
+          <div class="ov-trends" id="ov-trends"></div>
+        </div>
       </div>
     </div>
   </section>
@@ -442,8 +446,22 @@
         </div>
       </div>
       <div class="card">
-        <h2>All tickets by status</h2>
-        <div class="bar-list" id="ticket-status-bars"></div>
+        <h2>How long open work has been sitting</h2>
+        <p class="muted-text" id="ticket-age-note"></p>
+        <div class="bar-list" id="ticket-age-bars"></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h2>Against the due date</h2>
+        <p class="muted-text" id="ticket-due-note"></p>
+        <div class="bar-list" id="ticket-due-bars"></div>
+      </div>
+      <div class="card">
+        <h2>Opened per day</h2>
+        <p class="muted-text" id="ticket-trend-note"></p>
+        <div id="ticket-trend"></div>
       </div>
     </div>
 
@@ -451,6 +469,11 @@
       <h2>What open tickets are about</h2>
       <p class="muted-text">Category breakdown of everything currently open.</p>
       <div class="bar-list" id="ticket-category-bars"></div>
+    </div>
+
+    <div class="card">
+      <h2>All tickets by status</h2>
+      <div class="bar-list" id="ticket-status-bars"></div>
     </div>
 
     <div class="card">
@@ -498,33 +521,27 @@
 
     <div class="kpi-row" id="endpoint-kpi-row"></div>
 
-    <div class="card" id="endpoint-privacy-note">
-      <h2>Counts only, no machine names</h2>
-      <p class="muted-text" style="margin-bottom:0">
-        NinjaOne manages the whole endpoint estate, including staff and student
-        laptops. This dashboard is served from a public repository, so this page
-        publishes totals, device classes and NinjaOne's own alert condition
-        names — never a hostname, a user, or which machine an alert belongs to.
-        Use the NinjaOne link above when you need to act on a specific device.
-      </p>
-    </div>
+    <p class="panel-note">
+      Counts only — NinjaOne covers the whole endpoint estate and this dashboard
+      is public, so no hostname or user is published here.
+    </p>
 
     <div class="grid-2">
       <div class="card">
-        <h2>Endpoints by class</h2>
-        <div class="bar-list" id="endpoint-class-bars"></div>
-      </div>
-      <div class="card">
-        <h2>How long since last check-in</h2>
+        <h2>Since last check-in</h2>
         <p class="muted-text" id="endpoint-staleness-note"></p>
         <div class="bar-list" id="endpoint-staleness-bars"></div>
+      </div>
+      <div class="card">
+        <h2>Open alerts</h2>
+        <p class="muted-text" id="endpoint-alert-note"></p>
+        <div class="bar-list" id="endpoint-condition-bars"></div>
       </div>
     </div>
 
     <div class="card">
-      <h2>Open alerts by condition</h2>
-      <p class="muted-text" id="endpoint-alert-note"></p>
-      <div class="bar-list" id="endpoint-condition-bars"></div>
+      <h2>Endpoints by class</h2>
+      <div class="bar-list" id="endpoint-class-bars"></div>
     </div>
   </section>
 
@@ -541,32 +558,14 @@
 
     <div class="kpi-row" id="security-kpi-row"></div>
 
-    <div class="card" id="security-privacy-note">
-      <h2>Ranked, never hidden</h2>
-      <p class="muted-text">
-        The queue below is sorted so the tickets most likely to need you sit at
-        the top — priority first, then how long it has been open, then how much
-        back-and-forth it has attracted. Nothing is filtered out or auto-closed:
-        every open ticket is listed and counted regardless of its score.
-      </p>
-      <p class="muted-text" style="margin-bottom:0">
-        Ticket titles and descriptions are <strong>not</strong> stored here.
-        Arctic Wolf ticket text names hosts, accounts and attack detail, and
-        this dashboard is public with a client-side-only sign-in — so the sync
-        reads that text only to derive the coarse category shown, and publishes
-        the category alone. Open a ticket in Arctic Wolf to read it.
-      </p>
-    </div>
+    <p class="panel-note">
+      Ranked, never hidden — every open ticket is listed whatever it scores.
+      Titles and descriptions stay in Arctic Wolf; only the category is published.
+    </p>
 
-    <div class="grid-2">
-      <div class="card">
-        <h2>Open tickets by category</h2>
-        <div class="bar-list" id="security-category-bars"></div>
-      </div>
-      <div class="card">
-        <h2>All tickets by priority</h2>
-        <div class="bar-list" id="security-priority-bars"></div>
-      </div>
+    <div class="card">
+      <h2>Open tickets by category</h2>
+      <div class="bar-list" id="security-category-bars"></div>
     </div>
 
     <div class="card">

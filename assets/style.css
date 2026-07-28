@@ -1384,3 +1384,47 @@ main { padding: 16px; max-width: none; }
 .topo-link.faint.hi { opacity: 0.9; }
 .topo-stage { min-height: 520px; }
 .topo-inspector { max-height: 720px; }
+
+.ticket-trend-svg { width: 100%; height: 120px; display: block; }
+.ticket-trend-axis { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+.panel-note { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; margin: 0 0 14px; max-width: 78ch; }
+
+/* Documentation — SharePoint setup guide */
+.doc-body { padding: 14px 18px 18px; }
+.doc-body p { font-size: 13.5px; line-height: 1.65; color: var(--text-secondary); margin: 0 0 12px; max-width: 82ch; }
+.doc-body p:last-child { margin-bottom: 0; }
+.doc-body code { background: var(--surface-2); border: 1px solid var(--border); border-radius: 5px; padding: 1px 5px; font-size: 12.5px; }
+.doc-body strong { color: var(--text-primary); }
+
+.setup-steps { list-style: none; counter-reset: step; margin: 0; padding: 14px 18px 20px; }
+.setup-step { counter-increment: step; position: relative; padding: 0 0 22px 44px; }
+.setup-step:last-child { padding-bottom: 0; }
+.setup-step::before {
+  content: counter(step);
+  position: absolute; left: 0; top: 0;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--layer-core); color: #fff;
+  font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+/* Connector between steps, so the sequence reads as one flow. */
+.setup-step:not(:last-child)::after {
+  content: ""; position: absolute; left: 13.5px; top: 32px; bottom: 6px;
+  width: 1.5px; background: var(--border);
+}
+.setup-step h3 { margin: 4px 0 6px; font-size: 14.5px; font-weight: 600; }
+.setup-step p { font-size: 13.5px; line-height: 1.65; color: var(--text-secondary); margin: 0 0 8px; max-width: 78ch; }
+.setup-note {
+  font-size: 12.5px; color: var(--text-secondary);
+  border-left: 3px solid var(--status-warning);
+  background: var(--surface-2);
+  padding: 9px 12px; border-radius: 0 8px 8px 0; margin: 0;
+}
+
+/* Two independent columns rather than a grid of rows: the issue inbox is much
+   taller than the campus card, and a shared row height left a large hole
+   under the shorter one. */
+.ov-columns { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 14px; align-items: start; }
+.ov-col { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+@media (max-width: 1180px) { .ov-columns { grid-template-columns: minmax(0, 1fr); } }
