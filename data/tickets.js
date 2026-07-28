@@ -4,16 +4,16 @@
 // Aggregate counts only, by design: no ticket subjects, requester
 // names, or descriptions ever leave ManageEngine. This repo is public.
 const TICKET_SUMMARY = {
-  "updatedAt": "2026-07-28T05:45:10Z",
+  "updatedAt": "2026-07-28T08:31:49Z",
   "source": "ManageEngine ServiceDesk Plus",
   "portalUrl": "https://sacs.sdpondemand.manageengine.com/app/itdesk/ui/requests",
-  "total": 15660,
-  "open": 536,
-  "urgent": 12,
+  "total": 15663,
+  "open": 528,
+  "urgent": 11,
   "byStatus": [
     {
       "label": "Closed",
-      "value": 14668
+      "value": 14670
     },
     {
       "label": "On Hold",
@@ -21,11 +21,11 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Open",
-      "value": 481
+      "value": 473
     },
     {
       "label": "Resolved",
-      "value": 362
+      "value": 371
     },
     {
       "label": "Other",
@@ -35,15 +35,15 @@ const TICKET_SUMMARY = {
   "byPriority": [
     {
       "label": "1 Week",
-      "value": 200
+      "value": 199
     },
     {
       "label": "Critical: Drop Everything",
-      "value": 12
+      "value": 11
     },
     {
       "label": "Normal: End of Next Day",
-      "value": 301
+      "value": 296
     },
     {
       "label": "Term Break",
@@ -51,7 +51,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Unassigned",
-      "value": 14
+      "value": 13
     }
   ],
   "byCategory": [
@@ -68,10 +68,6 @@ const TICKET_SUMMARY = {
       "value": 20
     },
     {
-      "label": "Print Room",
-      "value": 18
-    },
-    {
       "label": "Software Issues",
       "value": 18
     },
@@ -81,6 +77,10 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Audio Visual - Services",
+      "value": 17
+    },
+    {
+      "label": "Print Room",
       "value": 17
     },
     {
@@ -109,7 +109,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Uncategorised",
-      "value": 376
+      "value": 369
     }
   ],
   "openMatrix": [
@@ -190,6 +190,30 @@ const TICKET_SUMMARY = {
   ],
   "recentOpen": [
     {
+      "id": "23010000045632375",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785218601347",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045585014",
+      "status": "Open",
+      "priority": null,
+      "category": "Print Room",
+      "created": "1785218371102",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045632347",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785217710064",
+      "dueBy": null
+    },
+    {
       "id": "23010000045636001",
       "status": "Open",
       "priority": null,
@@ -203,7 +227,7 @@ const TICKET_SUMMARY = {
       "priority": "Normal: End of Next Day",
       "category": null,
       "created": "1785216996102",
-      "dueBy": null
+      "dueBy": "1785821796617"
     },
     {
       "id": "23010000045632317",
@@ -219,7 +243,7 @@ const TICKET_SUMMARY = {
       "priority": "Normal: End of Next Day",
       "category": "Z. Communications",
       "created": "1785216436053",
-      "dueBy": null
+      "dueBy": "1785821236323"
     },
     {
       "id": "23010000045632293",
@@ -363,7 +387,7 @@ const TICKET_SUMMARY = {
       "priority": "Normal: End of Next Day",
       "category": null,
       "created": "1785197997044",
-      "dueBy": null
+      "dueBy": "1785802797269"
     },
     {
       "id": "23010000045618891",
@@ -670,14 +694,6 @@ const TICKET_SUMMARY = {
       "dueBy": "1785714834501"
     },
     {
-      "id": "23010000045586386",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": "Onboarding / Offboarding Issues",
-      "created": "1785109815628",
-      "dueBy": "1785714618773"
-    },
-    {
       "id": "23010000045586367",
       "status": "Open",
       "priority": "1 Week",
@@ -972,22 +988,6 @@ const TICKET_SUMMARY = {
       "category": "Z. Communications",
       "created": "1784769418168",
       "dueBy": "1785374219013"
-    },
-    {
-      "id": "23010000045505261",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": "Z. Software (Staff & Students)",
-      "created": "1784761748458",
-      "dueBy": "1785366550753"
-    },
-    {
-      "id": "23010000045505246",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": "Audio Visual - Classroom",
-      "created": "1784760370247",
-      "dueBy": "1785365171487"
     }
   ]
 };
