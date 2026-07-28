@@ -1,0 +1,39 @@
+name: Sync SharePoint document index
+
+# Walks the 05Infrastructure library via Microsoft Graph and writes
+# data/sharepoint.js. Names, paths, sizes, modified dates and links only —
+# no file content is ever downloaded. See scripts/sharepoint-index.js.
+
+on:
+  schedule:
+    - cron: "35 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build data/sharepoint.js from Microsoft Graph
+        env:
+          SHAREPOINT_TENANT_ID: ${{ secrets.SHAREPOINT_TENANT_ID }}
+          SHAREPOINT_CLIENT_ID: ${{ secrets.SHAREPOINT_CLIENT_ID }}
+          SHAREPOINT_CLIENT_SECRET: ${{ secrets.SHAREPOINT_CLIENT_SECRET }}
+          SHAREPOINT_EXCLUDE: ${{ secrets.SHAREPOINT_EXCLUDE }}
+        run: node scripts/sharepoint-index.js
+
+      - name: Commit if changed
+        run: |
+          git add data/sharepoint.js
+          if git diff --cached --quiet -- data/sharepoint.js; then
+            echo "no change"
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Update SharePoint document index"
+          git push

@@ -24,6 +24,18 @@ jobs:
             eval "val=\${$v:-}"
             echo "$v set: $([ -n "$val" ] && echo yes || echo NO)"
           done
+
+          # The Azure "Certificates & secrets" page shows Value and Secret ID
+          # side by side, and the ID is the one that looks copy-pasteable. A
+          # GUID here is always the wrong field, so say so before Azure does.
+          if printf '%s' "$SHAREPOINT_CLIENT_SECRET" | grep -Eq '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'; then
+            echo ""
+            echo "SHAREPOINT_CLIENT_SECRET looks like a GUID, which means the"
+            echo "Secret ID was copied instead of the secret Value. The Value is"
+            echo "~40 characters of mixed case with dots/tildes and is shown only"
+            echo "once — if it has been lost, create a new secret."
+            exit 1
+          fi
           echo ""
 
           TOKEN_URL="https://login.microsoftonline.com/${SHAREPOINT_TENANT_ID}/oauth2/v2.0/token"

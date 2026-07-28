@@ -1804,6 +1804,135 @@
       </li>`).join("");
   }
 
+
+  // ---------------------------------------------------------------------
+  // SharePoint library browser
+  // ---------------------------------------------------------------------
+  const SP = () => (typeof SHAREPOINT !== "undefined" ? SHAREPOINT : null);
+
+  const SP_EXT_ICON = {
+    pdf: "icon-docs", doc: "icon-docs", docx: "icon-docs",
+    xls: "icon-ports", xlsx: "icon-ports", csv: "icon-ports",
+    ppt: "icon-map", pptx: "icon-map",
+    png: "icon-camera", jpg: "icon-camera", jpeg: "icon-camera",
+    vsd: "icon-topology", vsdx: "icon-topology",
+    zip: "icon-devices", txt: "icon-docs",
+  };
+
+  function formatBytes(n) {
+    if (!n) return "";
+    const u = ["B", "KB", "MB", "GB"];
+    let i = 0, v = n;
+    while (v >= 1024 && i < u.length - 1) { v /= 1024; i++; }
+    return `${v < 10 && i ? v.toFixed(1) : Math.round(v)} ${u[i]}`;
+  }
+
+  function renderSharePoint() {
+    const card = document.getElementById("sharepoint-browser-card");
+    const setup = document.getElementById("sharepoint-setup-card");
+    const mount = document.getElementById("sharepoint-tree");
+    if (!mount) return;
+    const D = SP();
+
+    // Until the sync has run there is nothing to browse, so the setup guide is
+    // the page. Once it has, the guide collapses out of the way.
+    if (!D || !(D.tree || []).length) {
+      if (card) card.hidden = true;
+      if (setup) setup.hidden = false;
+      return;
+    }
+    if (card) card.hidden = false;
+    if (setup) setup.hidden = true;
+
+    const meta = document.getElementById("sharepoint-meta");
+    if (meta) {
+      meta.textContent =
+        `${D.folders} folders · ${D.files} files · ${formatBytes(D.totalBytes)}` +
+        (D.omitted ? ` · ${D.omitted} omitted` : "") +
+        ` · synced ${new Date(D.updatedAt).toLocaleString()}`;
+    }
+    renderSharePointTree();
+  }
+
+  function renderSharePointTree() {
+    const mount = document.getElementById("sharepoint-tree");
+    const D = SP();
+    if (!mount || !D) return;
+    const q = (document.getElementById("sp-search")?.value || "").trim().toLowerCase();
+
+    const matches = (n) =>
+      !q || n.name.toLowerCase().includes(q) || (n.children || []).some(matches);
+
+    function nodeHtml(n, depth) {
+      if (!matches(n)) return "";
+      const isFolder = n.kind === "folder";
+      const kids = (n.children || []).filter(matches);
+      // A search should reveal what it found, so matching branches open even
+      // if the user had collapsed them.
+      const open = isFolder && (q ? true : depth === 0);
+      const icon = isFolder ? "icon-docs" : (SP_EXT_ICON[n.ext] || "icon-docs");
+      const detail = isFolder
+        ? `${n.count} item${n.count === 1 ? "" : "s"}`
+        : [n.ext ? n.ext.toUpperCase() : "", formatBytes(n.size)].filter(Boolean).join(" · ");
+      const when = n.modified ? new Date(n.modified).toLocaleDateString() : "";
+
+      const label = `
+        <span class="doc-node-text">
+          <span class="doc-node-name">${esc(n.name)}</span>
+          <span class="doc-node-desc">${esc(detail)}${when ? ` · ${esc(when)}` : ""}</span>
+        </span>`;
+
+      const row = isFolder
+        ? `<button type="button" class="doc-node doc-node-folder" aria-expanded="${open}" data-toggle="1">
+             <svg class="icon doc-chev"><use href="#icon-chevron"/></svg>
+             <svg class="icon doc-kind"><use href="#${icon}"/></svg>${label}
+             ${n.href ? `<a class="doc-open" href="${esc(n.href)}" target="_blank" rel="noopener" title="Open in SharePoint"><svg class="icon"><use href="#icon-external"/></svg></a>` : ""}
+           </button>`
+        : `<a class="doc-node" href="${esc(n.href || "#")}" target="_blank" rel="noopener">
+             <svg class="icon doc-kind"><use href="#${icon}"/></svg>${label}
+             <svg class="icon doc-row-icon"><use href="#icon-external"/></svg>
+           </a>`;
+
+      return `<li class="doc-branch" style="--depth:${depth}">
+          ${row}
+          ${kids.length ? `<ul class="doc-children"${open ? "" : " hidden"}>${kids.map((k) => nodeHtml(k, depth + 1)).join("")}</ul>` : ""}
+        </li>`;
+    }
+
+    const html = D.tree.map((n) => nodeHtml(n, 0)).join("");
+    mount.innerHTML = html
+      ? `<ul class="doc-root">${html}</ul>`
+      : `<p class="muted-text" style="margin:0;padding:14px 16px">Nothing matches that search.</p>`;
+  }
+
+  function initSharePoint() {
+    const mount = document.getElementById("sharepoint-tree");
+    if (!mount) return;
+
+    mount.addEventListener("click", (e) => {
+      // The external-open affordance sits inside the folder button; let it
+      // navigate instead of toggling the branch underneath it.
+      if (e.target.closest(".doc-open")) { e.stopPropagation(); return; }
+      const toggle = e.target.closest("[data-toggle]");
+      if (!toggle) return;
+      const open = toggle.getAttribute("aria-expanded") === "true";
+      toggle.setAttribute("aria-expanded", String(!open));
+      const kids = toggle.parentElement.querySelector(".doc-children");
+      if (kids) kids.hidden = open;
+    });
+
+    document.getElementById("sp-search")?.addEventListener("input", renderSharePointTree);
+    const setAll = (open) => {
+      mount.querySelectorAll("[data-toggle]").forEach((t) => {
+        t.setAttribute("aria-expanded", String(open));
+        const kids = t.parentElement.querySelector(".doc-children");
+        if (kids) kids.hidden = !open;
+      });
+    };
+    document.getElementById("sp-expand")?.addEventListener("click", () => setAll(true));
+    document.getElementById("sp-collapse")?.addEventListener("click", () => setAll(false));
+  }
+
   // ---------------------------------------------------------------------
   // Roadmap
   // ---------------------------------------------------------------------
@@ -2808,5 +2937,7 @@
     renderRoadmap();
     renderCns();
     renderSharePointSteps();
+    initSharePoint();
+    renderSharePoint();
   });
 })();

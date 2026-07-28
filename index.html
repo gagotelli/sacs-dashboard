@@ -806,25 +806,21 @@
       </div>
     </div>
 
-    <div class="card">
-      <h2>Step by step</h2>
-      <ol class="setup-steps" id="sharepoint-steps"></ol>
+    <div class="card" id="sharepoint-browser-card">
+      <h2 class="ov-card-head">Library
+        <span class="muted-text" id="sharepoint-meta" style="margin:0"></span>
+      </h2>
+      <div class="filters" style="margin:12px 16px">
+        <input type="search" id="sp-search" placeholder="Search files and folders…" />
+        <button type="button" class="theme-toggle" id="sp-expand">Expand all</button>
+        <button type="button" class="theme-toggle" id="sp-collapse">Collapse all</button>
+      </div>
+      <div class="doc-tree" id="sharepoint-tree"></div>
     </div>
 
-    <div class="card">
-      <h2>What you will end up with</h2>
-      <div class="doc-body">
-        <p>
-          A browsable tree of the 05 Infrastructure library — folders expandable,
-          files searchable, each one opening in SharePoint. It refreshes on the
-          schedule you choose, so renames and new uploads appear without anyone
-          maintaining a list by hand.
-        </p>
-        <p class="muted-text" style="margin-bottom:0">
-          Tell me once the app registration exists and I will write the sync
-          script, the workflow and the renderer.
-        </p>
-      </div>
+    <div class="card" id="sharepoint-setup-card">
+      <h2>Step by step</h2>
+      <ol class="setup-steps" id="sharepoint-steps"></ol>
     </div>
   </section>
 
@@ -849,6 +845,7 @@
 <script src="data/roadmap.js"></script>
 <script src="data/status.js"></script>
 <script src="data/wireless.js"></script>
+<script src="data/sharepoint.js"></script>
 <script src="data/tickets.js"></script>
 <script src="data/endpoints.js"></script>
 <script src="data/security.js"></script>
