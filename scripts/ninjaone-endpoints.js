@@ -83,11 +83,17 @@ function bucketFor(hours) {
   return (STALE_BUCKETS.find((b) => hours < b.maxHours) || STALE_BUCKETS[STALE_BUCKETS.length - 1]).label;
 }
 
-// "CONDITION_AGENT_DISK_FREE_SPACE" reads badly on a wallboard.
+// Turn NinjaOne's CONSTANT_CASE tokens ("WINDOWS_WORKSTATION",
+// "CONDITION_AGENT_DISK_FREE_SPACE") into prose. conditionName often already
+// holds a written-out sentence — lowercasing that would wreck acronyms like
+// CPU and SQL, so anything that is not CONSTANT_CASE is passed through as-is.
 function humanCondition(raw) {
-  const s = String(raw || "").replace(/^CONDITION_/, "").replace(/^AGENT_/, "");
+  const s = String(raw || "").trim();
   if (!s) return "Unknown";
+  if (!/^[A-Z0-9_]+$/.test(s)) return s;
   return s
+    .replace(/^CONDITION_/, "")
+    .replace(/^AGENT_/, "")
     .toLowerCase()
     .split("_")
     .join(" ")
