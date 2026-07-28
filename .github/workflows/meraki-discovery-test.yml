@@ -1,0 +1,75 @@
+name: Meraki API discovery (test)
+on: workflow_dispatch
+
+# Meraki Dashboard API v1. The key is org-scoped, so this walks
+# organizations -> networks -> devices and reports the shape and counts.
+#
+# Prints model/type counts and field NAMES only. Device names and serials are
+# inventory detail; this repo is public, so the discovery log stays aggregate.
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enumerate organizations, networks and devices
+        env:
+          MERAKI_API: ${{ secrets.MERAKI_API }}
+        run: |
+          set -uo pipefail
+          echo "api key set: $([ -n "$MERAKI_API" ] && echo yes || echo NO)"
+          echo ""
+          BASE="https://api.meraki.com/api/v1"
+          H_AUTH="Authorization: Bearer $MERAKI_API"
+
+          code=$(curl -sS -o orgs.json -w '%{http_code}' --max-time 30 "$BASE/organizations" \
+            -H "$H_AUTH" -H 'Accept: application/json' || echo 000)
+          echo "GET /organizations -> HTTP $code"
+          if [ "$code" != "200" ]; then
+            echo "response: $(head -c 300 orgs.json)"
+            echo ""
+            echo "A 401 means the key is wrong or revoked; 404 usually means the"
+            echo "key has no organization access. Check API access is enabled in"
+            echo "the Meraki dashboard under Organization > Settings."
+            exit 1
+          fi
+          echo "  organizations: $(jq 'length' orgs.json)"
+          echo "  fields:        $(jq -r '(.[0] // {}) | keys | join(", ")' orgs.json)"
+          echo ""
+
+          # Org ids are needed to build any URL, and they are not secret in the
+          # way a key is, but they are still account identifiers — masked.
+          jq -r '.[].id' orgs.json | while read -r oid; do echo "::add-mask::$oid"; done
+
+          for oid in $(jq -r '.[].id' orgs.json); do
+            echo "=== organization ==="
+            code=$(curl -sS -o nets.json -w '%{http_code}' --max-time 30 "$BASE/organizations/$oid/networks" \
+              -H "$H_AUTH" -H 'Accept: application/json' || echo 000)
+            echo "  /networks -> HTTP $code, count $(jq 'length' nets.json 2>/dev/null)"
+            [ "$code" = "200" ] && echo "  network fields: $(jq -r '(.[0] // {}) | keys | join(", ")' nets.json)"
+
+            code=$(curl -sS -o devs.json -w '%{http_code}' --max-time 60 \
+              "$BASE/organizations/$oid/devices?perPage=1000" \
+              -H "$H_AUTH" -H 'Accept: application/json' || echo 000)
+            echo "  /devices  -> HTTP $code, count $(jq 'length' devs.json 2>/dev/null)"
+            if [ "$code" = "200" ]; then
+              echo "  device fields: $(jq -r '(.[0] // {}) | keys | join(", ")' devs.json)"
+              echo "  by product type:"
+              jq -r '[.[].productType // "unknown"] | group_by(.) | map("    \(.[0]): \(length)") | .[]' devs.json
+              echo "  by model:"
+              jq -r '[.[].model // "unknown"] | group_by(.) | map("    \(.[0]): \(length)") | .[]' devs.json
+            fi
+
+            code=$(curl -sS -o stat.json -w '%{http_code}' --max-time 60 \
+              "$BASE/organizations/$oid/devices/statuses?perPage=1000" \
+              -H "$H_AUTH" -H 'Accept: application/json' || echo 000)
+            echo "  /devices/statuses -> HTTP $code, count $(jq 'length' stat.json 2>/dev/null)"
+            if [ "$code" = "200" ]; then
+              echo "  status fields: $(jq -r '(.[0] // {}) | keys | join(", ")' stat.json)"
+              jq -r '[.[].status // "unknown"] | group_by(.) | map("    \(.[0]): \(length)") | .[]' stat.json
+            fi
+
+            code=$(curl -sS -o up.json -w '%{http_code}' --max-time 60 \
+              "$BASE/organizations/$oid/devices/uplinksLossAndLatency?timespan=300" \
+              -H "$H_AUTH" -H 'Accept: application/json' || echo 000)
+            echo "  /devices/uplinksLossAndLatency -> HTTP $code"
+          done

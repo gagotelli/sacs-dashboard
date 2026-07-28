@@ -33,6 +33,7 @@
   --surface-3: #fbfbfc;
   --rail: #ffffff;
   --rail-hover: #f1f4f9;
+  --rail-sub: #eaeef5;
   --rail-active-bg: #eaf1fd;
   --rail-text: #52514e;
   --rail-text-active: #1c5cab;
@@ -75,6 +76,7 @@
   --surface-3: #232322;
   --rail: #12182a;
   --rail-hover: #1d2740;
+  --rail-sub: #161f33;
   --rail-active-bg: #1d2740;
   --rail-text: rgba(255, 255, 255, 0.62);
   --rail-text-active: #ffffff;
@@ -865,6 +867,39 @@ footer.app-footer {
   border-left-color: var(--layer-core);
 }
 
+/* Collapsible rail group. The rail is only 68px wide, so grouped children are
+   text-only — an icon per child at this width is unreadable and the group
+   header already carries the icon. */
+.rail-group { display: flex; flex-direction: column; }
+.rail-group-toggle {
+  appearance: none; border: 0; background: none; color: var(--rail-text);
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 9px 2px; font: inherit; font-size: 9.5px; font-weight: 600;
+  cursor: pointer; border-left: 3px solid transparent; position: relative;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.rail-group-toggle:hover { background: var(--rail-hover); color: var(--rail-text-active); }
+.rail-group-toggle .icon { width: 19px; height: 19px; }
+.rail-group-toggle .rail-chev {
+  position: absolute; right: 3px; top: 11px; width: 11px; height: 11px;
+  opacity: 0.6; transform: rotate(90deg); transition: transform 0.15s ease;
+}
+.rail-group-toggle[aria-expanded="true"] .rail-chev { transform: rotate(-90deg); }
+/* Marks the group when it holds the active panel but is collapsed, so the
+   current location is still visible without expanding. */
+.rail-group.has-active > .rail-group-toggle { color: var(--rail-text-active); border-left-color: var(--layer-core); }
+
+.rail-group-items { display: flex; flex-direction: column; }
+.rail-group-toggle[aria-expanded="false"] + .rail-group-items { display: none; }
+.rail-item.sub {
+  padding: 7px 2px;
+  font-size: 9px;
+  font-weight: 500;
+  opacity: 0.92;
+  background: var(--rail-sub, rgba(0, 0, 0, 0.05));
+}
+.rail-item.sub.active { opacity: 1; }
+
 .app-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .app-main main { flex: 1; width: 100%; }
 
@@ -1056,3 +1091,34 @@ main { padding: 16px; max-width: none; }
 :root[data-theme="dark"] .pill-good     { background: rgba(12, 163, 12, 0.18); color: #62cf62; }
 :root[data-theme="dark"] .pill-warning  { background: rgba(250, 178, 25, 0.18); color: #f5c453; }
 :root[data-theme="dark"] .pill-critical { background: rgba(208, 59, 59, 0.20); color: #f08a8a; }
+
+/* ---------------------------------------------------------------
+   Documentation tree
+   --------------------------------------------------------------- */
+.doc-tree ul { list-style: none; margin: 0; padding: 0; }
+.doc-root > .doc-branch { border-top: 1px solid var(--border); }
+.doc-root > .doc-branch:first-child { border-top: 0; }
+.doc-node {
+  display: flex; align-items: flex-start; gap: 9px; width: 100%;
+  padding: 9px 10px 9px calc(10px + var(--depth, 0) * 22px);
+  background: none; border: 0; font: inherit; color: var(--text-primary);
+  text-align: left; cursor: pointer; text-decoration: none;
+  border-radius: 8px; transition: background 0.12s ease;
+}
+.doc-node:hover { background: var(--surface-2); }
+.doc-node-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.doc-node-name { font-size: 13.5px; font-weight: 600; overflow-wrap: break-word; }
+.doc-node-desc { font-size: 12px; color: var(--text-secondary); overflow-wrap: break-word; }
+.doc-kind { margin-top: 2px; opacity: 0.65; }
+.doc-chev { margin-top: 2px; transform: rotate(90deg); transition: transform 0.15s ease; opacity: 0.75; }
+.doc-node-folder[aria-expanded="true"] .doc-chev { transform: rotate(-90deg); }
+.doc-node-folder .doc-node-name { font-weight: 700; }
+.doc-open {
+  display: inline-flex; align-items: center; padding: 3px 6px; border-radius: 6px;
+  color: var(--text-secondary); flex-shrink: 0;
+}
+.doc-open:hover { background: var(--surface-3); color: var(--layer-core); }
+/* A node whose contents are not synced yet is marked so it never reads as an
+   empty folder — it is unfetched, not empty. */
+.doc-pending > .doc-node { opacity: 0.75; font-style: italic; }
+.doc-pending > .doc-node .doc-node-name { font-weight: 500; }

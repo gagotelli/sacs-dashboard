@@ -1,50 +1,82 @@
-// Documentation index — a single map of everything the IT team might need to
-// find: in-dashboard reference sections, runbooks, and the admin portals for
-// each vendor system. `href` starting with "#" jumps to a tab in this
-// dashboard; anything else opens externally.
-const DOC_INDEX = [
+// Documentation tree — one hierarchy covering everything the IT team needs to
+// find: reference sections inside this dashboard, the SharePoint document
+// library, runbooks, and each vendor's admin console.
+//
+// Node shape:
+//   { name, kind, desc?, href?, external?, panel?, children?[] }
+//   kind: "folder" | "page" | "link" | "doc" | "pending"
+//
+// SHAREPOINT: the 05Infrastructure library cannot be enumerated from a static
+// site — it is behind Entra ID sign-in, and this dashboard has no server side.
+// Listing it needs a Microsoft Graph app registration and a sync workflow, the
+// same pattern used for Auvik/NinjaOne. Until that exists the branch links to
+// the library rather than inventing a folder structure that may not match it.
+const SHAREPOINT_ROOT = "https://standrewscs.sharepoint.com/sites/SACSITTeam/05Infrastructure";
+
+const DOC_TREE = [
   {
-    category: "Network Reference",
-    items: [
-      { title: "Topology map", desc: "Core, security, and SAH/BBC access & distribution layers", href: "#topology" },
-      { title: "Devices & infrastructure", desc: "Switches, servers/hypervisors, and the cloud, MDR & wireless summary", href: "#devices" },
-      { title: "VLAN reference", desc: "All 41 documented VLANs — searchable, with audit status", href: "#vlans" },
-      { title: "Port & speed summary", desc: "Uplink port and speed reference, plus layer-3 interfaces", href: "#ports" },
-    ],
-  },
-  {
-    category: "Systems & Compliance",
-    items: [
-      { title: "Services", desc: "Business services — owner, criticality, MFA, internet exposure", href: "#services" },
-      { title: "License tracker", desc: "Expiry tracking for OS, firewall, and subscription licenses", href: "#licenses" },
-      { title: "CCTV fleet", desc: "245 cameras across SAH & BBC, recording platform, camera models", href: "#cctv" },
-    ],
-  },
-  {
-    category: "Security Roadmap",
-    items: [
-      { title: "Roadmap", desc: "Infrastructure upgrade plan, budgets, and project status", href: "#roadmap" },
-    ],
-  },
-  {
-    category: "Documents & Guides",
-    items: [
+    name: "SharePoint — 05 Infrastructure",
+    kind: "folder",
+    desc: "The team's document library. SACS sign-in required.",
+    href: SHAREPOINT_ROOT,
+    external: true,
+    open: true,
+    children: [
       {
-        title: "IT Team — Infrastructure library",
-        desc: "SharePoint: PDFs, guides, and spreadsheets (SACS sign-in required)",
-        href: "https://standrewscs.sharepoint.com/sites/SACSITTeam/05Infrastructure",
+        name: "Folder contents not yet synced",
+        kind: "pending",
+        desc: "Needs a Microsoft Graph app registration and a sync workflow before files can be listed here.",
+        href: SHAREPOINT_ROOT,
         external: true,
       },
     ],
   },
   {
-    category: "Admin Portals",
-    items: [
-      { title: "Palo Alto Firewall A", desc: "172.16.50.101 — on network/VPN only", href: "https://172.16.50.101", external: true },
-      { title: "Palo Alto Firewall B", desc: "172.16.50.102 — on network/VPN only", href: "https://172.16.50.102", external: true },
-      { title: "Aruba ClearPass", desc: "10.160.0.50 — RADIUS / NAC, on network/VPN only", href: "https://10.160.0.50", external: true },
-      { title: "Meraki Dashboard", desc: "SAH + BBC access points (181 APs)", href: "https://dashboard.meraki.com", external: true },
-      { title: "Vivi Cloud", desc: "AV casting / classroom display management", href: "https://admin.vivi.io", external: true },
+    name: "Network reference",
+    kind: "folder",
+    open: true,
+    children: [
+      { name: "Topology map", kind: "page", panel: "panel-topology", desc: "Core, security and access layers across SAH and BBC" },
+      { name: "Devices & infrastructure", kind: "page", panel: "panel-devices", desc: "Switches, hosts, wireless access points and critical infrastructure" },
+      { name: "VLAN reference", kind: "page", panel: "panel-vlans", desc: "All documented VLANs, searchable, with audit status" },
+      { name: "Port & speed summary", kind: "page", panel: "panel-ports", desc: "Uplink ports, speeds and layer-3 interfaces" },
+    ],
+  },
+  {
+    name: "Operations",
+    kind: "folder",
+    open: true,
+    children: [
+      { name: "Support tickets", kind: "page", panel: "panel-tickets", desc: "ManageEngine ServiceDesk Plus — aggregate view" },
+      { name: "Managed endpoints", kind: "page", panel: "panel-endpoints", desc: "NinjaOne — endpoint estate and open alerts" },
+      { name: "Security tickets", kind: "page", panel: "panel-security", desc: "Arctic Wolf — ranked triage queue" },
+      { name: "Services", kind: "page", panel: "panel-services", desc: "Business services, owners, criticality, MFA and exposure" },
+      { name: "CCTV fleet", kind: "page", panel: "panel-cctv", desc: "Cameras across SAH and BBC, recording platform and models" },
+      { name: "License tracker", kind: "page", panel: "panel-licenses", desc: "Expiry tracking for OS, firewall and subscription licences" },
+    ],
+  },
+  {
+    name: "Planning",
+    kind: "folder",
+    open: true,
+    children: [
+      { name: "Infrastructure roadmap", kind: "page", panel: "panel-roadmap", desc: "Phased upgrade plan, budgets and critical actions" },
+    ],
+  },
+  {
+    name: "Admin portals",
+    kind: "folder",
+    desc: "Most require being on the school network or VPN.",
+    children: [
+      { name: "Palo Alto Firewall A", kind: "link", href: "https://172.16.50.101", external: true, desc: "172.16.50.101" },
+      { name: "Palo Alto Firewall B", kind: "link", href: "https://172.16.50.102", external: true, desc: "172.16.50.102" },
+      { name: "Aruba ClearPass", kind: "link", href: "https://10.160.0.50", external: true, desc: "10.160.0.50 — RADIUS / NAC" },
+      { name: "Meraki Dashboard", kind: "link", href: "https://dashboard.meraki.com", external: true, desc: "Wireless access points" },
+      { name: "Auvik", kind: "link", href: "https://sacsmain.au1.my.auvik.com/", external: true, desc: "Live network discovery and monitoring" },
+      { name: "NinjaOne", kind: "link", href: "https://oc.ninjarmm.com/", external: true, desc: "Endpoint management" },
+      { name: "Arctic Wolf", kind: "link", href: "https://dashboard.arcticwolf.com/", external: true, desc: "Managed detection and response" },
+      { name: "ManageEngine ServiceDesk", kind: "link", href: "https://sacs.sdpondemand.manageengine.com/app/itdesk/ui/requests", external: true, desc: "Helpdesk" },
+      { name: "Vivi Cloud", kind: "link", href: "https://admin.vivi.io", external: true, desc: "AV casting / classroom displays" },
     ],
   },
 ];

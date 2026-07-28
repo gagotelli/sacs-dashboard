@@ -34,15 +34,27 @@
 <div class="app-shell">
 <aside class="rail">
   <div class="rail-logo"><img src="assets/sacs-crest.png" alt="" /></div>
-  <button class="rail-item active" data-panel="panel-overview" title="Overview"><svg class="icon"><use href="#icon-home"/></svg><span>Dash</span></button>
-  <button class="rail-item" data-panel="panel-topology" title="Topology"><svg class="icon"><use href="#icon-topology"/></svg><span>Topology</span></button>
-  <button class="rail-item" data-panel="panel-devices" title="Devices & Infrastructure"><svg class="icon"><use href="#icon-devices"/></svg><span>Devices</span></button>
-  <button class="rail-item" data-panel="panel-services" title="Services"><svg class="icon"><use href="#icon-services"/></svg><span>Services</span></button>
-  <button class="rail-item" data-panel="panel-licenses" title="Licenses"><svg class="icon"><use href="#icon-license"/></svg><span>Licenses</span></button>
-  <button class="rail-item" data-panel="panel-vlans" title="VLANs"><svg class="icon"><use href="#icon-vlans"/></svg><span>VLANs</span></button>
-  <button class="rail-item" data-panel="panel-cctv" title="CCTV"><svg class="icon"><use href="#icon-camera"/></svg><span>CCTV</span></button>
-  <button class="rail-item" data-panel="panel-ports" title="Port & Speed Summary"><svg class="icon"><use href="#icon-ports"/></svg><span>Ports</span></button>
+  <button class="rail-item active" data-panel="panel-overview" title="Overview"><svg class="icon"><use href="#icon-home"/></svg><span>Overview</span></button>
+
+  <div class="rail-group" id="rail-group-network">
+    <button class="rail-group-toggle" type="button" aria-expanded="true" aria-controls="rail-items-network">
+      <svg class="icon"><use href="#icon-topology"/></svg><span>Network</span>
+      <svg class="icon rail-chev"><use href="#icon-arrow"/></svg>
+    </button>
+    <div class="rail-group-items" id="rail-items-network">
+      <button class="rail-item sub" data-panel="panel-topology" title="Topology"><span>Topology</span></button>
+      <button class="rail-item sub" data-panel="panel-devices" title="Devices &amp; Infrastructure"><span>Devices</span></button>
+      <button class="rail-item sub" data-panel="panel-services" title="Services"><span>Services</span></button>
+      <button class="rail-item sub" data-panel="panel-vlans" title="VLANs"><span>VLANs</span></button>
+      <button class="rail-item sub" data-panel="panel-ports" title="Port &amp; Speed Summary"><span>Ports</span></button>
+    </div>
+  </div>
+
   <button class="rail-item" data-panel="panel-tickets" title="Tickets"><svg class="icon"><use href="#icon-ticket"/></svg><span>Tickets</span></button>
+  <button class="rail-item" data-panel="panel-endpoints" title="Endpoints"><svg class="icon"><use href="#icon-hosts"/></svg><span>Endpoints</span></button>
+  <button class="rail-item" data-panel="panel-security" title="Security"><svg class="icon"><use href="#icon-infra"/></svg><span>Security</span></button>
+  <button class="rail-item" data-panel="panel-cctv" title="CCTV"><svg class="icon"><use href="#icon-camera"/></svg><span>CCTV</span></button>
+  <button class="rail-item" data-panel="panel-licenses" title="Licenses"><svg class="icon"><use href="#icon-license"/></svg><span>Licenses</span></button>
   <button class="rail-item" data-panel="panel-roadmap" title="Roadmap"><svg class="icon"><use href="#icon-map"/></svg><span>Roadmap</span></button>
   <button class="rail-item" data-panel="panel-docs" title="Documentation"><svg class="icon"><use href="#icon-docs"/></svg><span>Docs</span></button>
 </aside>
@@ -74,15 +86,15 @@
 <nav class="tabs">
   <button class="active" data-panel="panel-overview"><svg class="icon"><use href="#icon-home"/></svg>Overview</button>
   <button data-panel="panel-topology"><svg class="icon"><use href="#icon-topology"/></svg>Topology</button>
-  <button data-panel="panel-devices"><svg class="icon"><use href="#icon-devices"/></svg>Devices &amp; Infrastructure</button>
+  <button data-panel="panel-devices"><svg class="icon"><use href="#icon-devices"/></svg>Devices</button>
   <button data-panel="panel-services"><svg class="icon"><use href="#icon-services"/></svg>Services</button>
-  <button data-panel="panel-licenses"><svg class="icon"><use href="#icon-license"/></svg>Licenses</button>
   <button data-panel="panel-vlans"><svg class="icon"><use href="#icon-vlans"/></svg>VLANs</button>
-  <button data-panel="panel-cctv"><svg class="icon"><use href="#icon-camera"/></svg>CCTV</button>
-  <button data-panel="panel-ports"><svg class="icon"><use href="#icon-ports"/></svg>Port &amp; Speed Summary</button>
+  <button data-panel="panel-ports"><svg class="icon"><use href="#icon-ports"/></svg>Ports</button>
   <button data-panel="panel-tickets"><svg class="icon"><use href="#icon-ticket"/></svg>Tickets</button>
-  <button data-panel="panel-endpoints"><svg class="icon"><use href="#icon-devices"/></svg>Endpoints</button>
-  <button data-panel="panel-security"><svg class="icon"><use href="#icon-services"/></svg>Security</button>
+  <button data-panel="panel-endpoints"><svg class="icon"><use href="#icon-hosts"/></svg>Endpoints</button>
+  <button data-panel="panel-security"><svg class="icon"><use href="#icon-infra"/></svg>Security</button>
+  <button data-panel="panel-cctv"><svg class="icon"><use href="#icon-camera"/></svg>CCTV</button>
+  <button data-panel="panel-licenses"><svg class="icon"><use href="#icon-license"/></svg>Licenses</button>
   <button data-panel="panel-roadmap"><svg class="icon"><use href="#icon-map"/></svg>Roadmap</button>
   <button data-panel="panel-docs"><svg class="icon"><use href="#icon-docs"/></svg>Documentation</button>
 </nav>
@@ -754,7 +766,14 @@
         open the vendor's own console (most require being on the school network or VPN).
       </p>
     </div>
-    <div id="doc-index"></div>
+    <div class="card">
+      <div class="filters" style="margin-bottom:12px">
+        <input type="search" id="doc-search" placeholder="Filter documents…" />
+        <button type="button" class="theme-toggle" id="doc-expand">Expand all</button>
+        <button type="button" class="theme-toggle" id="doc-collapse">Collapse all</button>
+      </div>
+      <div class="doc-tree" id="doc-tree"></div>
+    </div>
 
     <h2 class="section-heading">Runbooks</h2>
     <div id="runbooks"></div>

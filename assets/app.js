@@ -66,6 +66,36 @@
 
     const wanted = location.hash.replace("#", "");
     if (wanted) go("panel-" + wanted, false);
+
+    initRailGroups();
+    syncRailGroups();
+    // activate() runs on every navigation, so group state must follow it.
+    document.addEventListener("click", syncRailGroups);
+  }
+
+  // Collapsible rail groups. The open/closed choice is remembered, but a group
+  // is force-opened whenever it holds the active panel — otherwise arriving by
+  // URL hash lands you on a page you cannot see in the menu.
+  function initRailGroups() {
+    document.querySelectorAll(".rail-group").forEach((group) => {
+      const toggle = group.querySelector(".rail-group-toggle");
+      if (!toggle) return;
+      const key = `sacs-rail-${group.id}`;
+      if (localStorage.getItem(key) === "closed") toggle.setAttribute("aria-expanded", "false");
+      toggle.addEventListener("click", () => {
+        const open = toggle.getAttribute("aria-expanded") === "true";
+        toggle.setAttribute("aria-expanded", String(!open));
+        localStorage.setItem(key, open ? "closed" : "open");
+      });
+    });
+  }
+
+  function syncRailGroups() {
+    document.querySelectorAll(".rail-group").forEach((group) => {
+      const active = group.querySelector(".rail-item.active");
+      group.classList.toggle("has-active", Boolean(active));
+      if (active) group.querySelector(".rail-group-toggle")?.setAttribute("aria-expanded", "true");
+    });
   }
 
   // ---------------------------------------------------------------------
@@ -1394,29 +1424,7 @@
   // Documentation index
   // ---------------------------------------------------------------------
   function renderDocs() {
-    const indexEl = document.getElementById("doc-index");
-    indexEl.innerHTML = DOC_INDEX.map((cat) => `
-      <div class="card doc-card">
-        <h2>${esc(cat.category)}</h2>
-        <div class="doc-list">
-          ${cat.items.map((item) => {
-            const tag = item.external ? "a" : "button";
-            const attrs = item.external
-              ? `href="${esc(item.href)}" target="_blank" rel="noopener"`
-              : `type="button" data-panel="panel-${esc(item.href.replace('#', ''))}"`;
-            const icon = item.external ? "icon-external" : "icon-arrow";
-            return `
-              <${tag} class="doc-row" ${attrs}>
-                <span class="doc-row-text">
-                  <span class="doc-row-title">${esc(item.title)}</span>
-                  <span class="doc-row-desc">${esc(item.desc)}</span>
-                </span>
-                <svg class="icon doc-row-icon"><use href="#${icon}"/></svg>
-              </${tag}>`;
-          }).join("")}
-        </div>
-      </div>
-    `).join("");
+    renderDocTree();
 
     const runbookEl = document.getElementById("runbooks");
     runbookEl.innerHTML = RUNBOOKS.map((r) => `
@@ -1426,6 +1434,98 @@
         <ol>${r.steps.map((s) => `<li>${esc(s)}</li>`).join("")}</ol>
       </div>
     `).join("");
+  }
+
+  const DOC_KIND_ICON = {
+    folder: "icon-docs",
+    page: "icon-arrow",
+    link: "icon-external",
+    doc: "icon-docs",
+    pending: "icon-external",
+  };
+
+  // Renders DOC_TREE as a nested disclosure list. A filter matches a node if
+  // the node itself matches or any descendant does, so a hit deep in a branch
+  // still shows its path rather than appearing at the root with no context.
+  function renderDocTree() {
+    const mount = document.getElementById("doc-tree");
+    if (!mount) return;
+    const q = (document.getElementById("doc-search")?.value || "").trim().toLowerCase();
+
+    const matches = (n) =>
+      !q || `${n.name} ${n.desc || ""}`.toLowerCase().includes(q) || (n.children || []).some(matches);
+
+    function nodeHtml(n, depth) {
+      if (!matches(n)) return "";
+      const kids = (n.children || []).filter(matches);
+      const isFolder = n.kind === "folder";
+      // A search should reveal what it found, so matching branches open even
+      // if the user had collapsed them.
+      const open = isFolder && (q ? true : n.open !== false);
+      const icon = DOC_KIND_ICON[n.kind] || "icon-arrow";
+
+      const label = `
+        <span class="doc-node-text">
+          <span class="doc-node-name">${esc(n.name)}</span>
+          ${n.desc ? `<span class="doc-node-desc">${esc(n.desc)}</span>` : ""}
+        </span>`;
+
+      let row;
+      if (isFolder) {
+        row = `<button type="button" class="doc-node doc-node-folder" aria-expanded="${open}" data-toggle="1">
+            <svg class="icon doc-chev"><use href="#icon-arrow"/></svg>
+            <svg class="icon doc-kind"><use href="#${icon}"/></svg>
+            ${label}
+            ${n.href ? `<a class="doc-open" href="${esc(n.href)}" target="_blank" rel="noopener" title="Open in SharePoint"><svg class="icon"><use href="#icon-external"/></svg></a>` : ""}
+          </button>`;
+      } else if (n.panel) {
+        row = `<button type="button" class="doc-node" data-panel="${esc(n.panel)}">
+            <svg class="icon doc-kind"><use href="#${icon}"/></svg>${label}
+          </button>`;
+      } else {
+        row = `<a class="doc-node" href="${esc(n.href || "#")}"${n.external ? ' target="_blank" rel="noopener"' : ""}>
+            <svg class="icon doc-kind"><use href="#${icon}"/></svg>${label}
+          </a>`;
+      }
+
+      return `<li class="doc-branch${n.kind === "pending" ? " doc-pending" : ""}" style="--depth:${depth}">
+          ${row}
+          ${kids.length ? `<ul class="doc-children"${open ? "" : " hidden"}>${kids.map((k) => nodeHtml(k, depth + 1)).join("")}</ul>` : ""}
+        </li>`;
+    }
+
+    const html = DOC_TREE.map((n) => nodeHtml(n, 0)).join("");
+    mount.innerHTML = html
+      ? `<ul class="doc-root">${html}</ul>`
+      : `<p class="muted-text" style="margin:0">Nothing matches that filter.</p>`;
+  }
+
+  function initDocTree() {
+    const mount = document.getElementById("doc-tree");
+    if (!mount) return;
+
+    mount.addEventListener("click", (e) => {
+      // The external-open affordance sits inside the folder button; let it
+      // navigate instead of toggling the branch underneath it.
+      if (e.target.closest(".doc-open")) { e.stopPropagation(); return; }
+      const toggle = e.target.closest("[data-toggle]");
+      if (!toggle) return;
+      const open = toggle.getAttribute("aria-expanded") === "true";
+      toggle.setAttribute("aria-expanded", String(!open));
+      const kids = toggle.parentElement.querySelector(".doc-children");
+      if (kids) kids.hidden = open;
+    });
+
+    document.getElementById("doc-search")?.addEventListener("input", renderDocTree);
+    const setAll = (open) => {
+      mount.querySelectorAll("[data-toggle]").forEach((t) => {
+        t.setAttribute("aria-expanded", String(open));
+        const kids = t.parentElement.querySelector(".doc-children");
+        if (kids) kids.hidden = !open;
+      });
+    };
+    document.getElementById("doc-expand")?.addEventListener("click", () => setAll(true));
+    document.getElementById("doc-collapse")?.addEventListener("click", () => setAll(false));
   }
 
   // ---------------------------------------------------------------------
@@ -1908,6 +2008,7 @@
     renderPorts();
     renderRoadmap();
     renderCns();
+    initDocTree();
     renderDocs();
   });
 })();
