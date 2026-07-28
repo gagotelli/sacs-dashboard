@@ -26,12 +26,15 @@ jobs:
 
       - name: Commit if changed
         run: |
-          if git diff --quiet -- data/endpoints.js; then
+          # `git diff` is blind to untracked files, so on the very first run
+          # this would report "no change" for a file that did not exist yet
+          # and never commit it. Stage first, then diff the index.
+          git add data/endpoints.js
+          if git diff --cached --quiet -- data/endpoints.js; then
             echo "no change"
             exit 0
           fi
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/endpoints.js
           git commit -m "Update endpoint summary from NinjaOne"
           git push

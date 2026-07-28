@@ -81,6 +81,7 @@
   <button data-panel="panel-cctv"><svg class="icon"><use href="#icon-camera"/></svg>CCTV</button>
   <button data-panel="panel-ports"><svg class="icon"><use href="#icon-ports"/></svg>Port &amp; Speed Summary</button>
   <button data-panel="panel-tickets"><svg class="icon"><use href="#icon-ticket"/></svg>Tickets</button>
+  <button data-panel="panel-endpoints"><svg class="icon"><use href="#icon-devices"/></svg>Endpoints</button>
   <button data-panel="panel-roadmap"><svg class="icon"><use href="#icon-map"/></svg>Roadmap</button>
   <button data-panel="panel-docs"><svg class="icon"><use href="#icon-docs"/></svg>Documentation</button>
 </nav>
@@ -420,6 +421,49 @@
     </div>
   </section>
 
+  <section id="panel-endpoints" class="panel">
+    <div class="ticket-hero">
+      <div>
+        <h2 class="section-heading" style="margin-bottom:4px">Managed endpoints</h2>
+        <p class="muted-text" style="margin:0" id="endpoint-updated"></p>
+      </div>
+      <a class="link-button" id="endpoint-portal-link" href="#" target="_blank" rel="noopener">
+        Open in NinjaOne <svg class="icon"><use href="#icon-external"/></svg>
+      </a>
+    </div>
+
+    <div class="kpi-row" id="endpoint-kpi-row"></div>
+
+    <div class="card" id="endpoint-privacy-note">
+      <h2>Counts only, no machine names</h2>
+      <p class="muted-text" style="margin-bottom:0">
+        NinjaOne manages the whole endpoint estate, including staff and student
+        laptops. This dashboard is served from a public repository, so this page
+        publishes totals, device classes and NinjaOne's own alert condition
+        names — never a hostname, a user, or which machine an alert belongs to.
+        Use the NinjaOne link above when you need to act on a specific device.
+      </p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h2>Endpoints by class</h2>
+        <div class="bar-list" id="endpoint-class-bars"></div>
+      </div>
+      <div class="card">
+        <h2>How long since last check-in</h2>
+        <p class="muted-text" id="endpoint-staleness-note"></p>
+        <div class="bar-list" id="endpoint-staleness-bars"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Open alerts by condition</h2>
+      <p class="muted-text" id="endpoint-alert-note"></p>
+      <div class="bar-list" id="endpoint-condition-bars"></div>
+    </div>
+  </section>
+
   <section id="panel-roadmap" class="panel">
     <div class="card">
       <h2>Overall position</h2>
@@ -611,6 +655,7 @@
 <script src="data/docs.js"></script>
 <script src="data/status.js"></script>
 <script src="data/tickets.js"></script>
+<script src="data/endpoints.js"></script>
 <script src="assets/app.js"></script>
 </body>
 </html>

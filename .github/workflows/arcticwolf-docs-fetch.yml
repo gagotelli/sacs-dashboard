@@ -25,13 +25,16 @@ jobs:
         run: |
           set -uo pipefail
           UA='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36'
+          # Slugs read from the section index — note the doubled hyphens and
+          # the arctic-wolf-ticket-api segment, both of which a guess misses.
+          BASE='https://docs.arcticwolf.com/en/developer-and-oem/ticket-api/arctic-wolf-ticket-api'
           for slug in \
             ticket-api-specifications \
             two-way-pull-api-integrations \
-            use-the-ticket-api-beginner \
-            use-the-ticket-api-advanced \
+            use-the-ticket-api---beginner \
+            use-the-ticket-api---advanced \
             sample-ticket-api-configurations ; do
-            u="https://docs.arcticwolf.com/en/developer-and-oem/ticket-api/$slug"
+            u="$BASE/$slug"
             code=$(curl -sSL -A "$UA" -o p.html -w '%{http_code}' "$u" || echo 000)
             echo ""
             echo "############ $slug -> HTTP $code ($(wc -c < p.html)B)"
@@ -67,7 +70,9 @@ jobs:
                    api-dashboard.arcticwolf.com dashboard-api.arcticwolf.com \
                    ticketapi.arcticwolf.com public-api.arcticwolf.com \
                    api.arcticwolf.io arcticwolf.io; do
-            addr=$(getent hosts "$h" 2>/dev/null | head -1 | awk '{print $1}')
+            # GitHub runs steps under `bash -e`, and getent exits 2 on NXDOMAIN,
+            # so an unguarded assignment aborts the step at the first miss.
+            addr=$(getent hosts "$h" 2>/dev/null | head -1 | awk '{print $1}' || true)
             if [ -n "$addr" ]; then
               code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 12 "https://$h/" || echo 000)
               echo "  $h RESOLVES ($addr)  HTTPS / -> $code"

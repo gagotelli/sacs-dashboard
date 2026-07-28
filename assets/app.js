@@ -1296,6 +1296,93 @@
   }
 
   // ---------------------------------------------------------------------
+  // Managed endpoints (NinjaOne)
+  // ---------------------------------------------------------------------
+  // Aggregates only — see the privacy note on the page. Two things about this
+  // tenant shape the presentation:
+  //
+  //   1. NinjaOne "offline" means the agent has not checked in. Most of the
+  //      estate is laptops, so a large offline count is normally powered-down
+  //      machines, not an outage. It is labelled "not checked in" and split by
+  //      staleness, because a laptop dark overnight and one dark for six weeks
+  //      are different findings.
+  //   2. Every alert here carries severity NONE, so severity ranks nothing.
+  //      conditionName is what distinguishes them.
+  const STALENESS_COLOR = {
+    "Under 24 hours": "var(--prio-4)",
+    "1–7 days": "var(--prio-3)",
+    "7–30 days": "var(--prio-2)",
+    "Over 30 days": "var(--prio-1)",
+    "Never contacted": "var(--prio-none)",
+  };
+
+  function renderEndpoints() {
+    const updatedEl = document.getElementById("endpoint-updated");
+    const kpiEl = document.getElementById("endpoint-kpi-row");
+    const linkEl = document.getElementById("endpoint-portal-link");
+    if (!updatedEl) return;
+
+    const S = typeof ENDPOINT_SUMMARY !== "undefined" ? ENDPOINT_SUMMARY : {};
+    const dev = S.devices || {};
+    const alerts = S.alerts || {};
+
+    if (dev.total == null) {
+      updatedEl.textContent = "Not connected to NinjaOne yet.";
+      kpiEl.innerHTML = "";
+      return;
+    }
+
+    linkEl.href = S.portalUrl || "https://app.ninjarmm.com/";
+    updatedEl.textContent = S.updatedAt
+      ? `Last synced ${new Date(S.updatedAt).toLocaleString()} · ${esc(S.source || "")}`
+      : "";
+
+    const stale = dev.byStaleness || [];
+    // Only the buckets past a week are worth chasing; the rest is normal churn.
+    const chaseable = stale
+      .filter((b) => b.label === "7–30 days" || b.label === "Over 30 days" || b.label === "Never contacted")
+      .reduce((n, b) => n + b.value, 0);
+
+    kpiEl.innerHTML = [
+      { value: dev.total, label: "Managed endpoints" },
+      { value: dev.online, label: "Checked in recently" },
+      { value: dev.notCheckedIn, label: "Not checked in" },
+      { value: chaseable, label: "Dark over 7 days", urgent: true },
+      { value: alerts.total, label: "Open alerts" },
+    ].map((k) => `
+      <div class="kpi-tile">
+        <div class="value"${k.urgent && k.value > 0 ? ' style="color:var(--status-warning)"' : ""}>${esc(Number(k.value || 0).toLocaleString())}</div>
+        <div class="label">${esc(k.label)}</div>
+      </div>`).join("");
+
+    document.getElementById("endpoint-class-bars").innerHTML =
+      barListHtml(dev.byClass || [], "var(--layer-access)");
+
+    document.getElementById("endpoint-staleness-note").textContent =
+      `${Number(dev.notCheckedIn || 0).toLocaleString()} of ${Number(dev.total || 0).toLocaleString()} endpoints are not currently checked in. ` +
+      "For a laptop estate that is mostly powered-down machines — the buckets " +
+      "past a week are the ones worth chasing.";
+
+    document.getElementById("endpoint-staleness-bars").innerHTML = stale.length
+      ? stale.map((b) => `
+          <div class="bar-row">
+            <div class="bar-row-label">${esc(b.label)}</div>
+            <div class="bar-track"><div class="bar-fill" style="width:${((b.value / Math.max(...stale.map((x) => x.value), 1)) * 100).toFixed(1)}%; background:${STALENESS_COLOR[b.label] || "var(--prio-none)"}"></div></div>
+            <div class="bar-row-value">${esc(b.value)}</div>
+          </div>`).join("")
+      : `<p class="muted-text" style="margin:0">Everything has checked in.</p>`;
+
+    document.getElementById("endpoint-alert-note").textContent = alerts.severityUsable
+      ? "Grouped by NinjaOne's alert condition."
+      : "Every alert in this tenant is reported with severity NONE, so severity " +
+        "cannot rank them — these are grouped by condition instead.";
+
+    document.getElementById("endpoint-condition-bars").innerHTML = (alerts.byCondition || []).length
+      ? barListHtml(alerts.byCondition, "var(--layer-core)")
+      : `<p class="muted-text" style="margin:0">No open alerts.</p>`;
+  }
+
+  // ---------------------------------------------------------------------
   // Status banner
   // ---------------------------------------------------------------------
   function renderStatusBanner() {
@@ -1340,6 +1427,7 @@
     renderTickets();
     initTicketListFilters();
     renderTicketsPage();
+    renderEndpoints();
     renderHealthStrip();
     renderCampusCards();
     renderInfraTiles();
