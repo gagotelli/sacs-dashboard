@@ -1,111 +1,100 @@
 name: Arctic Wolf API discovery (test)
 on: workflow_dispatch
 
-# Arctic Wolf's API surface varies by contract, so this probes a set of
-# candidate endpoints and reports which ones the key can reach, rather than
-# assuming a shape.
+# Base URLs come from the published spec, not from guessing:
+#   https://docs.arcticwolf.com/en/developer-and-oem/ticket-api/
+#     arctic-wolf-ticket-api/use-the-ticket-api---advanced
 #
-# Alert bodies name hosts, users and sometimes attack detail. This repo is
-# public, so nothing beyond status codes, field NAMES and counts is printed —
-# no alert content reaches the log.
+#   Organizations: https://eloc.global-prod.arcticwolf.net/api/v1/organizations
+#   Tickets:       https://ticket-api.managedgw.<pod>-prod.arcticwolf.net
+#                    /api/v1/organizations/<organizationId>/tickets
+#
+# The API lives on arcticwolf.NET; every arcticwolf.com host is either the
+# marketing site or the console, which is why earlier probes found nothing.
+#
+# Arctic Wolf ticket bodies name hosts, users and attack detail. This repo is
+# public, so this prints status codes, field NAMES and counts only — never a
+# ticket subject, description, or organisation identifier.
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Authenticate and probe
+      - name: Organizations API — find the pod and organisation
         env:
           ARCTICWOLF_API_KEY: ${{ secrets.ARCTICWOLF_API_KEY }}
-          ARCTICWOLF_TENANT_ID: ${{ secrets.ARCTICWOLF_TENANT_ID }}
         run: |
           set -uo pipefail
-          echo "api key set:   $([ -n "$ARCTICWOLF_API_KEY" ] && echo yes || echo NO)"
-          echo "tenant id set: $([ -n "${ARCTICWOLF_TENANT_ID:-}" ] && echo yes || echo 'no (expected — we discover it)')"
+          echo "api key set: $([ -n "$ARCTICWOLF_API_KEY" ] && echo yes || echo NO)"
           echo ""
 
-          # api.arcticwolf.com was a guess and it did not resolve at all —
-          # every probe returned curl 000 before any auth was attempted. Find
-          # out which Arctic Wolf hosts actually exist before probing paths.
-          echo "=== DNS / reachability ==="
-          BASE=""
-          for h in api.arcticwolf.com api.arcticwolf.net my.arcticwolf.com \
-                   portal.arcticwolf.com arcticwolf.com api.aws.arcticwolf.com \
-                   api.us.arcticwolf.com apis.arcticwolf.com; do
-            if getent hosts "$h" >/dev/null 2>&1; then
-              code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 12 "https://$h/" 2>/dev/null || echo 000)
-              echo "  $h  resolves  HTTPS / -> $code"
-              [ -z "$BASE" ] && [ "$code" != "000" ] && BASE="https://$h"
-            else
-              echo "  $h  does NOT resolve"
-            fi
+          ORG_URL='https://eloc.global-prod.arcticwolf.net/api/v1/organizations'
+
+          # The docs show `Authorization: <token>` in the sample curl without
+          # naming a scheme, so try bearer and bare and keep whichever answers.
+          for scheme in "Bearer $ARCTICWOLF_API_KEY" "$ARCTICWOLF_API_KEY"; do
+            code=$(curl -sS -o org.json -w '%{http_code}' --max-time 30 "$ORG_URL" \
+              -H "Authorization: $scheme" -H 'Accept: application/json' || echo 000)
+            label=$(echo "$scheme" | grep -q '^Bearer' && echo Bearer || echo bare)
+            echo "  Authorization: $label -> HTTP $code"
+            if [ "$code" = "200" ]; then AUTH="$scheme"; break; fi
           done
-          echo ""
-          if [ -z "$BASE" ]; then
-            echo "No Arctic Wolf host answered. The API base URL is contract-specific"
-            echo "and is not one of the obvious guesses — it needs to come from the"
-            echo "Arctic Wolf portal or your CSM."
-            exit 0
-          fi
-          echo "probing against $BASE"
-          echo ""
 
-
-          # Two auth styles are in circulation for this API; try both and see
-          # which the key is issued for.
-          try_auth() {  # $1 = header
-            curl -sS -o /tmp/probe.json -w "%{http_code}" "$BASE/alerts" -H "$1" -H "Accept: application/json" 2>/dev/null || echo 000
-          }
-          AUTH=""
-          for h in "Authorization: Bearer $ARCTICWOLF_API_KEY" "Authorization: $ARCTICWOLF_API_KEY" "x-api-key: $ARCTICWOLF_API_KEY"; do
-            code=$(try_auth "$h")
-            label=$(echo "$h" | cut -d: -f1)
-            echo "  auth style '$label' -> HTTP $code"
-            if [ "$code" = "200" ] || [ "$code" = "206" ]; then AUTH="$h"; break; fi
-          done
-          if [ -z "$AUTH" ]; then
-            AUTH="Authorization: Bearer $ARCTICWOLF_API_KEY"
-            echo "  (none returned 200; continuing with Bearer so the probes below still report)"
-          fi
-          echo ""
-
-          probe() {  # $1 = path
-            local code
-            code=$(curl -sS -o r.json -w "%{http_code}" "$BASE$1" \
-              -H "$AUTH" -H "Accept: application/json" 2>/dev/null || echo 000)
-            printf '  %-34s HTTP %s' "$1" "$code"
-            if [ "$code" = "200" ]; then
-              # field names only — never values
-              printf '  fields: %s' "$(jq -r '
-                (if type=="array" then (.[0] // {})
-                 elif has("data") then (.data[0] // .data)
-                 elif has("items") then (.items[0] // .items)
-                 else . end)
-                | if type=="object" then (keys | join(", ")) else type end' r.json 2>/dev/null | head -c 260)"
-            else
-              printf '  %s' "$(head -c 120 r.json 2>/dev/null | tr -d '\n')"
-            fi
+          if [ "${AUTH:-}" = "" ]; then
             echo ""
-          }
-
-          echo "=== endpoint probe ==="
-          for path in /alerts /v1/alerts /observations /v1/observations \
-                      /tickets /v1/tickets /sensors /v1/sensors \
-                      /organizations /v1/organizations /accounts /v1/accounts; do
-            probe "$path"
-          done
+            echo "Organizations API did not accept the key. Response head:"
+            head -c 300 org.json; echo
+            echo ""
+            echo "The key must be a Personal API Key created in the Unified Portal"
+            echo "(dashboard.arcticwolf.com), not the MSP portal."
+            exit 1
+          fi
 
           echo ""
-          echo "=== roll-up from whichever alert endpoint answered ==="
-          for path in /alerts /v1/alerts /observations /v1/observations; do
-            code=$(curl -sS -o a.json -w "%{http_code}" "$BASE$path" -H "$AUTH" -H "Accept: application/json" 2>/dev/null || echo 000)
-            if [ "$code" = "200" ]; then
-              echo "using $path"
-              LIST=$(jq -c 'if type=="array" then . elif has("data") then .data elif has("items") then .items else [] end' a.json 2>/dev/null)
-              echo "  count: $(echo "$LIST" | jq 'length' 2>/dev/null)"
-              for f in severity riskLevel status type category state; do
-                vals=$(echo "$LIST" | jq -r "[.[]?.$f // empty] | group_by(.) | map(\"\(.[0])=\(length)\") | join(\"  \")" 2>/dev/null)
-                [ -n "$vals" ] && [ "$vals" != "" ] && echo "  by $f: $vals"
-              done
-              break
-            fi
-          done
+          echo "=== organizations ==="
+          echo "  top-level type: $(jq -r 'type' org.json)"
+          echo "  fields:         $(jq -r 'if type=="array" then (.[0] // {}) else . end | keys | join(", ")' org.json)"
+          echo "  count:          $(jq -r 'if type=="array" then length else 1 end' org.json)"
+          # Pod is the routing key and is not sensitive. Organisation IDs and
+          # names are not printed — the sync rediscovers them each run.
+          echo "  pods present:   $(jq -r '[.[]?.pod // empty] | unique | join(", ")' org.json)"
+
+          POD=$(jq -r '[.[]?.pod // empty][0] // empty' org.json)
+          ORG=$(jq -r '[.[]?.id // empty][0] // empty' org.json)
+          if [ -z "$POD" ] || [ -z "$ORG" ]; then
+            echo ""
+            echo "Could not read a pod/id pair from the response shape above."
+            exit 1
+          fi
+          echo "::add-mask::$ORG"
+          echo ""
+          echo "=== ticket API (pod: $POD) ==="
+
+          TICKETS="https://ticket-api.managedgw.${POD}-prod.arcticwolf.net/api/v1/organizations/${ORG}/tickets"
+          code=$(curl -sS -o t.json -w '%{http_code}' --max-time 30 "$TICKETS?limit=100&offset=0" \
+            -H "Authorization: $AUTH" -H 'Accept: application/json' || echo 000)
+          echo "  GET .../tickets?limit=100&offset=0 -> HTTP $code"
+          if [ "$code" != "200" ]; then
+            echo "  response head: $(head -c 250 t.json)"
+            exit 1
+          fi
+
+          echo "  envelope fields: $(jq -r 'if type=="object" then (keys|join(", ")) else type end' t.json)"
+          LIST='(if type=="array" then . elif has("tickets") then .tickets elif has("data") then .data elif has("items") then .items elif has("results") then .results else [] end)'
+          echo "  returned:        $(jq -r "$LIST | length" t.json)"
+          echo "  ticket fields:   $(jq -r "$LIST | (.[0] // {}) | keys | join(\", \")" t.json)"
+          echo ""
+          echo "  --- distribution of every low-cardinality field (no free text) ---"
+          # Only fields whose values look like enums are printed. Subjects and
+          # descriptions are high-cardinality free text and never qualify.
+          jq -r "
+            $LIST as \$l
+            | (\$l | map(keys) | add // [] | unique) as \$keys
+            | \$keys[]
+            | . as \$k
+            | (\$l | map(.[\$k]) | map(select(type==\"string\" or type==\"number\" or type==\"boolean\"))) as \$vals
+            | select((\$vals | length) > 0)
+            | (\$vals | unique | length) as \$card
+            | select(\$card > 0 and \$card <= 12)
+            | \"  \\(\$k): \" + (\$vals | group_by(.) | map(\"\\(.[0])=\\(length)\") | join(\"  \"))
+          " t.json 2>/dev/null || echo "  (could not summarise)"
