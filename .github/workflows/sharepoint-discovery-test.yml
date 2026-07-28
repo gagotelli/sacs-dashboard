@@ -56,7 +56,31 @@ jobs:
             exit 1
           fi
           echo "::add-mask::$TOKEN"
-          echo "token acquired, roles: $(jq -r '.access_token' tok.json | cut -d. -f2 | base64 -d 2>/dev/null | jq -r '(.roles // []) | join(", ")' 2>/dev/null || echo '?')"
+
+          # A JWT payload is base64URL with the padding stripped; plain `base64 -d`
+          # silently fails on it, which is why this reported nothing last run.
+          payload=$(printf '%s' "$TOKEN" | cut -d. -f2 | tr '_-' '/+')
+          case $(( ${#payload} % 4 )) in 2) payload="$payload==";; 3) payload="$payload=";; esac
+          ROLES=$(printf '%s' "$payload" | base64 -d 2>/dev/null | jq -r '(.roles // []) | join(", ")' 2>/dev/null)
+          echo "token acquired. application roles: ${ROLES:-<none>}"
+
+          if [ -z "$ROLES" ]; then
+            echo ""
+            echo "The token carries no application roles, so Graph will reject every"
+            echo "call regardless of the secret being right. The app registration has"
+            echo "authentication but no authorisation. In Azure:"
+            echo ""
+            echo "  App registration -> API permissions"
+            echo "  1. Add a permission -> Microsoft Graph"
+            echo "  2. Choose APPLICATION permissions, not Delegated. Delegated needs a"
+            echo "     signed-in user and never appears in a client-credentials token."
+            echo "  3. Tick Sites.Read.All, then Add permissions"
+            echo "  4. Click 'Grant admin consent for <tenant>' — the permission does"
+            echo "     nothing until the Status column reads 'Granted'"
+            echo ""
+            echo "Then re-run this workflow."
+            exit 1
+          fi
           echo ""
 
           G="https://graph.microsoft.com/v1.0"
@@ -69,8 +93,8 @@ jobs:
           if [ "$code" != "200" ]; then
             jq -r '"  \(.error.code): \(.error.message)"' site.json 2>/dev/null | head -3
             echo ""
-            echo "403 here usually means admin consent was not granted, or the app"
-            echo "has Sites.Selected without this site assigned."
+            echo "With roles present, a 401/403 here means the site path is wrong or"
+            echo "the app has Sites.Selected without this site assigned to it."
             exit 1
           fi
           SITE_ID=$(jq -r '.id' site.json)
