@@ -4,28 +4,28 @@
 // Aggregate counts only, by design: no ticket subjects, requester
 // names, or descriptions ever leave ManageEngine. This repo is public.
 const TICKET_SUMMARY = {
-  "updatedAt": "2026-07-28T02:24:59Z",
+  "updatedAt": "2026-07-28T05:45:10Z",
   "source": "ManageEngine ServiceDesk Plus",
   "portalUrl": "https://sacs.sdpondemand.manageengine.com/app/itdesk/ui/requests",
-  "total": 15687,
-  "open": 549,
+  "total": 15660,
+  "open": 536,
   "urgent": 12,
   "byStatus": [
     {
       "label": "Closed",
-      "value": 14705
+      "value": 14668
     },
     {
       "label": "On Hold",
-      "value": 54
+      "value": 55
     },
     {
       "label": "Open",
-      "value": 495
+      "value": 481
     },
     {
       "label": "Resolved",
-      "value": 339
+      "value": 362
     },
     {
       "label": "Other",
@@ -35,7 +35,7 @@ const TICKET_SUMMARY = {
   "byPriority": [
     {
       "label": "1 Week",
-      "value": 205
+      "value": 200
     },
     {
       "label": "Critical: Drop Everything",
@@ -43,32 +43,40 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Normal: End of Next Day",
-      "value": 305
+      "value": 301
     },
     {
       "label": "Term Break",
-      "value": 10
+      "value": 9
     },
     {
       "label": "Unassigned",
-      "value": 17
+      "value": 14
     }
   ],
   "byCategory": [
     {
-      "label": "Print Room",
-      "value": 21
+      "label": "Access Request",
+      "value": 23
+    },
+    {
+      "label": "Audio Visual - Classroom",
+      "value": 22
     },
     {
       "label": "Z. Admin",
       "value": 20
     },
     {
-      "label": "Access Request",
+      "label": "Print Room",
       "value": 18
     },
     {
       "label": "Software Issues",
+      "value": 18
+    },
+    {
+      "label": "Z. Communications",
       "value": 18
     },
     {
@@ -77,23 +85,19 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Z. Hardware",
-      "value": 11
-    },
-    {
-      "label": "Z. Parent",
-      "value": 8
+      "value": 12
     },
     {
       "label": "Hardware End User",
       "value": 3
     },
     {
-      "label": "Telephony",
+      "label": "Z. Audio Visual",
       "value": 3
     },
     {
-      "label": "Z. Audio Visual",
-      "value": 3
+      "label": "Telephony",
+      "value": 2
     },
     {
       "label": "Z. Developments and Integrations",
@@ -104,8 +108,8 @@ const TICKET_SUMMARY = {
       "value": 2
     },
     {
-      "label": "Z. Printing/Scanning",
-      "value": 1
+      "label": "Uncategorised",
+      "value": 376
     }
   ],
   "openMatrix": [
@@ -134,7 +138,7 @@ const TICKET_SUMMARY = {
         },
         {
           "label": "Normal: End of Next Day",
-          "value": 29
+          "value": 30
         },
         {
           "label": "Term Break",
@@ -151,11 +155,11 @@ const TICKET_SUMMARY = {
       "cells": [
         {
           "label": "1 Week",
-          "value": 189
+          "value": 183
         },
         {
           "label": "Critical: Drop Everything",
-          "value": 7
+          "value": 6
         },
         {
           "label": "High",
@@ -171,11 +175,11 @@ const TICKET_SUMMARY = {
         },
         {
           "label": "Normal: End of Next Day",
-          "value": 276
+          "value": 266
         },
         {
           "label": "Term Break",
-          "value": 6
+          "value": 5
         },
         {
           "label": "Urgent",
@@ -186,20 +190,124 @@ const TICKET_SUMMARY = {
   ],
   "recentOpen": [
     {
-      "id": "23010000045632095",
+      "id": "23010000045636001",
+      "status": "Open",
+      "priority": null,
+      "category": "Print Room",
+      "created": "1785217480374",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045632337",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785216996102",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045632317",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785216539137",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045628500",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Communications",
+      "created": "1785216436053",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045632293",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785214243154",
+      "dueBy": "1785819043929"
+    },
+    {
+      "id": "23010000045632279",
       "status": "Open",
       "priority": "1 Week",
       "category": null,
-      "created": "1785205030286",
+      "created": "1785213077468",
+      "dueBy": "1785817879813"
+    },
+    {
+      "id": "23010000045632264",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Access Request",
+      "created": "1785212382959",
+      "dueBy": "1785817187759"
+    },
+    {
+      "id": "23010000045632233",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785211213600",
       "dueBy": null
+    },
+    {
+      "id": "23010000045632198",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785210752313",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045632182",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Audio Visual - Classroom",
+      "created": "1785209377319",
+      "dueBy": "1785814178919"
+    },
+    {
+      "id": "23010000045632147",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Hardware",
+      "created": "1785208231226",
+      "dueBy": "1785813032361"
+    },
+    {
+      "id": "23010000045632129",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785208230360",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045632115",
+      "status": "Open",
+      "priority": "Critical: Drop Everything",
+      "category": "Access Request",
+      "created": "1785205709854",
+      "dueBy": "1785810514129"
+    },
+    {
+      "id": "23010000045632095",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": "Access Request",
+      "created": "1785205030286",
+      "dueBy": "1785809831721"
     },
     {
       "id": "23010000045632085",
       "status": "Open",
       "priority": "1 Week",
-      "category": null,
+      "category": "Access Request",
       "created": "1785205029335",
-      "dueBy": null
+      "dueBy": "1785809831015"
     },
     {
       "id": "23010000045628201",
@@ -208,22 +316,6 @@ const TICKET_SUMMARY = {
       "category": "Audio Visual - Services",
       "created": "1785203345959",
       "dueBy": "1785808150759"
-    },
-    {
-      "id": "23010000045633001",
-      "status": "Open",
-      "priority": null,
-      "category": "Print Room",
-      "created": "1785203324096",
-      "dueBy": null
-    },
-    {
-      "id": "23010000045632056",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": "Telephony",
-      "created": "1785202748582",
-      "dueBy": "1785807551497"
     },
     {
       "id": "23010000045632040",
@@ -250,14 +342,6 @@ const TICKET_SUMMARY = {
       "dueBy": "1785806652189"
     },
     {
-      "id": "23010000045618995",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": null,
-      "created": "1785199122161",
-      "dueBy": null
-    },
-    {
       "id": "23010000045618976",
       "status": "Open",
       "priority": "Normal: End of Next Day",
@@ -282,35 +366,11 @@ const TICKET_SUMMARY = {
       "dueBy": null
     },
     {
-      "id": "23010000045618901",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": null,
-      "created": "1785197299051",
-      "dueBy": null
-    },
-    {
       "id": "23010000045618891",
       "status": "Open",
       "priority": "Normal: End of Next Day",
       "category": null,
       "created": "1785196816837",
-      "dueBy": null
-    },
-    {
-      "id": "23010000045618856",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1785194567904",
-      "dueBy": null
-    },
-    {
-      "id": "23010000045618844",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": null,
-      "created": "1785194566917",
       "dueBy": null
     },
     {
@@ -322,76 +382,12 @@ const TICKET_SUMMARY = {
       "dueBy": "1785799142453"
     },
     {
-      "id": "23010000045618809",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1785194135707",
-      "dueBy": null
-    },
-    {
-      "id": "23010000045627001",
-      "status": "Open",
-      "priority": null,
-      "category": "Print Room",
-      "created": "1785193832497",
-      "dueBy": null
-    },
-    {
       "id": "23010000045618799",
       "status": "Open",
       "priority": "1 Week",
       "category": "Z. Developments and Integrations",
       "created": "1785193677172",
       "dueBy": "1785798478037"
-    },
-    {
-      "id": "23010000045618784",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1785193447902",
-      "dueBy": "1785798252417"
-    },
-    {
-      "id": "23010000045618765",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1785193447236",
-      "dueBy": null
-    },
-    {
-      "id": "23010000045618747",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1785193446273",
-      "dueBy": null
-    },
-    {
-      "id": "23010000045618729",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1785193444956",
-      "dueBy": null
-    },
-    {
-      "id": "23010000045618717",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1785193202126",
-      "dueBy": null
-    },
-    {
-      "id": "23010000045618699",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1785193006648",
-      "dueBy": null
     },
     {
       "id": "23010000045618685",
@@ -402,44 +398,12 @@ const TICKET_SUMMARY = {
       "dueBy": "1785797571639"
     },
     {
-      "id": "23010000045618669",
-      "status": "Open",
-      "priority": "Critical: Drop Everything",
-      "category": null,
-      "created": "1785191881449",
-      "dueBy": null
-    },
-    {
-      "id": "23010000045625005",
-      "status": "Open",
-      "priority": null,
-      "category": "Print Room",
-      "created": "1785190976115",
-      "dueBy": null
-    },
-    {
       "id": "23010000045618649",
       "status": "Open",
       "priority": "Normal: End of Next Day",
       "category": "Z. Parent",
       "created": "1785190759093",
       "dueBy": "1785795559563"
-    },
-    {
-      "id": "23010000045616013",
-      "status": "Open",
-      "priority": null,
-      "category": "Print Room",
-      "created": "1785190397422",
-      "dueBy": null
-    },
-    {
-      "id": "23010000045618626",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1785190075896",
-      "dueBy": null
     },
     {
       "id": "23010000045618616",
@@ -482,22 +446,6 @@ const TICKET_SUMMARY = {
       "dueBy": "1785737848603"
     },
     {
-      "id": "23010000045618440",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1785132578399",
-      "dueBy": "1785737380399"
-    },
-    {
-      "id": "23010000045618422",
-      "status": "Open",
-      "priority": "Term Break",
-      "category": null,
-      "created": "1785132577665",
-      "dueBy": null
-    },
-    {
       "id": "23010000045618407",
       "status": "Open",
       "priority": "Normal: End of Next Day",
@@ -522,14 +470,6 @@ const TICKET_SUMMARY = {
       "dueBy": "1785736442821"
     },
     {
-      "id": "23010000045618361",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": null,
-      "created": "1785131412669",
-      "dueBy": null
-    },
-    {
       "id": "23010000045618347",
       "status": "Open",
       "priority": "1 Week",
@@ -538,59 +478,11 @@ const TICKET_SUMMARY = {
       "dueBy": null
     },
     {
-      "id": "23010000045618336",
-      "status": "Open",
-      "priority": "Critical: Drop Everything",
-      "category": null,
-      "created": "1785130740568",
-      "dueBy": "1785735543413"
-    },
-    {
       "id": "23010000045618292",
       "status": "Open",
       "priority": "Normal: End of Next Day",
       "category": null,
       "created": "1785130070473",
-      "dueBy": null
-    },
-    {
-      "id": "23010000045618273",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1785129848121",
-      "dueBy": "1785734648731"
-    },
-    {
-      "id": "23010000045618228",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1785128935975",
-      "dueBy": "1785733740855"
-    },
-    {
-      "id": "23010000045618211",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1785128700564",
-      "dueBy": null
-    },
-    {
-      "id": "23010000045598618",
-      "status": "Open",
-      "priority": null,
-      "category": "Print Room",
-      "created": "1785128470959",
-      "dueBy": null
-    },
-    {
-      "id": "23010000045618189",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1785128466370",
       "dueBy": null
     },
     {
@@ -602,28 +494,12 @@ const TICKET_SUMMARY = {
       "dueBy": "1785733265811"
     },
     {
-      "id": "23010000045598607",
-      "status": "Open",
-      "priority": null,
-      "category": "Print Room",
-      "created": "1785128429553",
-      "dueBy": null
-    },
-    {
       "id": "23010000045618162",
       "status": "Open",
       "priority": "1 Week",
       "category": null,
       "created": "1785128231891",
       "dueBy": "1785733036351"
-    },
-    {
-      "id": "23010000045618119",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1785128004589",
-      "dueBy": null
     },
     {
       "id": "23010000045618092",
@@ -639,22 +515,6 @@ const TICKET_SUMMARY = {
       "priority": "Normal: End of Next Day",
       "category": null,
       "created": "1785127342539",
-      "dueBy": null
-    },
-    {
-      "id": "23010000045618070",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": null,
-      "created": "1785127340653",
-      "dueBy": "1785732143923"
-    },
-    {
-      "id": "23010000045618047",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": null,
-      "created": "1785126666053",
       "dueBy": null
     },
     {
@@ -810,14 +670,6 @@ const TICKET_SUMMARY = {
       "dueBy": "1785714834501"
     },
     {
-      "id": "23010000045586397",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": "Z. Software (Staff & Students)",
-      "created": "1785110031535",
-      "dueBy": "1785714834215"
-    },
-    {
       "id": "23010000045586386",
       "status": "Open",
       "priority": "1 Week",
@@ -866,6 +718,14 @@ const TICKET_SUMMARY = {
       "dueBy": "1785710165369"
     },
     {
+      "id": "23010000045628288",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785105145008",
+      "dueBy": "1785709945053"
+    },
+    {
       "id": "23010000045586166",
       "status": "Open",
       "priority": "Normal: End of Next Day",
@@ -880,14 +740,6 @@ const TICKET_SUMMARY = {
       "category": "Z. Communications",
       "created": "1785103429886",
       "dueBy": "1785708234321"
-    },
-    {
-      "id": "23010000045586013",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": "Access Request",
-      "created": "1785063437232",
-      "dueBy": "1785679201397"
     },
     {
       "id": "23010000045551284",
@@ -917,25 +769,17 @@ const TICKET_SUMMARY = {
       "id": "23010000045551137",
       "status": "Open",
       "priority": "1 Week",
-      "category": null,
+      "category": "Access Request",
       "created": "1784873977882",
       "dueBy": "1785478782297"
     },
     {
       "id": "23010000045551126",
-      "status": "Open",
+      "status": "On Hold",
       "priority": "Normal: End of Next Day",
-      "category": null,
+      "category": "Access Request",
       "created": "1784872815562",
-      "dueBy": null
-    },
-    {
-      "id": "23010000045551077",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1784870097316",
-      "dueBy": "1785474898901"
+      "dueBy": "1785477618377"
     },
     {
       "id": "23010000045551060",
@@ -984,6 +828,166 @@ const TICKET_SUMMARY = {
       "category": "Exams",
       "created": "1784852246713",
       "dueBy": "1790813820000"
+    },
+    {
+      "id": "23010000045541263",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Access Request",
+      "created": "1784852022970",
+      "dueBy": "1785456827825"
+    },
+    {
+      "id": "23010000045541249",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Software (Staff & Students)",
+      "created": "1784850664211",
+      "dueBy": "1785455465271"
+    },
+    {
+      "id": "23010000045541226",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": "Z. Admin",
+      "created": "1784850446072",
+      "dueBy": "1785455246437"
+    },
+    {
+      "id": "23010000045541211",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Admin",
+      "created": "1784849316708",
+      "dueBy": "1785454120253"
+    },
+    {
+      "id": "23010000045541183",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Parent",
+      "created": "1784848412693",
+      "dueBy": "1785453216163"
+    },
+    {
+      "id": "23010000045541070",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": "Z. Parent",
+      "created": "1784842739194",
+      "dueBy": "1785447540169"
+    },
+    {
+      "id": "23010000045541026",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Admin",
+      "created": "1784842016923",
+      "dueBy": "1785446821543"
+    },
+    {
+      "id": "23010000045541015",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1784840845365",
+      "dueBy": "1785445647195"
+    },
+    {
+      "id": "23010000045505737",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1784782156711",
+      "dueBy": "1785386960271"
+    },
+    {
+      "id": "23010000045538001",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1784780286253",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045505640",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": "Audio Visual - Services",
+      "created": "1784776676185",
+      "dueBy": "1785381477115"
+    },
+    {
+      "id": "23010000045505621",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": "Z. Audio Visual",
+      "created": "1784775690356",
+      "dueBy": "1785380492141"
+    },
+    {
+      "id": "23010000045505578",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": "Networking",
+      "created": "1784774495452",
+      "dueBy": "1785379297717"
+    },
+    {
+      "id": "23010000045505528",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Parent Services",
+      "created": "1784771700618",
+      "dueBy": "1785376604713"
+    },
+    {
+      "id": "23010000045505513",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Audio Visual - Services",
+      "created": "1784770552219",
+      "dueBy": "1785375353319"
+    },
+    {
+      "id": "23010000045527128",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": "Telephony",
+      "created": "1784770296686",
+      "dueBy": "1785375100121"
+    },
+    {
+      "id": "23010000045505502",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Edumate",
+      "created": "1784769648547",
+      "dueBy": "1785374451287"
+    },
+    {
+      "id": "23010000045505491",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Communications",
+      "created": "1784769418168",
+      "dueBy": "1785374219013"
+    },
+    {
+      "id": "23010000045505261",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Software (Staff & Students)",
+      "created": "1784761748458",
+      "dueBy": "1785366550753"
+    },
+    {
+      "id": "23010000045505246",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Audio Visual - Classroom",
+      "created": "1784760370247",
+      "dueBy": "1785365171487"
     }
   ]
 };
