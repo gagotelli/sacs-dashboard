@@ -66,12 +66,20 @@ function isAccessPoint(a) {
   return AP_TYPES.test(String(a.deviceType || "")) || AP_MODELS.test(String(a.makeModel || "").trim());
 }
 
-// AP names at both campuses lead with the site code. Anything that does not
-// match is grouped as "Unassigned" rather than being guessed into a campus.
+// AP names lead with a site code. CHC and CATH are separate sites, not BBC —
+// grouping them under a campus would misreport where the wireless estate is.
+// Anything unrecognised stays "Unassigned" rather than being guessed into a
+// site; that bucket is a naming-consistency signal worth seeing.
+const SITE_CODES = [
+  [/(^|[-_])SAH([-_]|$)|SQCS/, "SAH"],
+  [/(^|[-_])BBC([-_]|$)/, "BBC"],
+  [/(^|[-_])CHC([-_]|$)/, "CHC"],
+  [/(^|[-_])CATH([-_]|$)/, "CATH"],
+];
+
 function siteOf(name) {
   const s = String(name || "").toUpperCase();
-  if (/\bSAH\b|^SAH|SQCS/.test(s)) return "SAH";
-  if (/\bBBC\b|^BBC/.test(s)) return "BBC";
+  for (const [re, label] of SITE_CODES) if (re.test(s)) return label;
   return "Unassigned";
 }
 

@@ -159,16 +159,49 @@
   </section>
 
   <section id="panel-topology" class="panel">
-    <div class="legend-row">
-      <span class="legend-item"><span class="swatch" style="background:var(--layer-core)"></span>Core</span>
-      <span class="legend-item"><span class="swatch" style="background:var(--layer-security)"></span>Security / Firewall</span>
-      <span class="legend-item"><span class="swatch" style="background:var(--layer-access)"></span>Access</span>
-      <span class="legend-item"><span class="swatch" style="background:var(--layer-legacy)"></span>Legacy / 1G</span>
-      <span class="legend-item"><span class="dot status-dot-unknown"></span>Status: unknown (no poller wired up)</span>
-      <span class="legend-item">Line thickness = link speed</span>
+    <div class="page-head">
+      <div>
+        <h2>Network topology</h2>
+        <div class="subtitle" id="topo-subtitle">Drag to pan, scroll to zoom, click a device for detail.</div>
+      </div>
     </div>
+
     <div class="card topology-card">
-      <div class="table-wrap topology-mount"></div>
+      <div class="topo-toolbar">
+        <input type="search" id="topo-search" placeholder="Find a device…" />
+        <select id="topo-site">
+          <option value="all">Both campuses</option>
+          <option value="SAH">SAH only</option>
+          <option value="BBC">BBC only</option>
+        </select>
+        <select id="topo-layer">
+          <option value="all">All layers</option>
+          <option value="core">Core</option>
+          <option value="security">Security / firewall</option>
+          <option value="access">Access &amp; distribution</option>
+        </select>
+        <label class="topo-check"><input type="checkbox" id="topo-show-aps" checked /> Wireless</label>
+        <span class="topo-spacer"></span>
+        <button type="button" class="theme-toggle" id="topo-zoom-out" title="Zoom out">&minus;</button>
+        <button type="button" class="theme-toggle" id="topo-zoom-in" title="Zoom in">+</button>
+        <button type="button" class="theme-toggle" id="topo-reset">Reset view</button>
+      </div>
+
+      <div class="topo-layout">
+        <div class="topo-stage" id="topo-stage"></div>
+        <aside class="topo-inspector" id="topo-inspector"></aside>
+      </div>
+
+      <div class="legend-row topo-legend">
+        <span class="legend-item"><span class="swatch" style="background:var(--layer-core)"></span>Core</span>
+        <span class="legend-item"><span class="swatch" style="background:var(--layer-security)"></span>Security / Firewall</span>
+        <span class="legend-item"><span class="swatch" style="background:var(--layer-access)"></span>Access</span>
+        <span class="legend-item"><span class="swatch" style="background:var(--layer-legacy)"></span>Legacy / 1G</span>
+        <span class="legend-item"><span class="dot status-dot-up"></span>Up</span>
+        <span class="legend-item"><span class="dot status-dot-down"></span>Down</span>
+        <span class="legend-item"><span class="dot status-dot-unknown"></span>Unknown</span>
+        <span class="legend-item">Line thickness = link speed</span>
+      </div>
     </div>
   </section>
 
@@ -200,6 +233,31 @@
             </tr>
           </thead>
           <tbody id="device-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <h2 class="section-heading">Wireless access points</h2>
+    <div class="card">
+      <p class="muted-text" id="wireless-summary"></p>
+      <div class="grid-2">
+        <div><h3 style="font-size:13px;margin:0 0 8px">By site</h3><div class="bar-list" id="wireless-site-bars"></div></div>
+        <div><h3 style="font-size:13px;margin:0 0 8px">By model</h3><div class="bar-list" id="wireless-model-bars"></div></div>
+      </div>
+      <div class="filters" style="margin-top:14px">
+        <input type="search" id="wireless-search" placeholder="Search access points…" />
+        <select id="wireless-site-filter"><option value="all">All sites</option></select>
+        <select id="wireless-status-filter">
+          <option value="all">All statuses</option>
+          <option value="down">Down only</option>
+          <option value="unknown">Unknown only</option>
+        </select>
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px" id="wireless-count"></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Name</th><th>Site</th><th>Model</th><th>Vendor</th><th>Status</th><th>Last seen</th></tr></thead>
+          <tbody id="wireless-table-body"></tbody>
         </table>
       </div>
     </div>
@@ -512,10 +570,15 @@
         <span class="muted-text" style="margin:0" id="security-queue-count"></span>
       </div>
       <div class="filters">
+        <select id="security-queue-view">
+          <option value="attention">Needs attention (high priority)</option>
+          <option value="all" selected>Everything open</option>
+        </select>
         <input type="search" id="security-queue-search" placeholder="Search by ID or category…" />
         <select id="security-queue-category"><option value="all">All categories</option></select>
         <select id="security-queue-priority"><option value="all">All priorities</option></select>
       </div>
+      <p class="muted-text" id="security-queue-filter-note" style="margin:0 0 10px"></p>
       <div class="table-wrap">
         <table>
           <thead>
@@ -717,6 +780,7 @@
 <script src="data/roadmap.js"></script>
 <script src="data/docs.js"></script>
 <script src="data/status.js"></script>
+<script src="data/wireless.js"></script>
 <script src="data/tickets.js"></script>
 <script src="data/endpoints.js"></script>
 <script src="data/security.js"></script>

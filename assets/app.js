@@ -108,6 +108,8 @@
       root.setAttribute("data-theme", next);
       localStorage.setItem("sacs-theme", next);
       sync();
+      // Group tints are baked into the SVG markup, so it is rebuilt on a
+      // theme change. Listeners are bound once in initTopology, not here.
       renderTopology();
     });
   }
@@ -708,37 +710,60 @@
     return { pos, width: cols * nodeW + (cols - 1) * gapX, height: rows * nodeH + (rows - 1) * gapY };
   }
 
-  function renderTopology() {
+  // ---------------------------------------------------------------------
+  // Interactive topology
+  // ---------------------------------------------------------------------
+  // The map is laid out once into world coordinates, then pan/zoom happens on
+  // a single <g transform> — cheap, and it keeps hit-testing correct because
+  // the browser transforms the geometry rather than us re-projecting it.
+  const topoState = { scale: 1, tx: 0, ty: 0, selected: null, world: null };
+
+  function topoNodes() {
     const core = DEVICES.filter((d) => d.layer === "core");
     const security = DEVICES.filter((d) => d.layer === "security");
     const sah = DEVICES.filter((d) => d.site === "SAH" && d.layer !== "core");
     const bbc = DEVICES.filter((d) => d.site === "BBC" && d.layer !== "core");
+    return { core, security, sah, bbc };
+  }
 
-    const nodeW = 148, nodeH = 42, gapX = 14, gapY = 12;
-    const sahGrid = gridLayout(sah, 40, 300, 4, nodeW, nodeH, gapX, gapY);
-    const bbcGrid = gridLayout(bbc, sahGrid.width + 40 + 60, 300, 3, nodeW, nodeH, gapX, gapY);
+  function buildTopoWorld() {
+    const { core, security, sah, bbc } = topoNodes();
 
-    const totalWidth = Math.max(sahGrid.width + 60 + bbcGrid.width + 80, 900);
+    const nodeW = 148, nodeH = 44, gapX = 16, gapY = 14;
+    const sahGrid = gridLayout(sah, 40, 320, 4, nodeW, nodeH, gapX, gapY);
+    const bbcGrid = gridLayout(bbc, sahGrid.width + 40 + 70, 320, 3, nodeW, nodeH, gapX, gapY);
+    const totalWidth = Math.max(sahGrid.width + 70 + bbcGrid.width + 80, 980);
 
-    // core row, centered
-    const coreW = 170, coreH = 50, coreGap = 30;
-    const coreRowWidth = core.length * coreW + (core.length - 1) * coreGap;
-    let cx = (totalWidth - coreRowWidth) / 2;
     const pos = {};
-    core.forEach((d) => { pos[d.id] = { x: cx, y: 70, w: coreW, h: coreH }; cx += coreW + coreGap; });
+    const coreW = 176, coreH = 52, coreGap = 32;
+    const coreRowWidth = core.length * coreW + Math.max(0, core.length - 1) * coreGap;
+    let cx = (totalWidth - coreRowWidth) / 2;
+    core.forEach((d) => { pos[d.id] = { x: cx, y: 76, w: coreW, h: coreH }; cx += coreW + coreGap; });
 
-    // security row, centered
-    const secW = 170, secH = 46, secGap = 24;
-    const secRowWidth = security.length * secW + (security.length - 1) * secGap;
+    const secW = 176, secH = 48, secGap = 26;
+    const secRowWidth = security.length * secW + Math.max(0, security.length - 1) * secGap;
     let sx = (totalWidth - secRowWidth) / 2;
-    security.forEach((d) => { pos[d.id] = { x: sx, y: 175, w: secW, h: secH }; sx += secW + secGap; });
+    security.forEach((d) => { pos[d.id] = { x: sx, y: 190, w: secW, h: secH }; sx += secW + secGap; });
 
     Object.assign(pos, sahGrid.pos, bbcGrid.pos);
-    const totalHeight = 300 + Math.max(sahGrid.height, bbcGrid.height) + 40;
 
-    function anchorTop(p) { return { x: p.x + p.w / 2, y: p.y }; }
-    function anchorBottom(p) { return { x: p.x + p.w / 2, y: p.y + p.h }; }
-    function anchorCenter(p) { return { x: p.x + p.w / 2, y: p.y + p.h / 2 }; }
+    const accessBottom = 320 + Math.max(sahGrid.height, bbcGrid.height);
+
+    // Wireless clusters. Auvik does not tell us which switch each AP uplinks
+    // to, so these are placed in their own band and deliberately drawn with no
+    // links — inventing an uplink would be inventing topology.
+    const wireless = (typeof WIRELESS !== "undefined" ? WIRELESS.bySite || [] : [])
+      .filter((s) => s.label !== "Unassigned" || s.total > 0);
+    const wirelessY = accessBottom + 56;
+    const wW = 200, wH = 56, wGap = 28;
+    const wRow = wireless.length * wW + Math.max(0, wireless.length - 1) * wGap;
+    let wx = (totalWidth - wRow) / 2;
+    wireless.forEach((s) => {
+      pos[`ap:${s.label}`] = { x: wx, y: wirelessY, w: wW, h: wH };
+      wx += wW + wGap;
+    });
+
+    const totalHeight = (wireless.length ? wirelessY + wH : accessBottom) + 50;
 
     const links = [];
     DEVICES.forEach((d) => {
@@ -750,82 +775,291 @@
       });
     });
     BACKBONE_LINKS.forEach((l) => {
-      if (pos[l.from] && pos[l.to]) links.push({ from: l.from, to: l.to, speed: l.speedGbps, label: l.label, backbone: true });
+      if (pos[l.from] && pos[l.to]) {
+        links.push({ from: l.from, to: l.to, speed: l.speedGbps, label: l.label, backbone: true });
+      }
     });
 
-    function widthFor(speed) {
-      if (!speed) return 1.5;
-      return Math.min(1.5 + Math.sqrt(speed) * 0.9, 8);
+    return {
+      pos, links, core, security, sah, bbc, wireless,
+      totalWidth, totalHeight, coreRowWidth, secRowWidth,
+      sahGridWidth: sahGrid.width, wirelessY,
+    };
+  }
+
+  function topoNeighbours(id) {
+    const w = topoState.world;
+    const set = new Set([id]);
+    w.links.forEach((l) => {
+      if (l.from === id) set.add(l.to);
+      if (l.to === id) set.add(l.from);
+    });
+    return set;
+  }
+
+  function renderTopology() {
+    const stage = document.getElementById("topo-stage");
+    if (!stage) return;
+    const w = topoState.world || (topoState.world = buildTopoWorld());
+
+    const site = document.getElementById("topo-site")?.value || "all";
+    const layer = document.getElementById("topo-layer")?.value || "all";
+    const showAps = document.getElementById("topo-show-aps")?.checked !== false;
+    const query = (document.getElementById("topo-search")?.value || "").trim().toLowerCase();
+
+    const visible = (d) => {
+      if (site !== "all" && d.layer !== "core" && d.site !== site) return false;
+      if (layer !== "all" && d.layer !== layer && !(layer === "access" && d.layer === "legacy")) return false;
+      return true;
+    };
+    const shown = DEVICES.filter((d) => pos_has(w, d.id) && visible(d));
+    const shownIds = new Set(shown.map((d) => d.id));
+
+    const sel = topoState.selected;
+    const near = sel && shownIds.has(sel) ? topoNeighbours(sel) : null;
+
+    const widthFor = (speed) => (!speed ? 1.5 : Math.min(1.5 + Math.sqrt(speed) * 0.9, 8));
+    const anchorTop = (p) => ({ x: p.x + p.w / 2, y: p.y });
+    const anchorBottom = (p) => ({ x: p.x + p.w / 2, y: p.y + p.h });
+    const anchorCenter = (p) => ({ x: p.x + p.w / 2, y: p.y + p.h / 2 });
+
+    const parts = [];
+    parts.push(
+      `<svg class="topology-svg" id="topo-svg" viewBox="0 0 ${w.totalWidth} ${w.totalHeight}" ` +
+      `preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">`
+    );
+    parts.push(`<g id="topo-viewport" transform="translate(${topoState.tx} ${topoState.ty}) scale(${topoState.scale})">`);
+
+    function groupBox(list, labelY, rgbVar) {
+      const items = list.filter((d) => shownIds.has(d.id));
+      if (!items.length) return "";
+      const xs = items.map((d) => w.pos[d.id].x);
+      const xs2 = items.map((d) => w.pos[d.id].x + w.pos[d.id].w);
+      const ys2 = items.map((d) => w.pos[d.id].y + w.pos[d.id].h);
+      const pad = 16, top = labelY - 22;
+      return `<rect class="topo-group" x="${Math.min(...xs) - pad}" y="${top}" width="${Math.max(...xs2) - Math.min(...xs) + pad * 2}" height="${Math.max(...ys2) - top + pad}" rx="16" fill="rgba(var(${rgbVar}), 0.07)" stroke="rgba(var(${rgbVar}), 0.22)"/>`;
     }
+    parts.push(groupBox(w.core, 60, "--layer-core-rgb"));
+    parts.push(groupBox(w.security, 175, "--layer-security-rgb"));
+    parts.push(groupBox(w.sah, 310, "--layer-access-rgb"));
+    parts.push(groupBox(w.bbc, 310, "--layer-access-rgb"));
 
-    const svgParts = [];
-    svgParts.push(`<svg class="topology-svg" viewBox="0 0 ${totalWidth} ${totalHeight}" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, -apple-system, sans-serif">`);
-
-    // soft colored group backgrounds, echoing the source diagram's layer boxes
-    function groupBox(deviceList, labelY, rgbVar) {
-      if (!deviceList.length) return "";
-      const xs = deviceList.map((d) => pos[d.id].x);
-      const xs2 = deviceList.map((d) => pos[d.id].x + pos[d.id].w);
-      const ys2 = deviceList.map((d) => pos[d.id].y + pos[d.id].h);
-      const pad = 16;
-      const top = labelY - 22;
-      const x = Math.min(...xs) - pad;
-      const width = Math.max(...xs2) - Math.min(...xs) + pad * 2;
-      const height = Math.max(...ys2) - top + pad;
-      return `<rect x="${x}" y="${top}" width="${width}" height="${height}" rx="16" fill="rgba(var(${rgbVar}), 0.07)" stroke="rgba(var(${rgbVar}), 0.22)"/>`;
-    }
-    svgParts.push(groupBox(core, 55, "--layer-core-rgb"));
-    svgParts.push(groupBox(security, 160, "--layer-security-rgb"));
-    svgParts.push(groupBox(sah, 290, "--layer-access-rgb"));
-    svgParts.push(groupBox(bbc, 290, "--layer-access-rgb"));
-
-    // links (behind nodes, above group backgrounds)
-    links.forEach((l) => {
-      let from, to;
-      if (l.backbone) {
-        from = anchorCenter(pos[l.from]);
-        to = anchorCenter(pos[l.to]);
-      } else {
-        // access/security device (below) uplinking to a core/security device (above)
-        from = anchorTop(pos[l.from]);
-        to = anchorBottom(pos[l.to]);
-      }
+    w.links.forEach((l) => {
+      if (!shownIds.has(l.from) || !shownIds.has(l.to)) return;
+      const a = w.pos[l.from], b = w.pos[l.to];
+      const from = l.backbone ? anchorCenter(a) : anchorTop(a);
+      const to = l.backbone ? anchorCenter(b) : anchorBottom(b);
       const midY = (from.y + to.y) / 2;
-      const path = `M ${from.x} ${from.y} C ${from.x} ${midY}, ${to.x} ${midY}, ${to.x} ${to.y}`;
-      svgParts.push(`<path class="topo-link" d="${path}" stroke-width="${widthFor(l.speed).toFixed(1)}" opacity="${l.backbone ? 0.85 : 0.55}"><title>${esc(l.label || "")} — ${esc(l.speed)}G</title></path>`);
+      const touches = near && (near.has(l.from) && near.has(l.to));
+      const cls = ["topo-link"];
+      if (near) cls.push(touches ? "hi" : "dim");
+      parts.push(
+        `<path class="${cls.join(" ")}" d="M ${from.x} ${from.y} C ${from.x} ${midY}, ${to.x} ${midY}, ${to.x} ${to.y}" ` +
+        `stroke-width="${widthFor(l.speed).toFixed(1)}"><title>${esc(l.label || "")} — ${esc(l.speed)}G</title></path>`
+      );
     });
 
     function nodeSvg(d) {
-      const p = pos[d.id];
-      if (!p) return "";
+      const p = w.pos[d.id];
       const color = LAYER_COLOR[d.layer] || "var(--baseline)";
       const status = deviceStatus(d.id);
-      const sub = d.ip || "";
+      const cls = ["topo-node"];
+      if (sel === d.id) cls.push("sel");
+      else if (near) cls.push(near.has(d.id) ? "hi" : "dim");
+      if (query && !`${d.name} ${d.ip || ""} ${d.model || ""}`.toLowerCase().includes(query)) cls.push("nomatch");
+      else if (query) cls.push("match");
       return `
-        <g class="topo-node" data-id="${esc(d.id)}">
-          <title>${esc(d.name)}${d.model ? " — " + esc(d.model) : ""}${d.ip ? " — " + esc(d.ip) : ""}${d.note ? "\n" + esc(d.note) : ""}\nStatus: ${esc(STATUS_LABEL[status])}</title>
-          <rect x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" rx="8" fill="var(--surface-3)" stroke="${color}"/>
+        <g class="${cls.join(" ")}" data-id="${esc(d.id)}" tabindex="0" role="button" aria-label="${esc(d.name)}">
+          <rect class="topo-node-bg" x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" rx="9" fill="var(--surface-3)" stroke="${color}"/>
           <rect x="${p.x}" y="${p.y}" width="4" height="${p.h}" rx="2" fill="${color}"/>
-          <circle class="status-dot-${status}" cx="${p.x + p.w - 10}" cy="${p.y + 10}" r="4"/>
-          <text x="${p.x + 12}" y="${p.y + 17}">${esc(d.name)}</text>
-          <text class="sub" x="${p.x + 12}" y="${p.y + 31}">${esc(sub)}</text>
+          <circle class="status-dot-${status}" cx="${p.x + p.w - 11}" cy="${p.y + 11}" r="4.5"/>
+          <text x="${p.x + 13}" y="${p.y + 19}">${esc(d.name)}</text>
+          <text class="sub" x="${p.x + 13}" y="${p.y + 34}">${esc(d.ip || d.model || "")}</text>
         </g>`;
     }
+    shown.forEach((d) => parts.push(nodeSvg(d)));
 
-    core.concat(security).forEach((d) => svgParts.push(nodeSvg(d)));
-    sah.forEach((d) => svgParts.push(nodeSvg(d)));
-    bbc.forEach((d) => svgParts.push(nodeSvg(d)));
+    if (showAps && w.wireless.length) {
+      w.wireless.forEach((s) => {
+        if (site !== "all" && s.label !== site) return;
+        const p = w.pos[`ap:${s.label}`];
+        const down = s.down || 0;
+        const status = down > 0 ? "down" : s.up > 0 ? "up" : "unknown";
+        const cls = ["topo-node", "topo-ap"];
+        if (sel === `ap:${s.label}`) cls.push("sel");
+        else if (near) cls.push("dim");
+        parts.push(`
+          <g class="${cls.join(" ")}" data-id="ap:${esc(s.label)}" tabindex="0" role="button" aria-label="${esc(s.label)} wireless">
+            <rect class="topo-node-bg" x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" rx="9" fill="var(--surface-3)" stroke="var(--layer-access)" stroke-dasharray="4 3"/>
+            <circle class="status-dot-${status}" cx="${p.x + p.w - 12}" cy="${p.y + 12}" r="4.5"/>
+            <text x="${p.x + 14}" y="${p.y + 22}">${esc(s.label)} wireless</text>
+            <text class="sub" x="${p.x + 14}" y="${p.y + 40}">${esc(s.total)} APs · ${esc(s.up)} up${down ? ` · ${esc(down)} down` : ""}</text>
+          </g>`);
+      });
+      parts.push(`<text class="topo-group-label" x="40" y="${w.wirelessY - 14}">Wireless — uplinks not modelled</text>`);
+    }
 
-    // group labels
-    svgParts.push(`<text class="topo-group-label" x="40" y="290">SAH Access &amp; Distribution</text>`);
-    svgParts.push(`<text class="topo-group-label" x="${sahGrid.width + 100}" y="290">BBC Access &amp; Distribution</text>`);
-    svgParts.push(`<text class="topo-group-label" x="${(totalWidth - coreRowWidth) / 2}" y="55">Core Layer</text>`);
-    svgParts.push(`<text class="topo-group-label" x="${(totalWidth - secRowWidth) / 2}" y="160">Security / Firewall</text>`);
+    if (shown.some((d) => w.core.includes(d))) parts.push(`<text class="topo-group-label" x="${(w.totalWidth - w.coreRowWidth) / 2}" y="60">Core Layer</text>`);
+    if (shown.some((d) => w.security.includes(d))) parts.push(`<text class="topo-group-label" x="${(w.totalWidth - w.secRowWidth) / 2}" y="175">Security / Firewall</text>`);
+    if (shown.some((d) => w.sah.includes(d))) parts.push(`<text class="topo-group-label" x="40" y="310">SAH Access &amp; Distribution</text>`);
+    if (shown.some((d) => w.bbc.includes(d))) parts.push(`<text class="topo-group-label" x="${w.sahGridWidth + 110}" y="310">BBC Access &amp; Distribution</text>`);
 
-    svgParts.push("</svg>");
+    parts.push("</g></svg>");
+    stage.innerHTML = parts.join("\n");
 
-    const svgMarkup = svgParts.join("\n");
-    document.querySelectorAll(".topology-mount").forEach((el) => { el.innerHTML = svgMarkup; });
+    const sub = document.getElementById("topo-subtitle");
+    if (sub) {
+      const hidden = DEVICES.length - shown.length;
+      sub.textContent = hidden
+        ? `Drag to pan, scroll to zoom, click a device for detail. ${shown.length} of ${DEVICES.length} devices shown — ${hidden} filtered out.`
+        : "Drag to pan, scroll to zoom, click a device for detail.";
+    }
+
+    renderTopoInspector();
+  }
+
+  function pos_has(world, id) { return Object.prototype.hasOwnProperty.call(world.pos, id); }
+
+  function renderTopoInspector() {
+    const el = document.getElementById("topo-inspector");
+    if (!el) return;
+    const id = topoState.selected;
+
+    if (!id) {
+      el.innerHTML = `<p class="muted-text" style="margin:0">Select a device to see its detail, uplinks and live status.</p>`;
+      return;
+    }
+
+    if (id.startsWith("ap:")) {
+      const site = id.slice(3);
+      const s = (typeof WIRELESS !== "undefined" ? WIRELESS.bySite || [] : []).find((x) => x.label === site);
+      const aps = (typeof WIRELESS !== "undefined" ? WIRELESS.aps || [] : []).filter((a) => a.site === site);
+      const down = aps.filter((a) => a.status === "down");
+      el.innerHTML = `
+        <h3>${esc(site)} wireless</h3>
+        <dl class="topo-dl">
+          <dt>Access points</dt><dd>${esc(s?.total ?? aps.length)}</dd>
+          <dt>Up</dt><dd>${esc(s?.up ?? 0)}</dd>
+          <dt>Down</dt><dd>${esc(s?.down ?? 0)}</dd>
+        </dl>
+        ${down.length ? `<h4>Currently down</h4><ul class="topo-list">${down.slice(0, 20).map((a) => `<li>${esc(a.name)}<span class="muted-text"> ${esc(a.model || "")}</span></li>`).join("")}</ul>` : `<p class="muted-text">No APs are reporting down.</p>`}
+        <p class="muted-text" style="margin-bottom:0">Auvik does not report which switch each AP uplinks to, so no link is drawn from this cluster.</p>`;
+      return;
+    }
+
+    const d = DEVICES.find((x) => x.id === id);
+    if (!d) { el.innerHTML = ""; return; }
+    const status = deviceStatus(d.id);
+    const live = (DEVICE_STATUS.devices || {})[d.id] || {};
+    const w = topoState.world;
+    const up = w.links.filter((l) => l.from === d.id);
+    const dn = w.links.filter((l) => l.to === d.id);
+    const nameOf = (nid) => DEVICES.find((x) => x.id === nid)?.name || nid;
+
+    el.innerHTML = `
+      <h3>${esc(d.name)}</h3>
+      <p class="topo-status"><span class="dot status-dot-${status}"></span>${esc(STATUS_LABEL[status] || "Unknown")}</p>
+      <dl class="topo-dl">
+        ${d.ip ? `<dt>IP</dt><dd>${esc(d.ip)}</dd>` : ""}
+        ${d.site ? `<dt>Site</dt><dd>${esc(d.site)}</dd>` : ""}
+        ${d.layer ? `<dt>Layer</dt><dd>${esc(d.layer)}</dd>` : ""}
+        ${live.model || d.model ? `<dt>Model</dt><dd>${esc(live.model || d.model)}</dd>` : ""}
+        ${live.vendor ? `<dt>Vendor</dt><dd>${esc(live.vendor)}</dd>` : ""}
+        ${live.firmware ? `<dt>Firmware</dt><dd>${esc(live.firmware)}</dd>` : ""}
+        ${live.lastSeen ? `<dt>Last seen</dt><dd>${esc(new Date(live.lastSeen).toLocaleString())}</dd>` : ""}
+      </dl>
+      ${up.length ? `<h4>Uplinks to</h4><ul class="topo-list">${up.map((l) => `<li>${esc(nameOf(l.to))}<span class="muted-text"> ${esc(l.speed)}G${l.label ? " · " + esc(l.label) : ""}</span></li>`).join("")}</ul>` : ""}
+      ${dn.length ? `<h4>Downlinks from</h4><ul class="topo-list">${dn.map((l) => `<li>${esc(nameOf(l.from))}<span class="muted-text"> ${esc(l.speed)}G</span></li>`).join("")}</ul>` : ""}
+      ${d.note ? `<p class="muted-text">${esc(d.note)}</p>` : ""}`;
+  }
+
+  function initTopology() {
+    const stage = document.getElementById("topo-stage");
+    if (!stage) return;
+
+    const clamp = (v) => Math.min(4, Math.max(0.35, v));
+
+    // Zoom toward the cursor: convert the pointer to world coordinates, scale,
+    // then translate so that same world point stays under the pointer.
+    stage.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const svg = document.getElementById("topo-svg");
+      if (!svg) return;
+      const r = svg.getBoundingClientRect();
+      const vb = svg.viewBox.baseVal;
+      const px = ((e.clientX - r.left) / r.width) * vb.width;
+      const py = ((e.clientY - r.top) / r.height) * vb.height;
+      const next = clamp(topoState.scale * (e.deltaY < 0 ? 1.12 : 1 / 1.12));
+      topoState.tx = px - (px - topoState.tx) * (next / topoState.scale);
+      topoState.ty = py - (py - topoState.ty) * (next / topoState.scale);
+      topoState.scale = next;
+      applyTopoTransform();
+    }, { passive: false });
+
+    let drag = null;
+    stage.addEventListener("pointerdown", (e) => {
+      if (e.target.closest(".topo-node")) return;
+      drag = { x: e.clientX, y: e.clientY, tx: topoState.tx, ty: topoState.ty };
+      stage.setPointerCapture(e.pointerId);
+      stage.classList.add("grabbing");
+    });
+    stage.addEventListener("pointermove", (e) => {
+      if (!drag) return;
+      const svg = document.getElementById("topo-svg");
+      const r = svg.getBoundingClientRect();
+      const vb = svg.viewBox.baseVal;
+      topoState.tx = drag.tx + (e.clientX - drag.x) * (vb.width / r.width);
+      topoState.ty = drag.ty + (e.clientY - drag.y) * (vb.height / r.height);
+      applyTopoTransform();
+    });
+    const endDrag = () => { drag = null; stage.classList.remove("grabbing"); };
+    stage.addEventListener("pointerup", endDrag);
+    stage.addEventListener("pointercancel", endDrag);
+
+    stage.addEventListener("click", (e) => {
+      const node = e.target.closest(".topo-node");
+      topoState.selected = node ? node.getAttribute("data-id") : null;
+      renderTopology();
+    });
+    stage.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      const node = e.target.closest(".topo-node");
+      if (!node) return;
+      e.preventDefault();
+      topoState.selected = node.getAttribute("data-id");
+      renderTopology();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && topoState.selected) { topoState.selected = null; renderTopology(); }
+    });
+
+    const zoomBy = (f) => {
+      const svg = document.getElementById("topo-svg");
+      if (!svg) return;
+      const vb = svg.viewBox.baseVal;
+      const cxw = vb.width / 2, cyw = vb.height / 2;
+      const next = clamp(topoState.scale * f);
+      topoState.tx = cxw - (cxw - topoState.tx) * (next / topoState.scale);
+      topoState.ty = cyw - (cyw - topoState.ty) * (next / topoState.scale);
+      topoState.scale = next;
+      applyTopoTransform();
+    };
+    document.getElementById("topo-zoom-in")?.addEventListener("click", () => zoomBy(1.25));
+    document.getElementById("topo-zoom-out")?.addEventListener("click", () => zoomBy(1 / 1.25));
+    document.getElementById("topo-reset")?.addEventListener("click", () => {
+      topoState.scale = 1; topoState.tx = 0; topoState.ty = 0; topoState.selected = null;
+      renderTopology();
+    });
+
+    ["topo-site", "topo-layer", "topo-show-aps"].forEach((id) => {
+      document.getElementById(id)?.addEventListener("change", renderTopology);
+    });
+    document.getElementById("topo-search")?.addEventListener("input", renderTopology);
+  }
+
+  function applyTopoTransform() {
+    const g = document.getElementById("topo-viewport");
+    if (g) g.setAttribute("transform", `translate(${topoState.tx} ${topoState.ty}) scale(${topoState.scale})`);
   }
 
   // ---------------------------------------------------------------------
@@ -1296,6 +1530,79 @@
   }
 
   // ---------------------------------------------------------------------
+  // Wireless (Meraki APs discovered by Auvik)
+  // ---------------------------------------------------------------------
+  const WIFI = () => (typeof WIRELESS !== "undefined" ? WIRELESS : {});
+
+  function renderWireless() {
+    const sumEl = document.getElementById("wireless-summary");
+    if (!sumEl) return;
+    const W = WIFI();
+    const aps = W.aps || [];
+
+    if (!aps.length) {
+      sumEl.textContent = "No access points discovered yet — run the Auvik sync.";
+      return;
+    }
+
+    const c = W.counts || {};
+    sumEl.textContent =
+      `${W.total} access points discovered by Auvik · ${c.up || 0} up` +
+      `${c.down ? `, ${c.down} down` : ""}${c.unknown ? `, ${c.unknown} unknown` : ""}` +
+      ` · last synced ${new Date(W.updatedAt).toLocaleString()}.`;
+
+    document.getElementById("wireless-site-bars").innerHTML =
+      barListHtml((W.bySite || []).map((s) => ({ label: s.label, value: s.total })), "var(--layer-access)");
+    document.getElementById("wireless-model-bars").innerHTML =
+      barListHtml(W.byModel || [], "var(--layer-core)");
+
+    const sel = document.getElementById("wireless-site-filter");
+    if (sel && sel.options.length === 1) {
+      [...new Set(aps.map((a) => a.site))].sort()
+        .forEach((s) => sel.insertAdjacentHTML("beforeend", `<option value="${esc(s)}">${esc(s)}</option>`));
+    }
+    renderWirelessTable();
+  }
+
+  function renderWirelessTable() {
+    const body = document.getElementById("wireless-table-body");
+    if (!body) return;
+    const aps = WIFI().aps || [];
+    const q = (document.getElementById("wireless-search")?.value || "").trim().toLowerCase();
+    const site = document.getElementById("wireless-site-filter")?.value || "all";
+    const status = document.getElementById("wireless-status-filter")?.value || "all";
+
+    const rows = aps.filter((a) => {
+      if (site !== "all" && a.site !== site) return false;
+      if (status !== "all" && a.status !== status) return false;
+      if (!q) return true;
+      return `${a.name} ${a.model || ""} ${a.vendor || ""}`.toLowerCase().includes(q);
+    });
+
+    document.getElementById("wireless-count").textContent =
+      rows.length === aps.length ? `${aps.length} access points` : `${rows.length} of ${aps.length} access points`;
+
+    body.innerHTML = rows.length
+      ? rows.map((a) => `
+        <tr>
+          <td>${esc(a.name)}</td>
+          <td>${esc(a.site)}</td>
+          <td>${esc(a.model || "—")}</td>
+          <td>${esc(a.vendor || "—")}</td>
+          <td><span class="dot status-dot-${esc(a.status)}"></span>${esc(STATUS_LABEL[a.status] || "Unknown")}</td>
+          <td>${a.lastSeen ? esc(new Date(a.lastSeen).toLocaleString()) : "—"}</td>
+        </tr>`).join("")
+      : `<tr><td class="note" colspan="6">No access points match this filter.</td></tr>`;
+  }
+
+  function initWirelessFilters() {
+    ["wireless-search", "wireless-site-filter", "wireless-status-filter"].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener(el.tagName === "SELECT" ? "change" : "input", renderWirelessTable);
+    });
+  }
+
+  // ---------------------------------------------------------------------
   // Security tickets (Arctic Wolf)
   // ---------------------------------------------------------------------
   // The queue ranks; it never suppresses. Every open ticket is rendered
@@ -1305,6 +1612,10 @@
   const SEC = () => (typeof SECURITY_SUMMARY !== "undefined" ? SECURITY_SUMMARY : {});
 
   const AW_PRIORITY_ORDER = { CRITICAL: 0, HIGH: 1, MEDIUM: 2, NORMAL: 3, LOW: 4 };
+  // Arctic Wolf issues HIGH / NORMAL / LOW here — there is no CRITICAL tier in
+  // this tenant, so "needs attention" means HIGH, and CRITICAL is carried only
+  // so the view still works if Arctic Wolf starts issuing it.
+  const AW_ATTENTION = new Set(["CRITICAL", "HIGH"]);
   const AW_PRIORITY_COLOR = {
     CRITICAL: "var(--prio-1)",
     HIGH: "var(--prio-1)",
@@ -1369,13 +1680,36 @@
     const q = (document.getElementById("security-queue-search")?.value || "").trim().toLowerCase();
     const cat = document.getElementById("security-queue-category")?.value || "all";
     const prio = document.getElementById("security-queue-priority")?.value || "all";
+    const view = document.getElementById("security-queue-view")?.value || "all";
+    const noteEl = document.getElementById("security-queue-filter-note");
+
+    const attention = all.filter((r) => AW_ATTENTION.has(r.priority));
 
     const rows = all.filter((r) => {
+      if (view === "attention" && !AW_ATTENTION.has(r.priority)) return false;
       if (cat !== "all" && r.category !== cat) return false;
       if (prio !== "all" && r.priority !== prio) return false;
       if (!q) return true;
       return `${r.id} ${r.category} ${r.status}`.toLowerCase().includes(q);
     });
+
+    // A view that hides things must say what it hid. Otherwise an empty
+    // high-priority queue is indistinguishable from a broken filter.
+    if (noteEl) {
+      if (view === "attention") {
+        noteEl.textContent = attention.length
+          ? `Showing ${attention.length} high-priority of ${all.length} open. Switch to “Everything open” for the rest.`
+          : `No high-priority tickets are open. ${all.length} ticket${all.length === 1 ? " is" : "s are"} open at lower priority — switch to “Everything open” to see them.`;
+      } else {
+        noteEl.textContent = "";
+      }
+    }
+
+    if (!rows.length) {
+      body.innerHTML = `<tr><td class="note" colspan="8">Nothing matches this view.</td></tr>`;
+      countEl.textContent = "";
+      return;
+    }
 
     countEl.textContent = rows.length === all.length
       ? `${all.length} open, most urgent first`
@@ -1415,7 +1749,7 @@
       .sort((a, b) => (AW_PRIORITY_ORDER[a] ?? 9) - (AW_PRIORITY_ORDER[b] ?? 9))
       .forEach((p) => prioSel.insertAdjacentHTML("beforeend", `<option value="${esc(p)}">${esc(p)}</option>`));
 
-    ["security-queue-search", "security-queue-category", "security-queue-priority"].forEach((id) => {
+    ["security-queue-view", "security-queue-search", "security-queue-category", "security-queue-priority"].forEach((id) => {
       const el = document.getElementById(id);
       if (el) el.addEventListener(el.tagName === "SELECT" ? "change" : "input", renderSecurityQueue);
     });
@@ -1560,7 +1894,10 @@
     renderCampusCards();
     renderInfraTiles();
     renderGlance();
+    initTopology();
     renderTopology();
+    initWirelessFilters();
+    renderWireless();
     renderDeviceTable();
     renderHosts();
     renderServices();

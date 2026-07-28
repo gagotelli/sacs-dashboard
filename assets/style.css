@@ -649,15 +649,51 @@ tbody tr:hover { background: var(--surface-2); }
 
 .topology-svg { width: 100%; height: auto; display: block; }
 
-.topo-node { cursor: default; transition: filter 0.15s ease; }
+.topo-node { cursor: pointer; transition: filter 0.15s ease, opacity 0.15s ease; }
 .topo-node:hover { filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.12)); }
 .topo-node rect { stroke-width: 1.5; transition: stroke-width 0.15s ease; }
-.topo-node:hover rect:first-of-type { stroke-width: 2; }
+.topo-node:hover .topo-node-bg { stroke-width: 2.5; }
+.topo-node:focus { outline: none; }
+.topo-node:focus-visible .topo-node-bg { stroke-width: 3; }
 .topo-node text { font-size: 11px; fill: var(--text-primary); font-weight: 600; }
 .topo-node .sub { font-size: 9.5px; fill: var(--text-secondary); font-weight: 400; font-variant-numeric: tabular-nums; }
-.topo-link { stroke: var(--baseline); fill: none; }
+.topo-link { stroke: var(--baseline); fill: none; opacity: 0.55; transition: opacity 0.15s ease; }
 .topo-link-label { font-size: 9px; fill: var(--text-muted); }
 .topo-group-label { font-size: 12px; fill: var(--text-secondary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* Selection state. Dimming is visual only — nothing is removed from the DOM,
+   so a filtered-out node is still reachable by keyboard and by search. */
+.topo-node.dim { opacity: 0.28; }
+.topo-node.hi .topo-node-bg { stroke-width: 2.5; }
+.topo-node.sel .topo-node-bg { stroke-width: 3.5; }
+.topo-node.nomatch { opacity: 0.2; }
+.topo-node.match .topo-node-bg { stroke-width: 3; }
+.topo-link.dim { opacity: 0.1; }
+.topo-link.hi { opacity: 1; stroke: var(--layer-core); }
+
+.topo-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); }
+.topo-toolbar input[type="search"] { min-width: 180px; }
+.topo-spacer { flex: 1 1 auto; }
+.topo-check { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); white-space: nowrap; }
+
+.topo-layout { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 0; align-items: stretch; }
+.topo-stage { overflow: hidden; cursor: grab; touch-action: none; padding: 12px; min-height: 380px; }
+.topo-stage.grabbing { cursor: grabbing; }
+.topo-inspector { border-left: 1px solid var(--border); padding: 16px; overflow-y: auto; max-height: 620px; }
+.topo-inspector h3 { margin: 0 0 6px; font-size: 15px; overflow-wrap: break-word; }
+.topo-inspector h4 { margin: 14px 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); }
+.topo-status { display: flex; align-items: center; gap: 7px; margin: 0 0 10px; font-size: 13px; }
+.topo-dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; margin: 0; font-size: 12.5px; }
+.topo-dl dt { color: var(--text-secondary); }
+.topo-dl dd { margin: 0; overflow-wrap: break-word; font-variant-numeric: tabular-nums; }
+.topo-list { margin: 0; padding-left: 16px; font-size: 12.5px; }
+.topo-list li { margin-bottom: 3px; overflow-wrap: break-word; }
+.topo-legend { padding: 12px; border-top: 1px solid var(--border); margin: 0; }
+
+@media (max-width: 900px) {
+  .topo-layout { grid-template-columns: minmax(0, 1fr); }
+  .topo-inspector { border-left: none; border-top: 1px solid var(--border); max-height: none; }
+}
 
 /* Two vocabularies meet here: the palette names (good/serious/critical) and
    the status values data/status.js actually emits (up/warning/down/unknown).
@@ -669,6 +705,16 @@ tbody tr:hover { background: var(--surface-2); }
 .status-dot-critical,
 .status-dot-down { fill: var(--status-critical); }
 .status-dot-unknown { fill: var(--status-unknown); }
+
+/* The same class names are used on HTML <span class="dot"> in legends, where
+   `fill` does nothing — those need background-color or the dot is invisible. */
+span.status-dot-good,
+span.status-dot-up { background: var(--status-good); }
+span.status-dot-warning { background: var(--status-warning); }
+span.status-dot-serious { background: var(--status-serious); }
+span.status-dot-critical,
+span.status-dot-down { background: var(--status-critical); }
+span.status-dot-unknown { background: var(--status-unknown); }
 
 footer.app-footer {
   text-align: center;
