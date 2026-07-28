@@ -4,16 +4,16 @@
 // Aggregate counts only, by design: no ticket subjects, requester
 // names, or descriptions ever leave ManageEngine. This repo is public.
 const TICKET_SUMMARY = {
-  "updatedAt": "2026-07-28T22:46:39Z",
+  "updatedAt": "2026-07-28T23:56:53Z",
   "source": "ManageEngine ServiceDesk Plus",
   "portalUrl": "https://sacs.sdpondemand.manageengine.com/app/itdesk/ui/requests",
-  "total": 15674,
-  "open": 520,
+  "total": 15687,
+  "open": 525,
   "urgent": 9,
   "byStatus": [
     {
       "label": "Closed",
-      "value": 14687
+      "value": 14695
     },
     {
       "label": "On Hold",
@@ -21,7 +21,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Open",
-      "value": 464
+      "value": 469
     },
     {
       "label": "Resolved",
@@ -43,7 +43,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Normal: End of Next Day",
-      "value": 293
+      "value": 298
     },
     {
       "label": "Term Break",
@@ -64,16 +64,16 @@ const TICKET_SUMMARY = {
       "value": 21
     },
     {
+      "label": "Z. Admin",
+      "value": 20
+    },
+    {
       "label": "Access Request",
       "value": 19
     },
     {
       "label": "Software Issues",
-      "value": 19
-    },
-    {
-      "label": "Z. Admin",
-      "value": 19
+      "value": 18
     },
     {
       "label": "Audio Visual - Services",
@@ -85,11 +85,15 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Z. Communications",
-      "value": 17
+      "value": 16
     },
     {
-      "label": "Z. Hardware",
+      "label": "Systems Administration",
       "value": 10
+    },
+    {
+      "label": "Telephony",
+      "value": 4
     },
     {
       "label": "Hardware End User",
@@ -100,16 +104,12 @@ const TICKET_SUMMARY = {
       "value": 3
     },
     {
-      "label": "Telephony",
-      "value": 2
-    },
-    {
       "label": "Z. Developments and Integrations",
       "value": 2
     },
     {
       "label": "Uncategorised",
-      "value": 349
+      "value": 353
     }
   ],
   "openMatrix": [
@@ -175,7 +175,7 @@ const TICKET_SUMMARY = {
         },
         {
           "label": "Normal: End of Next Day",
-          "value": 262
+          "value": 267
         },
         {
           "label": "Term Break",
@@ -190,12 +190,100 @@ const TICKET_SUMMARY = {
   ],
   "recentOpen": [
     {
+      "id": "23010000045639491",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785282137674",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045639480",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785281466661",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045639469",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785281233305",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045639456",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785281231965",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045585031",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Telephony",
+      "created": "1785280537643",
+      "dueBy": "1785885340863"
+    },
+    {
+      "id": "23010000045639412",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785280304003",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045639400",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": "Z. Communications",
+      "created": "1785280083238",
+      "dueBy": "1785884884433"
+    },
+    {
+      "id": "23010000045639381",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785280082049",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045639357",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785279839404",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045639329",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": "Telephony",
+      "created": "1785279363055",
+      "dueBy": "1785884163335"
+    },
+    {
+      "id": "23010000045639318",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Admin",
+      "created": "1785279126497",
+      "dueBy": "1785883928987"
+    },
+    {
       "id": "23010000045637014",
       "status": "Open",
       "priority": "Normal: End of Next Day",
-      "category": "Software Issues",
+      "category": "Z. Software (Staff & Students)",
       "created": "1785277841438",
-      "dueBy": null
+      "dueBy": "1785882643633"
     },
     {
       "id": "23010000045639253",
@@ -217,7 +305,7 @@ const TICKET_SUMMARY = {
       "id": "23010000045639186",
       "status": "Open",
       "priority": "1 Week",
-      "category": null,
+      "category": "Systems Administration",
       "created": "1785277048522",
       "dueBy": "1785881851137"
     },
@@ -281,9 +369,9 @@ const TICKET_SUMMARY = {
       "id": "23010000045639035",
       "status": "Open",
       "priority": "1 Week",
-      "category": null,
+      "category": "Z. Software (Staff & Students)",
       "created": "1785233636208",
-      "dueBy": null
+      "dueBy": "1785838437253"
     },
     {
       "id": "23010000045632375",
@@ -555,7 +643,7 @@ const TICKET_SUMMARY = {
       "priority": "1 Week",
       "category": null,
       "created": "1785127343370",
-      "dueBy": null
+      "dueBy": "1785732145225"
     },
     {
       "id": "23010000045618025",
@@ -692,14 +780,6 @@ const TICKET_SUMMARY = {
       "category": "Z. Software (Staff & Students)",
       "created": "1785106204398",
       "dueBy": "1785711006393"
-    },
-    {
-      "id": "23010000045586198",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": "Z. Parent",
-      "created": "1785105575821",
-      "dueBy": "1785710379931"
     },
     {
       "id": "23010000045586187",
@@ -908,86 +988,6 @@ const TICKET_SUMMARY = {
       "category": "Audio Visual - Services",
       "created": "1784776676185",
       "dueBy": "1785381477115"
-    },
-    {
-      "id": "23010000045505621",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": "Z. Audio Visual",
-      "created": "1784775690356",
-      "dueBy": "1785380492141"
-    },
-    {
-      "id": "23010000045505578",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": "Networking",
-      "created": "1784774495452",
-      "dueBy": "1785379297717"
-    },
-    {
-      "id": "23010000045505528",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": "Parent Services",
-      "created": "1784771700618",
-      "dueBy": "1785376604713"
-    },
-    {
-      "id": "23010000045505513",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": "Audio Visual - Services",
-      "created": "1784770552219",
-      "dueBy": "1785375353319"
-    },
-    {
-      "id": "23010000045527128",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": "Telephony",
-      "created": "1784770296686",
-      "dueBy": "1785375100121"
-    },
-    {
-      "id": "23010000045505502",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": "Z. Edumate",
-      "created": "1784769648547",
-      "dueBy": "1785374451287"
-    },
-    {
-      "id": "23010000045505491",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": "Z. Communications",
-      "created": "1784769418168",
-      "dueBy": "1785374219013"
-    },
-    {
-      "id": "23010000045505261",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": "Z. Software (Staff & Students)",
-      "created": "1784761748458",
-      "dueBy": "1785366550753"
-    },
-    {
-      "id": "23010000045505246",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": "Audio Visual - Classroom",
-      "created": "1784760370247",
-      "dueBy": "1785365171487"
-    },
-    {
-      "id": "23010000045505113",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": "Audio Visual - Services",
-      "created": "1784757847716",
-      "dueBy": "1785362651301"
     }
   ]
 };
