@@ -9,6 +9,9 @@
   --surface-3: #232322;
   --rail: #12182a;
   --rail-hover: #1d2740;
+  --rail-text: rgba(255, 255, 255, 0.62);
+  --rail-text-active: #ffffff;
+  --rail-border: transparent;
   --text-primary: #ffffff;
   --text-secondary: #c3c2b7;
   --text-muted: #898781;
@@ -45,8 +48,11 @@
   --surface-1: #fcfcfb;
   --surface-2: #f9f9f7;
   --surface-3: #ffffff;
-  --rail: #12182a;
-  --rail-hover: #1d2740;
+  --rail: #ffffff;
+  --rail-hover: #f0efec;
+  --rail-text: #52514e;
+  --rail-text-active: #0b0b0b;
+  --rail-border: rgba(11, 11, 11, 0.10);
   --text-primary: #0b0b0b;
   --text-secondary: #52514e;
   --text-muted: #898781;
@@ -731,6 +737,7 @@ footer.app-footer {
   width: 68px;
   flex-shrink: 0;
   background: var(--rail);
+  border-right: 1px solid var(--rail-border);
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -754,7 +761,7 @@ footer.app-footer {
   appearance: none;
   border: 0;
   background: none;
-  color: rgba(255, 255, 255, 0.62);
+  color: var(--rail-text);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -776,10 +783,10 @@ footer.app-footer {
   white-space: nowrap;
   padding: 0 2px;
 }
-.rail-item:hover { background: var(--rail-hover); color: #fff; }
+.rail-item:hover { background: var(--rail-hover); color: var(--rail-text-active); }
 .rail-item.active {
   background: var(--rail-hover);
-  color: #fff;
+  color: var(--rail-text-active);
   border-left-color: var(--layer-core);
 }
 
