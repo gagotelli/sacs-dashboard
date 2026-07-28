@@ -252,6 +252,14 @@ jobs:
             BY_CATEGORY=$(echo "$BY_CATEGORY" | jq -c --arg l "$name" --argjson v "$n" '. + [{label:$l,value:$v}]')
           done < <(echo "$ALL_CATEGORIES" | jq -r '.[]')
           BY_CATEGORY=$(echo "$BY_CATEGORY" | jq -c '[ .[] | select(.value > 0) ] | sort_by(-.value)')
+          # Many tickets carry no category at all, so the buckets alone fall
+          # well short of the open total. Surface the remainder rather than
+          # letting the chart quietly under-report.
+          CAT_SUM=$(echo "$BY_CATEGORY" | jq '[.[].value] | add // 0')
+          if [ "$CAT_SUM" -lt "$OPEN" ]; then
+            BY_CATEGORY=$(echo "$BY_CATEGORY" | jq -c --argjson v "$(( OPEN - CAT_SUM ))" \
+              '. + [{label:"Uncategorised",value:$v}]')
+          fi
 
           # Open tickets per status x priority, so the page can show where the
           # urgent work actually sits rather than just how much there is.

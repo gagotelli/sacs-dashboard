@@ -91,10 +91,11 @@
     const stored = localStorage.getItem("sacs-theme");
     if (stored) root.setAttribute("data-theme", stored);
 
-    // Dark is the stylesheet's unconditional default now, so the OS
-    // preference must not be consulted here or the toggle label inverts.
+    // Must match the stylesheet's default, which is light. If these two
+    // disagree the first click is a no-op, because it "switches" to the
+    // theme already showing.
     function current() {
-      return root.getAttribute("data-theme") || "dark";
+      return root.getAttribute("data-theme") || "light";
     }
     function sync() {
       const c = current();
@@ -147,7 +148,9 @@
 
   // Semicircle gauge. Percentages only — the arc length is the encoding, so a
   // non-ratio value here would be meaningless.
-  function gaugeSvg(pct, color) {
+  function gaugeSvg(pct, color, opts) {
+    opts = opts || {};
+    const suffix = opts.suffix == null ? "%" : opts.suffix;
     const p = Math.max(0, Math.min(100, Number(pct) || 0));
     const w = 150, h = 84, cx = 75, cy = 74, r = 58, sw = 13;
     const len = Math.PI * r;
@@ -158,7 +161,7 @@
     return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${p.toFixed(0)} percent">
       ${arc("var(--gridline)", null)}
       ${arc(color, (p / 100) * len)}
-      <text x="${cx}" y="${cy - 8}" text-anchor="middle" class="gauge-value">${p.toFixed(0)}%</text>
+      <text x="${cx}" y="${cy - 8}" text-anchor="middle" class="gauge-value">${p.toFixed(0)}${suffix}</text>
     </svg>`;
   }
 
@@ -169,95 +172,212 @@
     return good ? "var(--status-good)" : warn ? "var(--status-warning)" : "var(--status-critical)";
   }
 
-  function renderGauges() {
-    const el = document.getElementById("gauge-row");
+  // ---------------------------------------------------------------------
+  // Overview v2 — health strip, per-campus cards, shared infrastructure
+  // ---------------------------------------------------------------------
+
+  // Every metric below is derived from a real feed. Where the design calls
+  // for something we do not measure — uptime history, bandwidth, sparkline
+  // trends — the tile is omitted rather than filled with a plausible number.
+  function pctOrNull(n, d) { return d ? (n / d) * 100 : null; }
+
+  function verdictFor(score) {
+    if (score == null) return { word: "Unknown", tone: "unknown", color: "var(--status-unknown)" };
+    if (score >= 90) return { word: "Excellent", tone: "good", color: "var(--status-good)" };
+    if (score >= 75) return { word: "Good", tone: "good", color: "var(--status-good)" };
+    if (score >= 55) return { word: "Fair", tone: "warning", color: "var(--status-warning)" };
+    return { word: "Needs attention", tone: "critical", color: "var(--status-critical)" };
+  }
+
+  function deviceStats(filterFn) {
+    const list = DEVICES.filter(filterFn || (() => true));
+    const known = list.filter((d) => deviceStatus(d.id) !== "unknown");
+    const up = list.filter((d) => deviceStatus(d.id) === "up").length;
+    return { total: list.length, up, known: known.length };
+  }
+
+  function cameraStats(site) {
+    if (typeof CAMERAS === "undefined") return null;
+    const list = site ? CAMERAS.filter((c) => c.site === site) : CAMERAS;
+    if (!list.length) return null;
+    return { total: list.length, active: list.filter((c) => c.working === "Y").length };
+  }
+
+  // Composite of the signals we actually have, each weighted by how much a
+  // failure in it would matter operationally.
+  function healthScore(parts) {
+    const usable = parts.filter((p) => p.pct != null);
+    if (!usable.length) return null;
+    const w = usable.reduce((s, p) => s + p.weight, 0);
+    return Math.round(usable.reduce((s, p) => s + p.pct * p.weight, 0) / w);
+  }
+
+  function renderHealthStrip() {
+    const el = document.getElementById("health-strip");
     if (!el) return;
 
-    const statuses = Object.values(DEVICE_STATUS.devices || {});
-    const upPct = statuses.length
-      ? (statuses.filter((d) => d.status === "up").length / statuses.length) * 100
-      : null;
-
+    const dev = deviceStats();
+    const devPct = pctOrNull(dev.up, dev.known);
     const licOk = LICENSES.filter((l) => !["critical", "warning"].includes(licenseStatus(l))).length;
-    const licPct = LICENSES.length ? (licOk / LICENSES.length) * 100 : null;
+    const licPct = pctOrNull(licOk, LICENSES.length);
+    const cam = cameraStats(null);
+    const camPct = cam ? pctOrNull(cam.active, cam.total) : null;
+    const vlanPct = pctOrNull(VLANS.filter((v) => String(v.status).toLowerCase() === "up").length, VLANS.length);
 
-    const camPct = typeof CCTV_SUMMARY !== "undefined" && CCTV_SUMMARY.totalCameras
-      ? (CCTV_SUMMARY.activeCameras / CCTV_SUMMARY.totalCameras) * 100
-      : null;
+    const score = healthScore([
+      { pct: devPct, weight: 4 },
+      { pct: licPct, weight: 2 },
+      { pct: vlanPct, weight: 2 },
+      { pct: camPct, weight: 1 },
+    ]);
+    const v = verdictFor(score);
 
-    const vlanUp = VLANS.filter((v) => String(v.status).toLowerCase() === "up").length;
-    const vlanPct = VLANS.length ? (vlanUp / VLANS.length) * 100 : null;
+    const licAction = LICENSES.filter((l) => licenseStatus(l) === "critical").length;
+    const down = dev.known - dev.up;
 
-    const gauges = [
-      { label: "Devices reporting up", pct: upPct, panel: "panel-devices" },
-      { label: "Licenses in good standing", pct: licPct, panel: "panel-licenses" },
-      { label: "Cameras active", pct: camPct, panel: "panel-cctv" },
-      { label: "VLANs up", pct: vlanPct, panel: "panel-vlans" },
+    const metrics = [
+      { label: "Devices up", value: dev.known ? `${dev.up}/${dev.known}` : "n/a", icon: "#icon-devices", tone: down ? "critical" : "good", panel: "panel-devices" },
+      { label: "Open tickets", value: TICKET_SUMMARY.open == null ? "n/a" : TICKET_SUMMARY.open.toLocaleString(), icon: "#icon-ticket", tone: "", panel: "panel-tickets" },
+      { label: "Urgent tickets", value: TICKET_SUMMARY.urgent == null ? "n/a" : TICKET_SUMMARY.urgent, icon: "#icon-ticket", tone: TICKET_SUMMARY.urgent ? "critical" : "good", panel: "panel-tickets" },
+      { label: "Licenses to action", value: licAction, icon: "#icon-license", tone: licAction ? "critical" : "good", panel: "panel-licenses" },
+      { label: "Cameras online", value: cam ? `${cam.active}/${cam.total}` : "n/a", icon: "#icon-camera", tone: cam && cam.active < cam.total ? "warning" : "good", panel: "panel-cctv" },
     ];
 
-    el.innerHTML = gauges.map((g) => {
-      const body = g.pct == null
-        ? `<p class="muted-text" style="padding:18px 0">No data</p>`
-        : gaugeSvg(g.pct, gaugeColor(g.pct));
-      return `<div class="card gauge-card" data-panel="${esc(g.panel)}" style="cursor:pointer">
-        <h2>${esc(g.label)}</h2>
-        ${body}
-        <div class="gauge-caption">${esc(g.label)}</div>
+    el.innerHTML = `
+      <div class="health-score">
+        ${gaugeSvg(score == null ? 0 : score, v.color, { suffix: "" })}
+        <div class="health-score-meta">
+          <div class="eyebrow">Global health score</div>
+          <div class="verdict" style="color:${v.color}">${esc(v.word)}</div>
+          <div class="sub">Across both campuses</div>
+        </div>
+      </div>
+      <div class="metric-strip">
+        ${metrics.map((m) => `
+          <button type="button" class="metric-item" data-panel="${esc(m.panel)}" style="background:none;border:0;font:inherit;cursor:pointer;text-align:left">
+            <span class="metric-icon ${m.tone ? "tone-" + m.tone : ""}"><svg class="icon"><use href="${esc(m.icon)}"/></svg></span>
+            <span>
+              <span class="label">${esc(m.label)}</span><br>
+              <span class="value">${esc(m.value)}</span>
+            </span>
+          </button>`).join("")}
       </div>`;
+  }
+
+  function renderCampusCards() {
+    const el = document.getElementById("campus-grid");
+    if (!el) return;
+
+    const campuses = [
+      { key: "SAH", name: "SAH Campus", sub: "St Andrew's House" },
+      { key: "BBC", name: "BBC Campus", sub: "Blue Bay / Gawura" },
+    ];
+
+    el.innerHTML = campuses.map((c) => {
+      const dev = deviceStats((d) => d.site === c.key);
+      const devPct = pctOrNull(dev.up, dev.known);
+      const cam = cameraStats(c.key);
+      const camPct = cam ? pctOrNull(cam.active, cam.total) : null;
+      const legacy = DEVICES.filter((d) => d.site === c.key && d.layer === "legacy").length;
+      const score = healthScore([{ pct: devPct, weight: 4 }, { pct: camPct, weight: 2 }]);
+
+      const issues = [];
+      DEVICES.filter((d) => d.site === c.key).forEach((d) => {
+        const st = deviceStatus(d.id);
+        if (st === "down") issues.push({ tone: "critical", text: `${d.name} is down`, where: d.ip || "" });
+        else if (st === "warning") issues.push({ tone: "warning", text: `${d.name} reporting warning`, where: d.ip || "" });
+      });
+      if (legacy) issues.push({ tone: "warning", text: `${legacy} legacy 1G uplink${legacy > 1 ? "s" : ""} still in service`, where: "" });
+      if (cam && cam.active < cam.total) {
+        issues.push({ tone: "warning", text: `${cam.total - cam.active} cameras not confirmed working`, where: "" });
+      }
+      const notReporting = dev.total - dev.known;
+      if (notReporting) issues.push({ tone: "unknown", text: `${notReporting} device${notReporting > 1 ? "s" : ""} not polled by Auvik`, where: "" });
+
+      // A headline of "Excellent" above a list of open problems is worse than
+      // no headline, so the badge is capped by the worst issue on the card.
+      let v = verdictFor(score);
+      if (issues.some((i) => i.tone === "critical")) {
+        v = { word: "Needs attention", tone: "critical", color: "var(--status-critical)" };
+      } else if (issues.some((i) => i.tone === "warning")) {
+        v = { word: "Minor issues", tone: "warning", color: "var(--status-warning)" };
+      }
+
+      const toneColor = { critical: "var(--status-critical)", warning: "var(--status-warning)", unknown: "var(--status-unknown)" };
+
+      const metric = (label, value, note, tone) => `
+        <div class="campus-metric">
+          <div class="cm-label">${esc(label)}</div>
+          <div class="cm-value">${esc(value)}</div>
+          ${note ? `<div class="cm-note"><span class="dot" style="background:${toneColor[tone] || "var(--status-good)"};width:6px;height:6px;border-radius:50%"></span>${esc(note)}</div>` : ""}
+        </div>`;
+
+      return `
+        <div class="card">
+          <div class="campus-head">
+            <div style="flex:1">
+              <h3>${esc(c.name)}</h3>
+              <div class="sub">${esc(c.sub)}</div>
+            </div>
+            <span class="pill pill-${v.tone === "unknown" ? "warning" : v.tone}">${esc(v.word)}</span>
+          </div>
+          <div class="campus-metrics">
+            ${metric("Health", score == null ? "n/a" : String(score), null, v.tone)}
+            ${metric("Devices", dev.known ? `${dev.up} / ${dev.known}` : "n/a", dev.up === dev.known ? "Up" : "Check", dev.up === dev.known ? "good" : "critical")}
+            ${metric("Cameras", cam ? `${cam.active} / ${cam.total}` : "n/a", cam ? "Working" : null, cam && cam.active < cam.total ? "warning" : "good")}
+            ${metric("Legacy 1G", legacy, legacy ? "Upgrade" : "None", legacy ? "warning" : "good")}
+          </div>
+          <div class="issue-list">
+            <h4>Key issues</h4>
+            ${issues.length
+              ? issues.slice(0, 4).map((i) => `
+                  <div class="issue-row">
+                    <span class="dot" style="background:${toneColor[i.tone] || "var(--status-good)"}"></span>
+                    <span class="issue-text">${esc(i.text)}</span>
+                    <span class="issue-where">${esc(i.where)}</span>
+                  </div>`).join("")
+              : `<div class="issue-row"><span class="dot" style="background:var(--status-good)"></span><span class="issue-text">Nothing flagged</span></div>`}
+          </div>
+        </div>`;
     }).join("");
   }
 
-  // One tile per operational area, coloured by the worst live state in it.
-  // Every tile carries an icon and a written count, so the colour is never
-  // the only thing communicating the state.
-  function renderAlertTiles() {
-    const el = document.getElementById("alert-grid");
+  function renderInfraTiles() {
+    const el = document.getElementById("infra-tiles");
     if (!el) return;
 
-    const statusOf = (ids) => {
-      const vals = ids.map((id) => deviceStatus(id));
-      if (vals.some((v) => v === "down" || v === "critical")) return "critical";
-      if (vals.some((v) => v === "warning" || v === "serious")) return "warning";
-      if (vals.length && vals.every((v) => v === "up")) return "good";
-      return "unknown";
+    const group = (label, fn) => {
+      const s = deviceStats(fn);
+      return { label, value: s.known ? `${s.up} / ${s.known}` : `0 / ${s.total}`, ok: s.known > 0 && s.up === s.known, none: s.known === 0 };
     };
-    // A group where some members simply are not polled reads as "unknown",
-    // which is honest but opaque on its own — so say how many report.
-    const reportLabel = (ids) => {
-      const known = ids.filter((id) => deviceStatus(id) !== "unknown").length;
-      return known === ids.length ? `${ids.length} devices` : `${known}/${ids.length} reporting`;
-    };
-    const byLayer = (layer) => DEVICES.filter((d) => d.layer === layer).map((d) => d.id);
-
-    const licNeedsAction = LICENSES.filter((l) => licenseStatus(l) === "critical").length;
-    const licExpiring = LICENSES.filter((l) => licenseStatus(l) === "warning").length;
-    const urgent = TICKET_SUMMARY.urgent;
-    const openTickets = TICKET_SUMMARY.open;
-    const camDown = typeof CCTV_SUMMARY !== "undefined" && CCTV_SUMMARY.totalCameras
-      ? CCTV_SUMMARY.totalCameras - CCTV_SUMMARY.activeCameras : null;
-    const vlansDown = VLANS.filter((v) => String(v.status).toLowerCase() === "down").length;
-    const noFailover = HOSTS.filter((h) => h.redundancy && /^no known/i.test(h.redundancy)).length;
-
     const tiles = [
-      { label: "Core switches", state: statusOf(byLayer("core")), count: reportLabel(byLayer("core")), icon: "#icon-devices", panel: "panel-devices" },
-      { label: "Security", state: statusOf(byLayer("security")), count: reportLabel(byLayer("security")), icon: "#icon-infra", panel: "panel-devices" },
-      { label: "Access layer", state: statusOf(byLayer("access")), count: reportLabel(byLayer("access")), icon: "#icon-devices", panel: "panel-devices" },
-      { label: "Legacy 1G uplinks", state: byLayer("legacy").length ? "warning" : "good", count: byLayer("legacy").length, icon: "#icon-ports", panel: "panel-ports" },
-      { label: "Licenses", state: licNeedsAction ? "critical" : licExpiring ? "warning" : "good", count: licNeedsAction || licExpiring || "OK", icon: "#icon-license", panel: "panel-licenses" },
-      { label: "Urgent tickets", state: urgent == null ? "unknown" : urgent > 0 ? "critical" : "good", count: urgent == null ? "n/a" : urgent, icon: "#icon-ticket", panel: "panel-tickets" },
-      { label: "Open tickets", state: openTickets == null ? "unknown" : "good", count: openTickets == null ? "n/a" : openTickets, icon: "#icon-ticket", panel: "panel-tickets" },
-      { label: "CCTV cameras", state: camDown == null ? "unknown" : camDown > 0 ? "warning" : "good", count: camDown == null ? "n/a" : camDown + " down", icon: "#icon-camera", panel: "panel-cctv" },
-      { label: "VLANs", state: vlansDown ? "warning" : "good", count: vlansDown ? vlansDown + " down" : VLANS.length, icon: "#icon-vlans", panel: "panel-vlans" },
-      { label: "DHCP failover", state: noFailover ? "critical" : "good", count: noFailover ? noFailover + " missing" : "OK", icon: "#icon-hosts", panel: "panel-devices" },
+      group("Core switches", (d) => d.layer === "core"),
+      group("Firewalls", (d) => /firewall/i.test(d.name)),
+      group("Access switches", (d) => d.layer === "access"),
+      // Availability is not the point for these — their existence is.
+      (() => { const t = group("Legacy 1G", (d) => d.layer === "legacy");
+               return { ...t, ok: t.value.startsWith("0"), state: "Upgrade" }; })(),
     ];
+    if (typeof CRITICAL_INFRA !== "undefined") {
+      const wifi = CRITICAL_INFRA.find((c) => /wireless/i.test(c.category));
+      const total = wifi && wifi.items.find((i) => /total/i.test(i.name));
+      if (total) tiles.push({ label: "Wireless APs", value: (total.detail.match(/^\d+/) || ["?"])[0], ok: true, none: false });
+    }
+    tiles.push({
+      label: "VLANs up",
+      value: `${VLANS.filter((v) => String(v.status).toLowerCase() === "up").length} / ${VLANS.length}`,
+      ok: !VLANS.some((v) => String(v.status).toLowerCase() === "down"), none: false,
+    });
 
     el.innerHTML = tiles.map((t) => `
-      <button type="button" class="alert-tile alert-${esc(t.state)}" data-panel="${esc(t.panel)}"
-              title="${esc(t.label)} — ${esc(t.state)}">
-        <svg class="icon"><use href="${esc(t.icon)}"/></svg>
-        <span class="alert-tile-label">${esc(t.label)}</span>
-        <span class="alert-tile-count">${esc(t.count)}</span>
-      </button>`).join("");
+      <div class="infra-tile">
+        <div class="it-label">${esc(t.label)}</div>
+        <div class="it-value">${esc(t.value)}</div>
+        <div class="it-state">
+          <span class="dot" style="width:6px;height:6px;border-radius:50%;background:${t.none ? "var(--status-unknown)" : t.ok ? "var(--status-good)" : "var(--status-warning)"}"></span>
+          ${t.none ? "Not polled" : t.state ? t.state : t.ok ? "Up" : "Check"}
+        </div>
+      </div>`).join("");
   }
 
   function legendHtml(items) {
@@ -545,105 +665,33 @@
     }).join("");
   }
 
+  // Only the licence donut survives on the v2 overview; the other glance
+  // cards were folded into the campus cards and shared-infrastructure tiles.
+  // renderKpis went with them — its target element no longer exists.
   function renderGlance() {
-    const layerCounts = ["core", "security", "access", "legacy"].map((l) => ({
-      value: DEVICES.filter((d) => d.layer === l).length,
-      label: LAYER_LABEL[l],
-      color: LAYER_COLOR[l],
-    }));
-    document.getElementById("glance-layer-donut").innerHTML = donutSvg(layerCounts, { centerLabel: "devices" });
-    document.getElementById("glance-layer-legend").innerHTML = legendHtml(layerCounts);
+    const donut = document.getElementById("glance-license-donut");
+    const legend = document.getElementById("glance-license-legend");
+    if (!donut || !legend) return;
 
-    const statusCounts = ["critical", "warning", "unknown", "good"].map((s) => ({
-      value: LICENSES.filter((l) => licenseStatus(l) === s).length,
-      label: LICENSE_STATUS_LABEL[s],
-      color: `var(--status-${s})`,
+    const statusOrder = ["critical", "warning", "unknown", "good"];
+    const statusCounts = statusOrder.map((k) => ({
+      value: LICENSES.filter((l) => licenseStatus(l) === k).length,
+      label: LICENSE_STATUS_LABEL[k],
+      color: { critical: "var(--status-critical)", warning: "var(--status-warning)",
+               unknown: "var(--status-unknown)", good: "var(--status-good)" }[k],
     }));
-    document.getElementById("glance-license-donut").innerHTML = donutSvg(statusCounts, { centerLabel: "licenses" });
-    document.getElementById("glance-license-legend").innerHTML = legendHtml(statusCounts);
+    const total = statusCounts.reduce((a, b) => a + b.value, 0);
 
-    const licensesNeedingAction = LICENSES.filter((l) => ["critical", "warning"].includes(licenseStatus(l))).length;
-    const legacyCount = DEVICES.filter((d) => d.layer === "legacy").length;
-    const noRedundancyHosts = HOSTS.filter((h) => h.redundancy && /^no known/i.test(h.redundancy)).length;
-    const attnItems = [
-      { label: "Licenses to action", value: licensesNeedingAction, panel: "panel-licenses" },
-      { label: "Legacy uplinks", value: legacyCount, panel: "panel-devices" },
-      { label: "No DHCP failover", value: noRedundancyHosts, panel: "panel-devices" },
-    ];
-    const attnTotal = attnItems.reduce((s, i) => s + i.value, 0);
-    document.getElementById("glance-attention-ring").innerHTML = donutSvg(
-      [{ value: 1, color: attnTotal > 0 ? "var(--status-warning)" : "var(--status-good)", label: "Flagged" }],
-      { size: 132, thickness: 18, centerValue: attnTotal, centerLabel: "flagged" }
-    );
-    document.getElementById("glance-attention-list").innerHTML = attnItems.map((i) => `
-      <button type="button" class="legend-row-item legend-row-link" data-panel="${esc(i.panel)}">
-        <span class="swatch" style="background:${i.value > 0 ? 'var(--status-warning)' : 'var(--status-good)'}"></span>
+    donut.innerHTML = donutSvg(statusCounts, { centerLabel: "licenses" });
+    // Percentages beside the counts, so the split reads without arithmetic.
+    legend.innerHTML = statusCounts.map((i) => `
+      <div class="legend-row-item">
+        <span class="swatch" style="background:${i.color}"></span>
         <span class="legend-row-label">${esc(i.label)}</span>
-        <span class="legend-value">${esc(i.value)}</span>
-      </button>`).join("");
-
-    const siteCounts = ["SAH", "BBC", "Core"].map((s) => ({
-      label: s === "Core" ? "Shared" : s,
-      value: DEVICES.filter((d) => d.site === s).length,
-    }));
-    document.getElementById("glance-site-bars").innerHTML = barListHtml(siteCounts, "var(--layer-core)");
-
-    const vlanByOwner = {};
-    VLANS.forEach((v) => { const k = v.owner || "Unknown"; vlanByOwner[k] = (vlanByOwner[k] || 0) + 1; });
-    const vlanCounts = Object.keys(vlanByOwner)
-      .map((k) => ({ label: k, value: vlanByOwner[k] }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 8);
-    document.getElementById("glance-vlan-bars").innerHTML = barListHtml(vlanCounts, "var(--layer-core)");
-
-    const speedBuckets = {};
-    DEVICES.forEach((d) => {
-      if (d.uplink && d.uplink.speedGbps) speedBuckets[d.uplink.speedGbps] = (speedBuckets[d.uplink.speedGbps] || 0) + 1;
-    });
-    BACKBONE_LINKS.forEach((l) => { speedBuckets[l.speedGbps] = (speedBuckets[l.speedGbps] || 0) + 1; });
-    const speedItems = Object.keys(speedBuckets)
-      .sort((a, b) => Number(a) - Number(b))
-      .map((k) => ({ label: `${k}G links`, value: speedBuckets[k] }));
-    document.getElementById("glance-speed-bars").innerHTML = barListHtml(speedItems, "var(--layer-core)");
+        <span class="legend-value">${esc(i.value)}<span class="pct-cell">${total ? ((i.value / total) * 100).toFixed(1) : "0.0"}%</span></span>
+      </div>`).join("");
   }
 
-  // ---------------------------------------------------------------------
-  // KPI tiles
-  // ---------------------------------------------------------------------
-  function renderKpis() {
-    const total = DEVICES.length;
-    const bySite = { SAH: 0, BBC: 0 };
-    DEVICES.forEach((d) => { if (bySite[d.site] !== undefined) bySite[d.site]++; });
-    const legacyCount = DEVICES.filter((d) => d.layer === "legacy").length;
-    const totalVlans = VLANS.length;
-    const apInfra = CRITICAL_INFRA.find((c) => c.category === "Wireless Infrastructure");
-    const totalAps = apInfra ? apInfra.items.find((i) => i.name === "Total APs") : null;
-    const licensesNeedingAction = LICENSES.filter((l) => {
-      const s = licenseStatus(l);
-      return s === "critical" || s === "warning";
-    }).length;
-
-    const tiles = [
-      { label: "Monitored devices", value: total },
-      { label: "SAH devices", value: bySite.SAH },
-      { label: "BBC devices", value: bySite.BBC },
-      { label: "Legacy / 1G links", value: legacyCount },
-      { label: "VLANs documented", value: totalVlans },
-      { label: "Wireless APs", value: totalAps ? totalAps.detail.split(" —")[0] : "—" },
-      { label: "Licenses needing action", value: licensesNeedingAction, color: licensesNeedingAction ? "var(--status-critical)" : null },
-    ];
-
-    document.getElementById("kpi-row").innerHTML = tiles.map((t) => `
-      <div class="kpi-tile">
-        <div class="value"${t.color ? ` style="color:${t.color}"` : ""}>${esc(t.value)}</div>
-        <div class="label">${esc(t.label)}</div>
-      </div>
-    `).join("");
-  }
-
-  // ---------------------------------------------------------------------
-  // Topology (hand-laid SVG, generated from devices.js)
-  // ---------------------------------------------------------------------
   function gridLayout(devices, originX, originY, cols, nodeW, nodeH, gapX, gapY) {
     const pos = {};
     devices.forEach((d, i) => {
@@ -1288,12 +1336,13 @@
     initTheme();
     initLogout();
     renderStatusBanner();
-    renderKpis();
+
     renderTickets();
     initTicketListFilters();
     renderTicketsPage();
-    renderAlertTiles();
-    renderGauges();
+    renderHealthStrip();
+    renderCampusCards();
+    renderInfraTiles();
     renderGlance();
     renderTopology();
     renderDeviceTable();

@@ -2,13 +2,59 @@
    The dark surfaces below are the ones the priority ramp was validated
    against, so they are deliberately unchanged — the darker chrome comes
    from the nav rail, not from re-tinting the chart surfaces. */
+/* Light is the default again: this dashboard is read at a desk more often
+   than on a wall. Dark remains a first-class selected theme with its own
+   validated steps, not an automatic inversion. */
 :root {
+  color-scheme: light;
+  --surface-1: #ffffff;
+  --surface-2: #f6f7f9;
+  --surface-3: #fbfbfc;
+  --rail: #ffffff;
+  --rail-hover: #f1f4f9;
+  --rail-active-bg: #eaf1fd;
+  --rail-text: #52514e;
+  --rail-text-active: #1c5cab;
+  --rail-border: #e6e8ec;
+  --text-primary: #14161a;
+  --text-secondary: #5b6270;
+  --text-muted: #8b93a1;
+  --gridline: #e9ebef;
+  --baseline: #c3c2b7;
+  --border: #e6e8ec;
+
+  --layer-core: #2a78d6;
+  --layer-access: #008300;
+  --layer-legacy: #e87ba4;
+  --layer-security: #eda100;
+  --layer-core-rgb: 42, 120, 214;
+  --layer-access-rgb: 0, 131, 0;
+  --layer-legacy-rgb: 232, 123, 164;
+  --layer-security-rgb: 237, 161, 0;
+
+  --status-good: #0ca30c;
+  --status-warning: #fab219;
+  --status-serious: #ec835a;
+  --status-critical: #d03b3b;
+  --status-unknown: #898781;
+
+  --prio-1: #1c5cab;
+  --prio-2: #2a78d6;
+  --prio-3: #5598e7;
+  --prio-4: #86b6ef;
+  --prio-none: #898781;
+
+  --accent-gradient: linear-gradient(90deg, #2a78d6, #1baf7a, #eda100);
+}
+
+:root[data-theme="dark"] {
   color-scheme: dark;
   --surface-1: #1a1a19;
   --surface-2: #0d0d0d;
   --surface-3: #232322;
   --rail: #12182a;
   --rail-hover: #1d2740;
+  --rail-active-bg: #1d2740;
   --rail-text: rgba(255, 255, 255, 0.62);
   --rail-text-active: #ffffff;
   --rail-border: transparent;
@@ -20,60 +66,16 @@
   --border: rgba(255, 255, 255, 0.10);
 
   --layer-core: #3987e5;
-  --layer-access: #008300;
   --layer-legacy: #d55181;
   --layer-security: #c98500;
   --layer-core-rgb: 57, 135, 229;
-  --layer-access-rgb: 0, 131, 0;
   --layer-legacy-rgb: 213, 81, 129;
   --layer-security-rgb: 201, 133, 0;
-
-  --status-good: #0ca30c;
-  --status-warning: #fab219;
-  --status-serious: #ec835a;
-  --status-critical: #d03b3b;
-  --status-unknown: #898781;
 
   --prio-1: #6da7ec;
   --prio-2: #3987e5;
   --prio-3: #256abf;
   --prio-4: #184f95;
-  --prio-none: #898781;
-
-  --accent-gradient: linear-gradient(90deg, #2a78d6, #1baf7a, #eda100);
-}
-
-:root[data-theme="light"] {
-  color-scheme: light;
-  --surface-1: #fcfcfb;
-  --surface-2: #f9f9f7;
-  --surface-3: #ffffff;
-  --rail: #ffffff;
-  --rail-hover: #f0efec;
-  --rail-text: #52514e;
-  --rail-text-active: #0b0b0b;
-  --rail-border: rgba(11, 11, 11, 0.10);
-  --text-primary: #0b0b0b;
-  --text-secondary: #52514e;
-  --text-muted: #898781;
-  --gridline: #e1e0d9;
-  --baseline: #c3c2b7;
-  --border: rgba(11, 11, 11, 0.10);
-
-  --layer-core: #2a78d6;
-  --layer-access: #008300;
-  --layer-legacy: #e87ba4;
-  --layer-security: #eda100;
-  --layer-core-rgb: 42, 120, 214;
-  --layer-access-rgb: 0, 131, 0;
-  --layer-legacy-rgb: 232, 123, 164;
-  --layer-security-rgb: 237, 161, 0;
-
-  --prio-1: #1c5cab;
-  --prio-2: #2a78d6;
-  --prio-3: #5598e7;
-  --prio-4: #86b6ef;
-  --prio-none: #898781;
 }
 
 * { box-sizing: border-box; }
@@ -885,3 +887,99 @@ main { padding: 16px; max-width: none; }
 .gauge-track { stroke: var(--gridline); }
 
 .section-heading { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin: 2px 0 8px; }
+
+/* ============================================================
+   Overview v2 — light, card-based, per-campus
+   ============================================================ */
+
+/* Sidebar carries labels now, not just icons. */
+.rail { width: 194px; }
+.rail-logo { padding: 14px 16px 16px; justify-content: flex-start; gap: 10px; }
+.rail-item {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  font-size: 13px;
+  border-left: 0;
+  border-radius: 0;
+  text-align: left;
+}
+.rail-item .icon { width: 17px; height: 17px; }
+.rail-item span { flex: 1; }
+.rail-item.active { background: var(--rail-active-bg); box-shadow: inset 3px 0 0 var(--layer-core); }
+@media (max-width: 1099px) { .rail { display: none; } nav.tabs { display: flex; } }
+@media (min-width: 1100px) { nav.tabs { display: none; } }
+
+.page-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+.page-head h2 { font-size: 21px; font-weight: 700; margin: 0 0 3px; letter-spacing: -0.01em; }
+.page-head .subtitle { font-size: 13px; color: var(--text-secondary); }
+
+.card { border-radius: 10px; }
+.card > h2 { background: transparent; border-bottom: 1px solid var(--border); font-size: 13px; padding: 12px 16px; }
+
+/* Health strip: one score plus the headline counters. */
+.health-strip { display: flex; align-items: stretch; flex-wrap: wrap; gap: 0; }
+.health-score { display: flex; align-items: center; gap: 14px; padding: 4px 22px 4px 2px; border-right: 1px solid var(--border); }
+.health-score-meta .eyebrow { font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+.health-score-meta .verdict { font-size: 17px; font-weight: 700; margin-top: 2px; }
+.health-score-meta .sub { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+
+.metric-strip { display: flex; flex: 1; flex-wrap: wrap; }
+.metric-item { display: flex; align-items: center; gap: 11px; padding: 4px 20px; flex: 1 1 170px; }
+.metric-icon {
+  width: 36px; height: 36px; border-radius: 9px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--rail-active-bg); color: var(--layer-core);
+}
+.metric-icon .icon { width: 18px; height: 18px; }
+.metric-item .label { font-size: 12px; color: var(--text-secondary); }
+.metric-item .value { font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.metric-icon.tone-critical { background: #fdecec; color: var(--status-critical); }
+.metric-icon.tone-warning  { background: #fdf4e1; color: #9a6a00; }
+.metric-icon.tone-good     { background: #e8f6e8; color: #0a7c0a; }
+
+/* Campus cards */
+.campus-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(430px, 1fr)); gap: 12px; }
+.campus-head { display: flex; align-items: center; gap: 11px; padding: 13px 16px; border-bottom: 1px solid var(--border); }
+.campus-head h3 { font-size: 15px; font-weight: 700; margin: 0; color: var(--text-primary); text-transform: none; letter-spacing: 0; }
+.campus-head .sub { font-size: 11.5px; color: var(--text-secondary); margin-top: 1px; }
+.pill { font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.pill-good { background: #e8f6e8; color: #0a7c0a; }
+.pill-warning { background: #fdf4e1; color: #8a5d00; }
+.pill-critical { background: #fdecec; color: #b02c2c; }
+
+.campus-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); }
+.campus-metric { padding: 13px 10px; text-align: center; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.campus-metric:last-child { border-right: 0; }
+.campus-metric .cm-label { font-size: 10.5px; color: var(--text-muted); font-weight: 600; }
+.campus-metric .cm-value { font-size: 17px; font-weight: 700; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.campus-metric .cm-note { font-size: 10.5px; margin-top: 3px; display: inline-flex; align-items: center; gap: 4px; color: var(--text-secondary); }
+
+.issue-list { padding: 12px 16px; }
+.issue-list h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin: 0 0 8px; }
+.issue-row { display: flex; align-items: center; gap: 9px; font-size: 12.5px; padding: 5px 0; }
+.issue-row .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.issue-row .issue-text { flex: 1; min-width: 0; overflow-wrap: break-word; }
+.issue-row .issue-where { color: var(--text-muted); font-size: 11.5px; }
+
+/* Shared infrastructure tiles */
+.infra-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)); }
+.infra-tile { padding: 14px 8px; text-align: center; border-right: 1px solid var(--border); }
+.infra-tile:last-child { border-right: 0; }
+.infra-tile .it-label { font-size: 11px; color: var(--text-secondary); font-weight: 600; margin-bottom: 7px; }
+.infra-tile .it-value { font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.infra-tile .it-state { font-size: 11px; display: inline-flex; align-items: center; gap: 4px; margin-top: 3px; color: var(--text-secondary); }
+
+.overview-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 12px; }
+.pct-cell { color: var(--text-muted); font-variant-numeric: tabular-nums; font-size: 11.5px; margin-left: 8px; }
+
+/* The v2 tints are light-surface values; dark needs its own steps rather
+   than an inversion, or the pills and metric icons glare. */
+:root[data-theme="dark"] .metric-icon { background: rgba(57, 135, 229, 0.16); color: #6da7ec; }
+:root[data-theme="dark"] .metric-icon.tone-critical { background: rgba(208, 59, 59, 0.18); color: #f08a8a; }
+:root[data-theme="dark"] .metric-icon.tone-warning  { background: rgba(250, 178, 25, 0.16); color: #f5c453; }
+:root[data-theme="dark"] .metric-icon.tone-good     { background: rgba(12, 163, 12, 0.16); color: #4fc44f; }
+:root[data-theme="dark"] .pill-good     { background: rgba(12, 163, 12, 0.18); color: #62cf62; }
+:root[data-theme="dark"] .pill-warning  { background: rgba(250, 178, 25, 0.18); color: #f5c453; }
+:root[data-theme="dark"] .pill-critical { background: rgba(208, 59, 59, 0.20); color: #f08a8a; }

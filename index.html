@@ -89,86 +89,55 @@
   <div class="status-banner"><span id="status-banner-text"></span></div>
 
   <section id="panel-overview" class="panel active">
-    <h2 class="section-heading">Alert status by area</h2>
-    <div class="alert-grid" id="alert-grid"></div>
+    <div class="page-head">
+      <div>
+        <h2>Network Overview</h2>
+        <div class="subtitle">SAH &amp; BBC campuses — core, security, access &amp; distribution</div>
+      </div>
+    </div>
 
-    <div class="gauge-row" id="gauge-row"></div>
+    <div class="card">
+      <div class="health-strip" id="health-strip"></div>
+    </div>
 
-    <h2 class="section-heading">Inventory</h2>
-    <div class="kpi-row" id="kpi-row"></div>
+    <div class="campus-grid" id="campus-grid"></div>
 
-    <div class="overview-layout">
-      <div class="overview-main">
-        <div class="topology-heading-row">
-          <h2 class="section-heading">Network topology</h2>
-          <button type="button" class="link-button" data-panel="panel-topology">Open full view <svg class="icon"><use href="#icon-arrow"/></svg></button>
-        </div>
-        <div class="legend-row">
-          <span class="legend-item"><span class="swatch" style="background:var(--layer-core)"></span>Core</span>
-          <span class="legend-item"><span class="swatch" style="background:var(--layer-security)"></span>Security / Firewall</span>
-          <span class="legend-item"><span class="swatch" style="background:var(--layer-access)"></span>Access</span>
-          <span class="legend-item"><span class="swatch" style="background:var(--layer-legacy)"></span>Legacy / 1G</span>
-          <span class="legend-item">Line thickness = link speed</span>
-        </div>
-        <div class="card topology-card">
-          <div class="table-wrap topology-mount"></div>
+    <div class="card">
+      <h2>Shared infrastructure</h2>
+      <div class="infra-tiles" id="infra-tiles"></div>
+    </div>
+
+    <div class="overview-cols">
+      <div class="card">
+        <h2>Licenses overview</h2>
+        <div class="glance-donut-row">
+          <div id="glance-license-donut"></div>
+          <div class="legend-col" id="glance-license-legend"></div>
         </div>
       </div>
-
-      <aside class="overview-side">
-        <h2 class="section-heading">Network at a glance</h2>
-        <div class="glance-grid" id="glance-grid">
-          <div class="card glance-card">
-            <h2>Devices by layer</h2>
-            <div class="glance-donut-row">
-              <div id="glance-layer-donut"></div>
-              <div class="legend-col" id="glance-layer-legend"></div>
-            </div>
-          </div>
-
-          <div class="card glance-card">
-            <h2>License status</h2>
-            <div class="glance-donut-row">
-              <div id="glance-license-donut"></div>
-              <div class="legend-col" id="glance-license-legend"></div>
-            </div>
-          </div>
-
-          <div class="card glance-card">
-            <h2>Needs attention</h2>
-            <div class="glance-donut-row">
-              <div id="glance-attention-ring"></div>
-              <div class="legend-col" id="glance-attention-list"></div>
-            </div>
-          </div>
-
-          <div class="card glance-card">
-            <h2>Support tickets (ManageEngine)</h2>
-            <div class="glance-donut-row">
-              <div id="glance-tickets-donut"></div>
-              <div class="legend-col" id="glance-tickets-legend"></div>
-            </div>
-            <p class="muted-text" id="tickets-not-connected-note" style="margin:10px 0 0">
-              Not connected yet — aggregate counts only once wired up, no ticket subjects or requester names.
-            </p>
-          </div>
-
-          <div class="card glance-card">
-            <h2>Devices by site</h2>
-            <div class="bar-list" id="glance-site-bars"></div>
-          </div>
-
-          <div class="card glance-card">
-            <h2>VLANs by owner/area</h2>
-            <div class="bar-list" id="glance-vlan-bars"></div>
-          </div>
-
-          <div class="card glance-card">
-            <h2>Uplinks by speed</h2>
-            <div class="bar-list" id="glance-speed-bars"></div>
-          </div>
+      <div class="card">
+        <h2>Open tickets by priority</h2>
+        <div class="glance-donut-row">
+          <div id="glance-tickets-donut"></div>
+          <div class="legend-col" id="glance-tickets-legend"></div>
         </div>
-      </aside>
+        <p class="muted-text" id="tickets-not-connected-note" style="margin:10px 0 0"></p>
+      </div>
+    </div>
+
+    <div class="topology-heading-row">
+      <h2 class="section-heading">Cross-campus topology</h2>
+      <button type="button" class="link-button" data-panel="panel-topology">Open full view <svg class="icon"><use href="#icon-arrow"/></svg></button>
+    </div>
+    <div class="legend-row">
+      <span class="legend-item"><span class="swatch" style="background:var(--layer-core)"></span>Core</span>
+      <span class="legend-item"><span class="swatch" style="background:var(--layer-security)"></span>Security / Firewall</span>
+      <span class="legend-item"><span class="swatch" style="background:var(--layer-access)"></span>Access</span>
+      <span class="legend-item"><span class="swatch" style="background:var(--layer-legacy)"></span>Legacy / 1G</span>
+      <span class="legend-item">Line thickness = link speed</span>
+    </div>
+    <div class="card topology-card">
+      <div class="table-wrap topology-mount"></div>
     </div>
 
     <div class="card">
