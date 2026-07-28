@@ -4,11 +4,11 @@
 // Aggregate counts only, by design: no ticket subjects, requester
 // names, or descriptions ever leave ManageEngine. This repo is public.
 const TICKET_SUMMARY = {
-  "updatedAt": "2026-07-28T11:15:48Z",
+  "updatedAt": "2026-07-28T14:02:49Z",
   "source": "ManageEngine ServiceDesk Plus",
   "portalUrl": "https://sacs.sdpondemand.manageengine.com/app/itdesk/ui/requests",
-  "total": 15664,
-  "open": 511,
+  "total": 15665,
+  "open": 512,
   "urgent": 10,
   "byStatus": [
     {
@@ -21,7 +21,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Open",
-      "value": 456
+      "value": 457
     },
     {
       "label": "Resolved",
@@ -35,7 +35,7 @@ const TICKET_SUMMARY = {
   "byPriority": [
     {
       "label": "1 Week",
-      "value": 193
+      "value": 194
     },
     {
       "label": "Critical: Drop Everything",
@@ -109,7 +109,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Uncategorised",
-      "value": 360
+      "value": 361
     }
   ],
   "openMatrix": [
@@ -155,7 +155,7 @@ const TICKET_SUMMARY = {
       "cells": [
         {
           "label": "1 Week",
-          "value": 177
+          "value": 178
         },
         {
           "label": "Critical: Drop Everything",
@@ -189,6 +189,14 @@ const TICKET_SUMMARY = {
     }
   ],
   "recentOpen": [
+    {
+      "id": "23010000045639057",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785238302247",
+      "dueBy": null
+    },
     {
       "id": "23010000045639046",
       "status": "Open",
@@ -980,14 +988,6 @@ const TICKET_SUMMARY = {
       "category": null,
       "created": "1784696727644",
       "dueBy": "1785301530869"
-    },
-    {
-      "id": "23010000045500637",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": null,
-      "created": "1784695570239",
-      "dueBy": "1785300371439"
     }
   ]
 };
