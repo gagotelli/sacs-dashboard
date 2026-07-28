@@ -1017,8 +1017,22 @@ main { padding: 16px; max-width: none; }
   border-right: 1px solid var(--rail-border);
   gap: 2px;
 }
-.rail-logo { padding: 18px 8px 20px; justify-content: flex-start; gap: 10px; }
-.rail-logo img { width: 36px; height: 36px; }
+/* The crest doubles as the home button — it is the one thing in the sidebar
+   people reach for to get back, so it is sized to be an easy target rather
+   than a decorative mark. */
+.rail-logo {
+  appearance: none; border: 0; background: none; font: inherit; cursor: pointer;
+  display: flex; align-items: center; justify-content: flex-start;
+  width: 100%; padding: 16px 10px 18px; gap: 10px; border-radius: 12px;
+  transition: background 0.12s ease;
+}
+.rail-logo:hover { background: var(--rail-hover); }
+.rail-logo:active { transform: scale(0.98); }
+.rail-logo img {
+  width: 52px; height: 52px; object-fit: contain;
+  background: #fff; border-radius: 12px; padding: 5px;
+  border: 1px solid var(--rail-card-border);
+}
 
 .rail-item,
 .rail-group-toggle {
