@@ -8,12 +8,12 @@
 // `score` ranks the queue — it never hides anything. Every open ticket
 // appears in `queue` regardless of score.
 const SECURITY_SUMMARY = {
-  "updatedAt": "2026-07-28T22:46:25.450Z",
+  "updatedAt": "2026-07-28T23:45:00.041Z",
   "source": "Arctic Wolf",
   "portalUrl": "https://dashboard.arcticwolf.com/",
   "total": 138,
-  "open": 8,
-  "closed": 130,
+  "open": 7,
+  "closed": 131,
   "byPriority": [
     {
       "label": "NORMAL",
@@ -31,11 +31,15 @@ const SECURITY_SUMMARY = {
   "byStatus": [
     {
       "label": "CLOSED",
-      "value": 130
+      "value": 131
     },
     {
       "label": "PENDING",
-      "value": 8
+      "value": 6
+    },
+    {
+      "label": "OPEN",
+      "value": 1
     }
   ],
   "byType": [
@@ -50,11 +54,11 @@ const SECURITY_SUMMARY = {
       "value": 3
     },
     {
-      "label": "Malware",
-      "value": 2
+      "label": "Configuration / policy",
+      "value": 1
     },
     {
-      "label": "Configuration / policy",
+      "label": "Malware",
       "value": 1
     },
     {
@@ -122,28 +126,15 @@ const SECURITY_SUMMARY = {
     {
       "id": 17796328,
       "priority": "NORMAL",
-      "status": "PENDING",
+      "status": "OPEN",
       "type": "INCIDENT",
       "category": "Suspicious login",
       "createdAt": "2026-07-24T01:45:54Z",
-      "updatedAt": "2026-07-28T01:38:03Z",
-      "comments": 3,
-      "attachments": 1,
+      "updatedAt": "2026-07-28T23:26:01Z",
+      "comments": 5,
+      "attachments": 6,
       "assigned": true,
-      "score": 60
-    },
-    {
-      "id": 17818034,
-      "priority": "NORMAL",
-      "status": "PENDING",
-      "type": "INCIDENT",
-      "category": "Malware",
-      "createdAt": "2026-07-28T09:29:26Z",
-      "updatedAt": "2026-07-28T09:29:33Z",
-      "comments": 1,
-      "attachments": 1,
-      "assigned": true,
-      "score": 38
+      "score": 66
     },
     {
       "id": 17816989,
@@ -152,11 +143,11 @@ const SECURITY_SUMMARY = {
       "type": "INCIDENT",
       "category": "Malware",
       "createdAt": "2026-07-28T03:32:04Z",
-      "updatedAt": "2026-07-28T03:32:06Z",
-      "comments": 1,
+      "updatedAt": "2026-07-28T22:59:23Z",
+      "comments": 2,
       "attachments": 1,
       "assigned": true,
-      "score": 38
+      "score": 41
     },
     {
       "id": 17817213,
@@ -165,11 +156,11 @@ const SECURITY_SUMMARY = {
       "type": "INCIDENT",
       "category": "Suspicious login",
       "createdAt": "2026-07-28T05:23:25Z",
-      "updatedAt": "2026-07-28T05:23:33Z",
-      "comments": 1,
+      "updatedAt": "2026-07-28T22:57:28Z",
+      "comments": 2,
       "attachments": 0,
       "assigned": true,
-      "score": 13
+      "score": 16
     }
   ]
 };
