@@ -5,71 +5,63 @@
 // name is written here: NinjaOne covers the whole endpoint estate and
 // this repo is public.
 const ENDPOINT_SUMMARY = {
-  "updatedAt": "2026-07-28T02:54:13.053Z",
+  "updatedAt": "2026-07-28T06:03:36.842Z",
   "source": "NinjaOne",
   "portalUrl": "https://oc.ninjarmm.com/#/deviceDashboard",
   "devices": {
-    "total": 387,
-    "online": 177,
-    "notCheckedIn": 210,
+    "total": 398,
+    "online": 127,
+    "notCheckedIn": 271,
     "byClass": [
       {
         "label": "Windows workstation",
-        "value": 385
+        "value": 393
       },
       {
         "label": "Linux server",
-        "value": 2
+        "value": 5
       }
     ],
     "byStaleness": [
       {
         "label": "Under 24 hours",
-        "value": 188
+        "value": 239
       },
       {
         "label": "1–7 days",
-        "value": 22
+        "value": 32
       }
     ]
   },
   "alerts": {
-    "total": 27,
+    "total": 29,
     "severityUsable": false,
     "byCondition": [
       {
         "label": "Memory is greater than or equal to 90 % for 15 minutes",
-        "value": 14
+        "value": 15
       },
       {
-        "label": "Disk active time is greater than 90  % for 15 minutes",
-        "value": 7
+        "label": "Disk Active Time is greater than 90  % for 15 minutes",
+        "value": 8
       },
       {
-        "label": "Disk free space is less than or equal to 15 % for 15 minutes  exclude recovery volume for window device(s) exclude removable disk for window device(s)",
-        "value": 5
-      },
-      {
-        "label": "Windows service 'spooler' is down",
-        "value": 1
+        "label": "Disk free space is less than or equal to 15 % for 15 minutes  Exclude recovery volume for window device(s) Exclude removable disk for window device(s)",
+        "value": 6
       }
     ],
     "bySourceType": [
       {
         "label": "Memory",
-        "value": 14
+        "value": 15
       },
       {
         "label": "Disk I/O",
-        "value": 7
+        "value": 8
       },
       {
         "label": "Disk free space",
-        "value": 5
-      },
-      {
-        "label": "Windows service state changed",
-        "value": 1
+        "value": 6
       }
     ]
   }
