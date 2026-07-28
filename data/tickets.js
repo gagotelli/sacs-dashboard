@@ -4,16 +4,16 @@
 // Aggregate counts only, by design: no ticket subjects, requester
 // names, or descriptions ever leave ManageEngine. This repo is public.
 const TICKET_SUMMARY = {
-  "updatedAt": "2026-07-28T08:31:49Z",
+  "updatedAt": "2026-07-28T11:15:48Z",
   "source": "ManageEngine ServiceDesk Plus",
   "portalUrl": "https://sacs.sdpondemand.manageengine.com/app/itdesk/ui/requests",
-  "total": 15663,
-  "open": 528,
-  "urgent": 11,
+  "total": 15664,
+  "open": 511,
+  "urgent": 10,
   "byStatus": [
     {
       "label": "Closed",
-      "value": 14670
+      "value": 14686
     },
     {
       "label": "On Hold",
@@ -21,11 +21,11 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Open",
-      "value": 473
+      "value": 456
     },
     {
       "label": "Resolved",
-      "value": 371
+      "value": 373
     },
     {
       "label": "Other",
@@ -35,15 +35,15 @@ const TICKET_SUMMARY = {
   "byPriority": [
     {
       "label": "1 Week",
-      "value": 199
+      "value": 193
     },
     {
       "label": "Critical: Drop Everything",
-      "value": 11
+      "value": 10
     },
     {
       "label": "Normal: End of Next Day",
-      "value": 296
+      "value": 286
     },
     {
       "label": "Term Break",
@@ -56,23 +56,19 @@ const TICKET_SUMMARY = {
   ],
   "byCategory": [
     {
-      "label": "Access Request",
-      "value": 23
-    },
-    {
       "label": "Audio Visual - Classroom",
       "value": 22
     },
     {
+      "label": "Access Request",
+      "value": 19
+    },
+    {
       "label": "Z. Admin",
-      "value": 20
+      "value": 19
     },
     {
       "label": "Software Issues",
-      "value": 18
-    },
-    {
-      "label": "Z. Communications",
       "value": 18
     },
     {
@@ -84,8 +80,12 @@ const TICKET_SUMMARY = {
       "value": 17
     },
     {
+      "label": "Z. Communications",
+      "value": 17
+    },
+    {
       "label": "Z. Hardware",
-      "value": 12
+      "value": 10
     },
     {
       "label": "Hardware End User",
@@ -109,7 +109,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Uncategorised",
-      "value": 369
+      "value": 360
     }
   ],
   "openMatrix": [
@@ -155,11 +155,11 @@ const TICKET_SUMMARY = {
       "cells": [
         {
           "label": "1 Week",
-          "value": 183
+          "value": 177
         },
         {
           "label": "Critical: Drop Everything",
-          "value": 6
+          "value": 5
         },
         {
           "label": "High",
@@ -175,7 +175,7 @@ const TICKET_SUMMARY = {
         },
         {
           "label": "Normal: End of Next Day",
-          "value": 266
+          "value": 256
         },
         {
           "label": "Term Break",
@@ -189,6 +189,22 @@ const TICKET_SUMMARY = {
     }
   ],
   "recentOpen": [
+    {
+      "id": "23010000045639046",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785234090746",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045639035",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785233636208",
+      "dueBy": null
+    },
     {
       "id": "23010000045632375",
       "status": "Open",
@@ -222,28 +238,12 @@ const TICKET_SUMMARY = {
       "dueBy": null
     },
     {
-      "id": "23010000045632337",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1785216996102",
-      "dueBy": "1785821796617"
-    },
-    {
       "id": "23010000045632317",
       "status": "Open",
       "priority": "Normal: End of Next Day",
       "category": null,
       "created": "1785216539137",
       "dueBy": null
-    },
-    {
-      "id": "23010000045628500",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": "Z. Communications",
-      "created": "1785216436053",
-      "dueBy": "1785821236323"
     },
     {
       "id": "23010000045632293",
@@ -294,44 +294,12 @@ const TICKET_SUMMARY = {
       "dueBy": "1785814178919"
     },
     {
-      "id": "23010000045632147",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": "Z. Hardware",
-      "created": "1785208231226",
-      "dueBy": "1785813032361"
-    },
-    {
       "id": "23010000045632129",
       "status": "Open",
       "priority": "Normal: End of Next Day",
       "category": null,
       "created": "1785208230360",
       "dueBy": null
-    },
-    {
-      "id": "23010000045632115",
-      "status": "Open",
-      "priority": "Critical: Drop Everything",
-      "category": "Access Request",
-      "created": "1785205709854",
-      "dueBy": "1785810514129"
-    },
-    {
-      "id": "23010000045632095",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": "Access Request",
-      "created": "1785205030286",
-      "dueBy": "1785809831721"
-    },
-    {
-      "id": "23010000045632085",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": "Access Request",
-      "created": "1785205029335",
-      "dueBy": "1785809831015"
     },
     {
       "id": "23010000045628201",
@@ -358,14 +326,6 @@ const TICKET_SUMMARY = {
       "dueBy": "1785806651307"
     },
     {
-      "id": "23010000045632013",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": "Z. Hardware",
-      "created": "1785201847864",
-      "dueBy": "1785806652189"
-    },
-    {
       "id": "23010000045618976",
       "status": "Open",
       "priority": "Normal: End of Next Day",
@@ -388,14 +348,6 @@ const TICKET_SUMMARY = {
       "category": null,
       "created": "1785197997044",
       "dueBy": "1785802797269"
-    },
-    {
-      "id": "23010000045618891",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1785196816837",
-      "dueBy": null
     },
     {
       "id": "23010000045618834",
@@ -483,7 +435,7 @@ const TICKET_SUMMARY = {
       "priority": "1 Week",
       "category": null,
       "created": "1785131640596",
-      "dueBy": null
+      "dueBy": "1785736443581"
     },
     {
       "id": "23010000045618386",
@@ -499,7 +451,7 @@ const TICKET_SUMMARY = {
       "priority": "1 Week",
       "category": null,
       "created": "1785130969896",
-      "dueBy": null
+      "dueBy": "1785735774381"
     },
     {
       "id": "23010000045618292",
@@ -508,14 +460,6 @@ const TICKET_SUMMARY = {
       "category": null,
       "created": "1785130070473",
       "dueBy": null
-    },
-    {
-      "id": "23010000045618175",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": null,
-      "created": "1785128464301",
-      "dueBy": "1785733265811"
     },
     {
       "id": "23010000045618162",
@@ -534,28 +478,12 @@ const TICKET_SUMMARY = {
       "dueBy": null
     },
     {
-      "id": "23010000045618081",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1785127342539",
-      "dueBy": null
-    },
-    {
       "id": "23010000045618025",
       "status": "Open",
       "priority": "1 Week",
       "category": null,
       "created": "1785125087473",
       "dueBy": "1785729889843"
-    },
-    {
-      "id": "23010000045586963",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1785123744840",
-      "dueBy": "1785728549045"
     },
     {
       "id": "23010000045586952",
@@ -619,30 +547,6 @@ const TICKET_SUMMARY = {
       "priority": "Normal: End of Next Day",
       "category": null,
       "created": "1785118687659",
-      "dueBy": null
-    },
-    {
-      "id": "23010000045586719",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1785118460788",
-      "dueBy": "1785723264733"
-    },
-    {
-      "id": "23010000045586673",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": null,
-      "created": "1785117369425",
-      "dueBy": "1785722171555"
-    },
-    {
-      "id": "23010000045586659",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": null,
-      "created": "1785116291402",
       "dueBy": null
     },
     {
@@ -988,6 +892,102 @@ const TICKET_SUMMARY = {
       "category": "Z. Communications",
       "created": "1784769418168",
       "dueBy": "1785374219013"
+    },
+    {
+      "id": "23010000045505261",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Software (Staff & Students)",
+      "created": "1784761748458",
+      "dueBy": "1785366550753"
+    },
+    {
+      "id": "23010000045505246",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Audio Visual - Classroom",
+      "created": "1784760370247",
+      "dueBy": "1785365171487"
+    },
+    {
+      "id": "23010000045505113",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Audio Visual - Services",
+      "created": "1784757847716",
+      "dueBy": "1785362651301"
+    },
+    {
+      "id": "23010000045505102",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": "Audio Visual - Services",
+      "created": "1784757846685",
+      "dueBy": "1785362650115"
+    },
+    {
+      "id": "23010000045505047",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Edumate (SIS)",
+      "created": "1784754541597",
+      "dueBy": "1785359344587"
+    },
+    {
+      "id": "23010000045500847",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Networking",
+      "created": "1784711554247",
+      "dueBy": "1785316355487"
+    },
+    {
+      "id": "23010000045500814",
+      "status": "On Hold",
+      "priority": "1 Week",
+      "category": "Z. Admin",
+      "created": "1784708856206",
+      "dueBy": "1785313657241"
+    },
+    {
+      "id": "23010000045500801",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1784706029930",
+      "dueBy": "1785310834585"
+    },
+    {
+      "id": "23010000045500765",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1784697916743",
+      "dueBy": "1785302720463"
+    },
+    {
+      "id": "23010000045500692",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1784696964057",
+      "dueBy": "1785301764347"
+    },
+    {
+      "id": "23010000045500681",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1784696727644",
+      "dueBy": "1785301530869"
+    },
+    {
+      "id": "23010000045500637",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1784695570239",
+      "dueBy": "1785300371439"
     }
   ]
 };
