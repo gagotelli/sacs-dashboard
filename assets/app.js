@@ -940,10 +940,11 @@
 
   const meraki = () => (typeof WIRELESS !== "undefined" ? WIRELESS.fleet || {} : {});
 
-  // KIRR is excluded from the map on request. It is still counted everywhere
-  // else — campus availability, the Meraki table and every total — so nothing
-  // silently disappears from the numbers, only from this diagram.
-  const TOPO_EXCLUDE_SITES = /^KIRR$/i;
+  // Sites hidden from the visual summaries on request — the topology map and
+  // the overview campus cards. They are still counted in every total, in the
+  // Meraki device table and in the device tables, so nothing disappears from
+  // the numbers; only the two diagrams omit them.
+  const HIDDEN_SITES = /^KIRR$/i;
   const shortSite = (s) => String(s || "").replace(/^SACS-/i, "") || "Unassigned";
 
   // "SAH-L5-AP-BE4C" -> "L5"; "BBC-G-A1-1" -> "G". Falls back to the whole
@@ -985,7 +986,7 @@
       ...mAps.map((s) => shortSite(s.site)),
       ...mSensors.map((s) => shortSite(s.site)),
       ...ciscoAccess.map((d) => d.site).filter(Boolean),
-    ])].filter((s) => !TOPO_EXCLUDE_SITES.test(s))
+    ])].filter((s) => !HIDDEN_SITES.test(s))
       // Widest column first so the tall campuses sit together and the short
       // ones do not strand a column of whitespace between them.
       .sort((a, b) => a.localeCompare(b));
@@ -2502,7 +2503,8 @@
     const NOT_A_CAMPUS = /^(core|shared|test)$/i;
     const fromDevices = [...new Set(DEVICES.map((d) => d.site).filter(Boolean))];
     const fromWifi = wifiSites.map((w) => String(w.label).replace(/^SACS-/i, ""));
-    const sites = [...new Set([...fromDevices, ...fromWifi])].filter((s) => !NOT_A_CAMPUS.test(s));
+    const sites = [...new Set([...fromDevices, ...fromWifi])]
+      .filter((s) => !NOT_A_CAMPUS.test(s) && !HIDDEN_SITES.test(s));
 
     const cards = sites.map((site) => {
       const list = DEVICES.filter((d) => d.site === site);
