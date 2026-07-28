@@ -7,7 +7,7 @@
 //
 // Status values: "up" | "warning" | "down" | "unknown"
 const DEVICE_STATUS = {
-  "updatedAt": "2026-07-28T03:04:54.466Z",
+  "updatedAt": "2026-07-28T03:11:33.912Z",
   "source": "Auvik",
   "matched": 28,
   "published": 30,

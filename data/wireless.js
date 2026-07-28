@@ -5,7 +5,7 @@
 // Wireless clients, MAC addresses and IP addresses are deliberately absent:
 // this repo is public.
 const WIRELESS = {
-  "updatedAt": "2026-07-28T03:04:54.462Z",
+  "updatedAt": "2026-07-28T03:11:33.838Z",
   "source": "Auvik",
   "total": 106,
   "counts": {
@@ -22,9 +22,21 @@ const WIRELESS = {
       "down": 0
     },
     {
+      "label": "CHC",
+      "total": 5,
+      "up": 5,
+      "down": 0
+    },
+    {
+      "label": "CATH",
+      "total": 1,
+      "up": 0,
+      "down": 0
+    },
+    {
       "label": "Unassigned",
-      "total": 7,
-      "up": 6,
+      "total": 1,
+      "up": 1,
       "down": 0
     }
   ],
@@ -47,6 +59,60 @@ const WIRELESS = {
     }
   ],
   "aps": [
+    {
+      "name": "SACS-CATH-AP-01",
+      "site": "CATH",
+      "vendor": "Meraki",
+      "model": "MR42",
+      "firmware": null,
+      "status": "unknown",
+      "lastSeen": "2026-07-18T01:40:14.556Z"
+    },
+    {
+      "name": "SACS-CHC-AP-1775",
+      "site": "CHC",
+      "vendor": "Meraki",
+      "model": "MR42",
+      "firmware": null,
+      "status": "up",
+      "lastSeen": "2026-06-19T02:30:47.777Z"
+    },
+    {
+      "name": "SACS-CHC-AP-1809",
+      "site": "CHC",
+      "vendor": "Meraki",
+      "model": "MR42",
+      "firmware": null,
+      "status": "up",
+      "lastSeen": "2026-06-19T02:30:47.797Z"
+    },
+    {
+      "name": "SACS-CHC-AP-1833",
+      "site": "CHC",
+      "vendor": "Meraki",
+      "model": "MR42",
+      "firmware": null,
+      "status": "up",
+      "lastSeen": "2026-06-19T02:30:47.946Z"
+    },
+    {
+      "name": "SACS-CHC-AP-1841",
+      "site": "CHC",
+      "vendor": "Meraki",
+      "model": "MR42",
+      "firmware": null,
+      "status": "up",
+      "lastSeen": "2026-06-19T02:30:48.071Z"
+    },
+    {
+      "name": "SACS-CHC-AP-1861",
+      "site": "CHC",
+      "vendor": "Meraki",
+      "model": "MR42",
+      "firmware": null,
+      "status": "up",
+      "lastSeen": "2026-06-19T02:30:47.854Z"
+    },
     {
       "name": "SAH-G-AP-SG02-RECEPTION",
       "site": "SAH",
@@ -946,60 +1012,6 @@ const WIRELESS = {
       "firmware": null,
       "status": "up",
       "lastSeen": "2026-06-19T02:30:48.109Z"
-    },
-    {
-      "name": "SACS-CATH-AP-01",
-      "site": "Unassigned",
-      "vendor": "Meraki",
-      "model": "MR42",
-      "firmware": null,
-      "status": "unknown",
-      "lastSeen": "2026-07-18T01:40:14.556Z"
-    },
-    {
-      "name": "SACS-CHC-AP-1775",
-      "site": "Unassigned",
-      "vendor": "Meraki",
-      "model": "MR42",
-      "firmware": null,
-      "status": "up",
-      "lastSeen": "2026-06-19T02:30:47.777Z"
-    },
-    {
-      "name": "SACS-CHC-AP-1809",
-      "site": "Unassigned",
-      "vendor": "Meraki",
-      "model": "MR42",
-      "firmware": null,
-      "status": "up",
-      "lastSeen": "2026-06-19T02:30:47.797Z"
-    },
-    {
-      "name": "SACS-CHC-AP-1833",
-      "site": "Unassigned",
-      "vendor": "Meraki",
-      "model": "MR42",
-      "firmware": null,
-      "status": "up",
-      "lastSeen": "2026-06-19T02:30:47.946Z"
-    },
-    {
-      "name": "SACS-CHC-AP-1841",
-      "site": "Unassigned",
-      "vendor": "Meraki",
-      "model": "MR42",
-      "firmware": null,
-      "status": "up",
-      "lastSeen": "2026-06-19T02:30:48.071Z"
-    },
-    {
-      "name": "SACS-CHC-AP-1861",
-      "site": "Unassigned",
-      "vendor": "Meraki",
-      "model": "MR42",
-      "firmware": null,
-      "status": "up",
-      "lastSeen": "2026-06-19T02:30:47.854Z"
     }
   ]
 };
