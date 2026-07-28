@@ -29,12 +29,14 @@ jobs:
 
       - name: Commit if changed
         run: |
-          if git diff --quiet -- data/status.js; then
+          # Stage first: git diff cannot see an untracked file, so a newly
+          # generated data/wireless.js would otherwise read as "no change".
+          git add data/status.js data/wireless.js
+          if git diff --cached --quiet -- data/status.js data/wireless.js; then
             echo "no change"
             exit 0
           fi
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/status.js
-          git commit -m "Update live device status from Auvik"
+          git commit -m "Update live device and wireless status from Auvik"
           git push
