@@ -1,0 +1,37 @@
+name: Sync endpoint summary from NinjaOne
+
+# Populates data/endpoints.js with managed-endpoint and alert counts.
+# Aggregates only — see scripts/ninjaone-endpoints.js for why.
+
+on:
+  schedule:
+    - cron: "15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build data/endpoints.js from NinjaOne
+        env:
+          NINJA_CLIENT_ID: ${{ secrets.NINJA_CLIENT_ID }}
+          NINJA_CLIENT_SECRET: ${{ secrets.NINJA_CLIENT_SECRET }}
+          NINJA_HOST: ${{ secrets.NINJA_HOST }}
+        run: node scripts/ninjaone-endpoints.js
+
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- data/endpoints.js; then
+            echo "no change"
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/endpoints.js
+          git commit -m "Update endpoint summary from NinjaOne"
+          git push
