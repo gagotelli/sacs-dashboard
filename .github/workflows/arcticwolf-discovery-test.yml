@@ -1,0 +1,86 @@
+name: Arctic Wolf API discovery (test)
+on: workflow_dispatch
+
+# Arctic Wolf's API surface varies by contract, so this probes a set of
+# candidate endpoints and reports which ones the key can reach, rather than
+# assuming a shape.
+#
+# Alert bodies name hosts, users and sometimes attack detail. This repo is
+# public, so nothing beyond status codes, field NAMES and counts is printed —
+# no alert content reaches the log.
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Authenticate and probe
+        env:
+          ARCTICWOLF_API_KEY: ${{ secrets.ARCTICWOLF_API_KEY }}
+          ARCTICWOLF_TENANT_ID: ${{ secrets.ARCTICWOLF_TENANT_ID }}
+        run: |
+          set -uo pipefail
+          echo "api key set:   $([ -n "$ARCTICWOLF_API_KEY" ] && echo yes || echo NO)"
+          echo "tenant id set: $([ -n "${ARCTICWOLF_TENANT_ID:-}" ] && echo yes || echo 'no (expected — we discover it)')"
+          echo ""
+
+          BASE="https://api.arcticwolf.com"
+
+          # Two auth styles are in circulation for this API; try both and see
+          # which the key is issued for.
+          try_auth() {  # $1 = header
+            curl -sS -o /tmp/probe.json -w "%{http_code}" "$BASE/alerts" -H "$1" -H "Accept: application/json" 2>/dev/null || echo 000
+          }
+          AUTH=""
+          for h in "Authorization: Bearer $ARCTICWOLF_API_KEY" "Authorization: $ARCTICWOLF_API_KEY" "x-api-key: $ARCTICWOLF_API_KEY"; do
+            code=$(try_auth "$h")
+            label=$(echo "$h" | cut -d: -f1)
+            echo "  auth style '$label' -> HTTP $code"
+            if [ "$code" = "200" ] || [ "$code" = "206" ]; then AUTH="$h"; break; fi
+          done
+          if [ -z "$AUTH" ]; then
+            AUTH="Authorization: Bearer $ARCTICWOLF_API_KEY"
+            echo "  (none returned 200; continuing with Bearer so the probes below still report)"
+          fi
+          echo ""
+
+          probe() {  # $1 = path
+            local code
+            code=$(curl -sS -o r.json -w "%{http_code}" "$BASE$1" \
+              -H "$AUTH" -H "Accept: application/json" 2>/dev/null || echo 000)
+            printf '  %-34s HTTP %s' "$1" "$code"
+            if [ "$code" = "200" ]; then
+              # field names only — never values
+              printf '  fields: %s' "$(jq -r '
+                (if type=="array" then (.[0] // {})
+                 elif has("data") then (.data[0] // .data)
+                 elif has("items") then (.items[0] // .items)
+                 else . end)
+                | if type=="object" then (keys | join(", ")) else type end' r.json 2>/dev/null | head -c 260)"
+            else
+              printf '  %s' "$(head -c 120 r.json | tr -d '\n')"
+            fi
+            echo ""
+          }
+
+          echo "=== endpoint probe ==="
+          for path in /alerts /v1/alerts /observations /v1/observations \
+                      /tickets /v1/tickets /sensors /v1/sensors \
+                      /organizations /v1/organizations /accounts /v1/accounts; do
+            probe "$path"
+          done
+
+          echo ""
+          echo "=== roll-up from whichever alert endpoint answered ==="
+          for path in /alerts /v1/alerts /observations /v1/observations; do
+            code=$(curl -sS -o a.json -w "%{http_code}" "$BASE$path" -H "$AUTH" -H "Accept: application/json" 2>/dev/null || echo 000)
+            if [ "$code" = "200" ]; then
+              echo "using $path"
+              LIST=$(jq -c 'if type=="array" then . elif has("data") then .data elif has("items") then .items else [] end' a.json 2>/dev/null)
+              echo "  count: $(echo "$LIST" | jq 'length' 2>/dev/null)"
+              for f in severity riskLevel status type category state; do
+                vals=$(echo "$LIST" | jq -r "[.[]?.$f // empty] | group_by(.) | map(\"\(.[0])=\(length)\") | join(\"  \")" 2>/dev/null)
+                [ -n "$vals" ] && [ "$vals" != "" ] && echo "  by $f: $vals"
+              done
+              break
+            fi
+          done

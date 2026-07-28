@@ -1,0 +1,82 @@
+name: NinjaOne API discovery (test)
+on: workflow_dispatch
+
+# Confirms the NinjaOne credentials and reports what the tenant exposes.
+# Region is auto-detected: client-credentials against the wrong regional
+# host just returns 401 and consumes nothing, unlike a single-use OAuth code.
+#
+# Prints schema, counts and aggregates only — NinjaOne inventories every
+# endpoint including staff laptops, and this repo is public.
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Authenticate and probe
+        env:
+          NINJA_CLIENT_ID: ${{ secrets.NINJA_CLIENT_ID }}
+          NINJA_CLIENT_SECRET: ${{ secrets.NINJA_CLIENT_SECRET }}
+          NINJA_HOST: ${{ secrets.NINJA_HOST }}
+        run: |
+          set -uo pipefail
+          echo "client id set: $([ -n "$NINJA_CLIENT_ID" ] && echo yes || echo NO)"
+          echo "secret set:    $([ -n "$NINJA_CLIENT_SECRET" ] && echo yes || echo NO)"
+          echo ""
+
+          CANDIDATES="${NINJA_HOST:-} oc.ninjarmm.com app.ninjarmm.com us2.ninjarmm.com eu.ninjarmm.com ca.ninjarmm.com"
+          HOST=""; TOKEN=""
+          for h in $CANDIDATES; do
+            [ -z "$h" ] && continue
+            code=$(curl -sS -o tok.json -w "%{http_code}" -X POST "https://$h/ws/oauth/token" \
+              -H "Content-Type: application/x-www-form-urlencoded" \
+              --data-urlencode "grant_type=client_credentials" \
+              --data-urlencode "client_id=$NINJA_CLIENT_ID" \
+              --data-urlencode "client_secret=$NINJA_CLIENT_SECRET" \
+              --data-urlencode "scope=monitoring" || echo 000)
+            t=$(jq -r '.access_token // empty' tok.json 2>/dev/null)
+            echo "  $h -> HTTP $code $([ -n "$t" ] && echo '(token issued)' || echo '')"
+            if [ -n "$t" ]; then HOST="$h"; TOKEN="$t"; break; fi
+          done
+
+          if [ -z "$TOKEN" ]; then
+            echo ""
+            echo "No region accepted these credentials. Last response:"
+            head -c 400 tok.json; echo
+            echo "Check the app has Client Credentials enabled and scope 'monitoring'."
+            exit 1
+          fi
+          echo ""
+          echo "=== authenticated against $HOST ==="
+          echo "token scope: $(jq -r '.scope // "?"' tok.json)  expires_in: $(jq -r '.expires_in // "?"' tok.json)"
+          echo ""
+
+          probe() {  # $1 = path, $2 = label
+            local code
+            code=$(curl -sS -o r.json -w "%{http_code}" "https://$HOST$1" \
+              -H "Authorization: Bearer $TOKEN" -H "Accept: application/json" || echo 000)
+            echo "--- $2 ($1) -> HTTP $code"
+            if [ "$code" = "200" ]; then
+              echo "    count: $(jq 'if type=="array" then length else 1 end' r.json 2>/dev/null)"
+              echo "    fields: $(jq -r 'if type=="array" then (.[0] // {}) else . end | keys | join(", ")' r.json 2>/dev/null | head -c 400)"
+            else
+              head -c 200 r.json; echo
+            fi
+          }
+
+          probe "/v2/organizations" "organizations"
+          probe "/v2/devices" "devices"
+          probe "/v2/alerts" "alerts"
+
+          echo ""
+          echo "=== device roll-up (no hostnames) ==="
+          curl -sS "https://$HOST/v2/devices" -H "Authorization: Bearer $TOKEN" -o d.json
+          jq -r '[.[]?.nodeClass // "unknown"] | group_by(.) | map("  \(.[0]): \(length)") | .[]' d.json 2>/dev/null
+          echo "  offline: $(jq '[.[]? | select(.offline == true)] | length' d.json 2>/dev/null)"
+          echo "  total:   $(jq 'length' d.json 2>/dev/null)"
+
+          echo ""
+          echo "=== alert roll-up (severity/type only, no messages) ==="
+          curl -sS "https://$HOST/v2/alerts" -H "Authorization: Bearer $TOKEN" -o a.json
+          echo "  total: $(jq 'length' a.json 2>/dev/null)"
+          jq -r '[.[]?.severity // "unknown"] | group_by(.) | map("  severity \(.[0]): \(length)") | .[]' a.json 2>/dev/null
+          jq -r '[.[]?.sourceType // .[]?.type // "unknown"] | group_by(.) | map("  type \(.[0]): \(length)") | .[]' a.json 2>/dev/null
