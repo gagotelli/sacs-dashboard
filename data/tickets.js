@@ -4,24 +4,24 @@
 // Aggregate counts only, by design: no ticket subjects, requester
 // names, or descriptions ever leave ManageEngine. This repo is public.
 const TICKET_SUMMARY = {
-  "updatedAt": "2026-07-28T22:06:02Z",
+  "updatedAt": "2026-07-28T22:46:39Z",
   "source": "ManageEngine ServiceDesk Plus",
   "portalUrl": "https://sacs.sdpondemand.manageengine.com/app/itdesk/ui/requests",
-  "total": 15670,
-  "open": 517,
-  "urgent": 10,
+  "total": 15674,
+  "open": 520,
+  "urgent": 9,
   "byStatus": [
     {
       "label": "Closed",
-      "value": 14686
+      "value": 14687
     },
     {
       "label": "On Hold",
-      "value": 55
+      "value": 56
     },
     {
       "label": "Open",
-      "value": 462
+      "value": 464
     },
     {
       "label": "Resolved",
@@ -35,15 +35,15 @@ const TICKET_SUMMARY = {
   "byPriority": [
     {
       "label": "1 Week",
-      "value": 194
+      "value": 196
     },
     {
       "label": "Critical: Drop Everything",
-      "value": 10
+      "value": 9
     },
     {
       "label": "Normal: End of Next Day",
-      "value": 291
+      "value": 293
     },
     {
       "label": "Term Break",
@@ -68,12 +68,12 @@ const TICKET_SUMMARY = {
       "value": 19
     },
     {
-      "label": "Z. Admin",
+      "label": "Software Issues",
       "value": 19
     },
     {
-      "label": "Software Issues",
-      "value": 18
+      "label": "Z. Admin",
+      "value": 19
     },
     {
       "label": "Audio Visual - Services",
@@ -109,7 +109,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Uncategorised",
-      "value": 347
+      "value": 349
     }
   ],
   "openMatrix": [
@@ -138,7 +138,7 @@ const TICKET_SUMMARY = {
         },
         {
           "label": "Normal: End of Next Day",
-          "value": 30
+          "value": 31
         },
         {
           "label": "Term Break",
@@ -155,11 +155,11 @@ const TICKET_SUMMARY = {
       "cells": [
         {
           "label": "1 Week",
-          "value": 178
+          "value": 180
         },
         {
           "label": "Critical: Drop Everything",
-          "value": 5
+          "value": 4
         },
         {
           "label": "High",
@@ -175,7 +175,7 @@ const TICKET_SUMMARY = {
         },
         {
           "label": "Normal: End of Next Day",
-          "value": 261
+          "value": 262
         },
         {
           "label": "Term Break",
@@ -190,12 +190,44 @@ const TICKET_SUMMARY = {
   ],
   "recentOpen": [
     {
+      "id": "23010000045637014",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": "Software Issues",
+      "created": "1785277841438",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045639253",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785277511766",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045639204",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785277284238",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045639186",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785277048522",
+      "dueBy": "1785881851137"
+    },
+    {
       "id": "23010000045639166",
       "status": "Open",
       "priority": "Normal: End of Next Day",
       "category": null,
       "created": "1785276097920",
-      "dueBy": null
+      "dueBy": "1785880902525"
     },
     {
       "id": "23010000045639135",
@@ -211,7 +243,7 @@ const TICKET_SUMMARY = {
       "priority": "Normal: End of Next Day",
       "category": null,
       "created": "1785274173193",
-      "dueBy": null
+      "dueBy": "1785878974163"
     },
     {
       "id": "23010000045639094",
@@ -550,14 +582,6 @@ const TICKET_SUMMARY = {
       "dueBy": null
     },
     {
-      "id": "23010000045586891",
-      "status": "Open",
-      "priority": "Critical: Drop Everything",
-      "category": null,
-      "created": "1785122864434",
-      "dueBy": null
-    },
-    {
       "id": "23010000045610015",
       "status": "Open",
       "priority": "Normal: End of Next Day",
@@ -579,7 +603,7 @@ const TICKET_SUMMARY = {
       "priority": "1 Week",
       "category": null,
       "created": "1785119337714",
-      "dueBy": null
+      "dueBy": "1785724141289"
     },
     {
       "id": "23010000045586812",
@@ -595,7 +619,7 @@ const TICKET_SUMMARY = {
       "priority": "Normal: End of Next Day",
       "category": null,
       "created": "1785118687659",
-      "dueBy": null
+      "dueBy": "1785723490959"
     },
     {
       "id": "23010000045586630",
@@ -615,7 +639,7 @@ const TICKET_SUMMARY = {
     },
     {
       "id": "23010000045586538",
-      "status": "Open",
+      "status": "On Hold",
       "priority": "Normal: End of Next Day",
       "category": "Z. Parent",
       "created": "1785113868312",
@@ -964,30 +988,6 @@ const TICKET_SUMMARY = {
       "category": "Audio Visual - Services",
       "created": "1784757847716",
       "dueBy": "1785362651301"
-    },
-    {
-      "id": "23010000045505102",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": "Audio Visual - Services",
-      "created": "1784757846685",
-      "dueBy": "1785362650115"
-    },
-    {
-      "id": "23010000045505047",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": "Edumate (SIS)",
-      "created": "1784754541597",
-      "dueBy": "1785359344587"
-    },
-    {
-      "id": "23010000045500847",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": "Networking",
-      "created": "1784711554247",
-      "dueBy": "1785316355487"
     }
   ]
 };
