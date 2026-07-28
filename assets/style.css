@@ -138,9 +138,9 @@ body {
 header.app-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 16px;
-  padding: 14px 24px;
+  padding: 11px 24px;
   background: var(--surface-1);
   border-bottom: 1px solid var(--border);
   position: sticky;
@@ -1029,10 +1029,15 @@ main { padding: 16px; max-width: none; }
 .rail-logo:hover { background: var(--rail-hover); }
 .rail-logo:active { transform: scale(0.98); }
 .rail-logo img {
-  width: 52px; height: 52px; object-fit: contain;
-  background: #fff; border-radius: 12px; padding: 5px;
+  width: 40px; height: 40px; object-fit: contain; flex-shrink: 0;
+  background: #fff; border-radius: 10px; padding: 4px;
   border: 1px solid var(--rail-card-border);
 }
+/* The crest and product name live here only. The header used to repeat both,
+   which read as the same logo twice on one screen. */
+.rail-brand { display: flex; flex-direction: column; gap: 1px; min-width: 0; text-align: left; }
+.rail-brand-name { font-size: 15px; font-weight: 700; color: var(--rail-text-active); letter-spacing: -0.01em; }
+.rail-brand-sub { font-size: 11.5px; font-weight: 500; color: var(--text-muted); white-space: nowrap; }
 
 .rail-item,
 .rail-group-toggle {
