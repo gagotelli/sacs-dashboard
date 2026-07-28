@@ -4,11 +4,11 @@
 // Aggregate counts only, by design: no ticket subjects, requester
 // names, or descriptions ever leave ManageEngine. This repo is public.
 const TICKET_SUMMARY = {
-  "updatedAt": "2026-07-28T18:13:24Z",
+  "updatedAt": "2026-07-28T20:15:30Z",
   "source": "ManageEngine ServiceDesk Plus",
   "portalUrl": "https://sacs.sdpondemand.manageengine.com/app/itdesk/ui/requests",
-  "total": 15665,
-  "open": 512,
+  "total": 15667,
+  "open": 514,
   "urgent": 10,
   "byStatus": [
     {
@@ -21,7 +21,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Open",
-      "value": 457
+      "value": 459
     },
     {
       "label": "Resolved",
@@ -43,7 +43,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Normal: End of Next Day",
-      "value": 286
+      "value": 288
     },
     {
       "label": "Term Break",
@@ -109,7 +109,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Uncategorised",
-      "value": 361
+      "value": 363
     }
   ],
   "openMatrix": [
@@ -175,7 +175,7 @@ const TICKET_SUMMARY = {
         },
         {
           "label": "Normal: End of Next Day",
-          "value": 256
+          "value": 258
         },
         {
           "label": "Term Break",
@@ -189,6 +189,22 @@ const TICKET_SUMMARY = {
     }
   ],
   "recentOpen": [
+    {
+      "id": "23010000045639078",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785267459479",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045639067",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785264739065",
+      "dueBy": null
+    },
     {
       "id": "23010000045639057",
       "status": "Open",
@@ -972,22 +988,6 @@ const TICKET_SUMMARY = {
       "category": null,
       "created": "1784697916743",
       "dueBy": "1785302720463"
-    },
-    {
-      "id": "23010000045500692",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1784696964057",
-      "dueBy": "1785301764347"
-    },
-    {
-      "id": "23010000045500681",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1784696727644",
-      "dueBy": "1785301530869"
     }
   ]
 };
