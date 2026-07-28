@@ -1428,3 +1428,18 @@ main { padding: 16px; max-width: none; }
 .ov-columns { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 14px; align-items: start; }
 .ov-col { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 @media (max-width: 1180px) { .ov-columns { grid-template-columns: minmax(0, 1fr); } }
+
+/* Vendor tag under a rail label. A second line rather than an inline suffix:
+   at 244px "Endpoints NinjaOne" on one line either truncates or shrinks the
+   label below the size that made this sidebar readable in the first place. */
+.rail-item span em {
+  display: block;
+  font-style: normal;
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 1.3;
+  margin-top: 1px;
+  color: var(--text-muted);
+  letter-spacing: 0.01em;
+}
+.rail-item.active span em { color: var(--text-secondary); }
