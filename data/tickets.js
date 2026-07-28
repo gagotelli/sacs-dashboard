@@ -4,11 +4,11 @@
 // Aggregate counts only, by design: no ticket subjects, requester
 // names, or descriptions ever leave ManageEngine. This repo is public.
 const TICKET_SUMMARY = {
-  "updatedAt": "2026-07-28T20:15:30Z",
+  "updatedAt": "2026-07-28T22:06:02Z",
   "source": "ManageEngine ServiceDesk Plus",
   "portalUrl": "https://sacs.sdpondemand.manageengine.com/app/itdesk/ui/requests",
-  "total": 15667,
-  "open": 514,
+  "total": 15670,
+  "open": 517,
   "urgent": 10,
   "byStatus": [
     {
@@ -21,7 +21,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Open",
-      "value": 459
+      "value": 462
     },
     {
       "label": "Resolved",
@@ -43,7 +43,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Normal: End of Next Day",
-      "value": 288
+      "value": 291
     },
     {
       "label": "Term Break",
@@ -58,6 +58,10 @@ const TICKET_SUMMARY = {
     {
       "label": "Audio Visual - Classroom",
       "value": 22
+    },
+    {
+      "label": "Parent Services",
+      "value": 21
     },
     {
       "label": "Access Request",
@@ -104,12 +108,8 @@ const TICKET_SUMMARY = {
       "value": 2
     },
     {
-      "label": "Z. Network",
-      "value": 2
-    },
-    {
       "label": "Uncategorised",
-      "value": 363
+      "value": 347
     }
   ],
   "openMatrix": [
@@ -175,7 +175,7 @@ const TICKET_SUMMARY = {
         },
         {
           "label": "Normal: End of Next Day",
-          "value": 258
+          "value": 261
         },
         {
           "label": "Term Break",
@@ -190,12 +190,36 @@ const TICKET_SUMMARY = {
   ],
   "recentOpen": [
     {
-      "id": "23010000045639078",
+      "id": "23010000045639166",
       "status": "Open",
       "priority": "Normal: End of Next Day",
       "category": null,
-      "created": "1785267459479",
+      "created": "1785276097920",
       "dueBy": null
+    },
+    {
+      "id": "23010000045639135",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785275395240",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045639109",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785274173193",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045639094",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785272981747",
+      "dueBy": "1785877785487"
     },
     {
       "id": "23010000045639067",
@@ -203,23 +227,23 @@ const TICKET_SUMMARY = {
       "priority": "Normal: End of Next Day",
       "category": null,
       "created": "1785264739065",
-      "dueBy": null
+      "dueBy": "1785869539395"
     },
     {
       "id": "23010000045639057",
       "status": "Open",
-      "priority": "1 Week",
-      "category": null,
+      "priority": "Normal: End of Next Day",
+      "category": "Z. Software (Staff & Students)",
       "created": "1785238302247",
-      "dueBy": null
+      "dueBy": "1785843103487"
     },
     {
       "id": "23010000045639046",
       "status": "Open",
       "priority": "1 Week",
-      "category": null,
+      "category": "Parent Services",
       "created": "1785234090746",
-      "dueBy": null
+      "dueBy": "1785838894481"
     },
     {
       "id": "23010000045639035",
@@ -964,30 +988,6 @@ const TICKET_SUMMARY = {
       "category": "Networking",
       "created": "1784711554247",
       "dueBy": "1785316355487"
-    },
-    {
-      "id": "23010000045500814",
-      "status": "On Hold",
-      "priority": "1 Week",
-      "category": "Z. Admin",
-      "created": "1784708856206",
-      "dueBy": "1785313657241"
-    },
-    {
-      "id": "23010000045500801",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1784706029930",
-      "dueBy": "1785310834585"
-    },
-    {
-      "id": "23010000045500765",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1784697916743",
-      "dueBy": "1785302720463"
     }
   ]
 };
