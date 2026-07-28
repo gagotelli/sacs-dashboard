@@ -755,75 +755,242 @@
   // The map is laid out once into world coordinates, then pan/zoom happens on
   // a single <g transform> — cheap, and it keeps hit-testing correct because
   // the browser transforms the geometry rather than us re-projecting it.
-  const topoState = { scale: 1, tx: 0, ty: 0, selected: null, world: null };
 
-  function topoNodes() {
-    const core = DEVICES.filter((d) => d.layer === "core");
-    const security = DEVICES.filter((d) => d.layer === "security");
-    const sah = DEVICES.filter((d) => d.site === "SAH" && d.layer !== "core");
-    const bbc = DEVICES.filter((d) => d.site === "BBC" && d.layer !== "core");
-    return { core, security, sah, bbc };
+
+
+
+
+
+
+  // ---------------------------------------------------------------------
+  // Topology
+  // ---------------------------------------------------------------------
+  // Built from both feeds, because neither sees the whole estate: Auvik owns
+  // the Cisco core and Palo Alto edge, Meraki owns its own switches, APs and
+  // sensors. Nodes are laid out once into world coordinates and pan/zoom is a
+  // single <g transform>, so hit-testing stays correct.
+  //
+  // 188 access points cannot each be a node and stay readable, so APs and
+  // sensors are clustered by the location token in their name (SAH-L5-AP-…
+  // clusters as SAH · L5). Clusters expand on click.
+  const topoState = { scale: 1, tx: 0, ty: 0, selected: null, world: null, expanded: {} };
+
+  const TOPO_ICON = {
+    internet: "icon-cloud",
+    firewall: "icon-firewall",
+    core: "icon-switch",
+    switch: "icon-switch",
+    ap: "icon-ap",
+    sensor: "icon-sensor",
+    cluster: "icon-ap",
+  };
+  const TOPO_COLOR = {
+    internet: "var(--baseline)",
+    firewall: "var(--layer-security)",
+    core: "var(--layer-core)",
+    switch: "var(--layer-access)",
+    ap: "var(--layer-legacy)",
+    sensor: "var(--status-warning)",
+  };
+
+  const meraki = () => (typeof WIRELESS !== "undefined" ? WIRELESS.fleet || {} : {});
+  const shortSite = (s) => String(s || "").replace(/^SACS-/i, "") || "Unassigned";
+
+  // "SAH-L5-AP-BE4C" -> "L5"; "BBC-G-A1-1" -> "G". Falls back to the whole
+  // name so nothing silently lands in a bucket it does not belong to.
+  function locationToken(name) {
+    const parts = String(name || "").split("-");
+    return parts.length >= 2 ? parts[1].toUpperCase() : "—";
+  }
+
+  function worstStatus(list) {
+    if (list.some((s) => s === "down")) return "down";
+    if (list.some((s) => s === "warning")) return "warning";
+    if (list.some((s) => s === "up")) return "up";
+    return "unknown";
   }
 
   function buildTopoWorld() {
-    const { core, security, sah, bbc } = topoNodes();
-
-    const nodeW = 148, nodeH = 44, gapX = 16, gapY = 14;
-    const sahGrid = gridLayout(sah, 40, 320, 4, nodeW, nodeH, gapX, gapY);
-    const bbcGrid = gridLayout(bbc, sahGrid.width + 40 + 70, 320, 3, nodeW, nodeH, gapX, gapY);
-    const totalWidth = Math.max(sahGrid.width + 70 + bbcGrid.width + 80, 980);
-
-    const pos = {};
-    const coreW = 176, coreH = 52, coreGap = 32;
-    const coreRowWidth = core.length * coreW + Math.max(0, core.length - 1) * coreGap;
-    let cx = (totalWidth - coreRowWidth) / 2;
-    core.forEach((d) => { pos[d.id] = { x: cx, y: 76, w: coreW, h: coreH }; cx += coreW + coreGap; });
-
-    const secW = 176, secH = 48, secGap = 26;
-    const secRowWidth = security.length * secW + Math.max(0, security.length - 1) * secGap;
-    let sx = (totalWidth - secRowWidth) / 2;
-    security.forEach((d) => { pos[d.id] = { x: sx, y: 190, w: secW, h: secH }; sx += secW + secGap; });
-
-    Object.assign(pos, sahGrid.pos, bbcGrid.pos);
-
-    const accessBottom = 320 + Math.max(sahGrid.height, bbcGrid.height);
-
-    // Wireless clusters. Auvik does not tell us which switch each AP uplinks
-    // to, so these are placed in their own band and deliberately drawn with no
-    // links — inventing an uplink would be inventing topology.
-    const wireless = (typeof WIRELESS !== "undefined" ? WIRELESS.bySite || [] : [])
-      .filter((s) => s.label !== "Unassigned" || s.total > 0);
-    const wirelessY = accessBottom + 56;
-    const wW = 200, wH = 56, wGap = 28;
-    const wRow = wireless.length * wW + Math.max(0, wireless.length - 1) * wGap;
-    let wx = (totalWidth - wRow) / 2;
-    wireless.forEach((s) => {
-      pos[`ap:${s.label}`] = { x: wx, y: wirelessY, w: wW, h: wH };
-      wx += wW + wGap;
-    });
-
-    const totalHeight = (wireless.length ? wirelessY + wH : accessBottom) + 50;
-
+    const nodes = [];
     const links = [];
-    DEVICES.forEach((d) => {
-      if (!d.uplink) return;
-      const targets = Array.isArray(d.uplink.to) ? d.uplink.to : [d.uplink.to];
-      targets.forEach((t) => {
-        if (!pos[t] || !pos[d.id]) return;
-        links.push({ from: d.id, to: t, speed: d.uplink.speedGbps, label: d.uplink.port });
-      });
-    });
-    BACKBONE_LINKS.forEach((l) => {
-      if (pos[l.from] && pos[l.to]) {
-        links.push({ from: l.from, to: l.to, speed: l.speedGbps, label: l.label, backbone: true });
-      }
+    const push = (n) => { nodes.push(n); return n; };
+
+    const fw = DEVICES.filter((d) => d.layer === "security");
+    const core = DEVICES.filter((d) => d.layer === "core");
+
+    const mDevices = meraki().devices || [];
+    const mSwitches = mDevices.filter((d) => d.productType === "switch");
+    const mAps = mDevices.filter((d) => d.productType === "wireless");
+    const mSensors = mDevices.filter((d) => d.productType === "sensor");
+
+    // Cisco access switches Meraki cannot see, keyed by name so a switch
+    // present in both feeds is not drawn twice.
+    const merakiNames = new Set(mSwitches.map((s) => s.name.toUpperCase()));
+    const ciscoAccess = DEVICES.filter(
+      (d) => !["core", "security"].includes(d.layer) && !merakiNames.has(String(d.name).toUpperCase())
+    );
+
+    const sites = [...new Set([
+      ...mSwitches.map((s) => shortSite(s.site)),
+      ...mAps.map((s) => shortSite(s.site)),
+      ...mSensors.map((s) => shortSite(s.site)),
+      ...ciscoAccess.map((d) => d.site).filter(Boolean),
+    ])].sort((a, b) => a.localeCompare(b));
+
+    // ---- geometry -------------------------------------------------------
+    const NW = 176, NH = 50, GAPX = 18, GAPY = 16;
+    const COLGAP = 46;
+
+    // Each site becomes a column; column width is driven by how many switch
+    // chips sit side by side in it.
+    const colsFor = (n) => Math.max(1, Math.min(3, Math.ceil(Math.sqrt(n || 1))));
+    const siteCols = {};
+    const siteWidth = {};
+    sites.forEach((site) => {
+      const sw = mSwitches.filter((s) => shortSite(s.site) === site).length
+        + ciscoAccess.filter((d) => d.site === site).length;
+      siteCols[site] = colsFor(sw);
+      siteWidth[site] = siteCols[site] * NW + (siteCols[site] - 1) * GAPX;
     });
 
-    return {
-      pos, links, core, security, sah, bbc, wireless,
-      totalWidth, totalHeight, coreRowWidth, secRowWidth,
-      sahGridWidth: sahGrid.width, wirelessY,
+    const totalWidth = Math.max(
+      sites.reduce((s, k) => s + siteWidth[k], 0) + COLGAP * Math.max(0, sites.length - 1) + 80,
+      1000
+    );
+
+    const yInternet = 30;
+    const yFw = 130;
+    const yCore = 240;
+    const ySiteLabel = 348;
+    const ySwitch = 372;
+
+    const centreRow = (items, w, gap, y, h) => {
+      const total = items.length * w + Math.max(0, items.length - 1) * gap;
+      let x = (totalWidth - total) / 2;
+      return items.map((it) => { const p = { x, y, w, h }; x += w + gap; return p; });
     };
+
+    // ---- tiers ----------------------------------------------------------
+    const inet = push({
+      id: "net:internet", kind: "internet", name: "Internet", sub: "WAN edge",
+      status: "unknown", x: (totalWidth - 150) / 2, y: yInternet, w: 150, h: 44,
+    });
+
+    const fwPos = centreRow(fw, NW, 30, yFw, NH);
+    const fwNodes = fw.map((d, i) => push({
+      // Arctic Wolf sensors sit in the security tier but are not firewalls;
+      // drawing them with a firewall icon overstates what they do.
+      id: d.id, kind: /sensor/i.test(d.name) ? "sensor" : "firewall",
+      name: d.name, sub: d.ip || d.model || "",
+      status: deviceStatus(d.id), device: d, ...fwPos[i],
+    }));
+    fwNodes.forEach((n) => links.push({ from: inet.id, to: n.id, kind: "wan" }));
+
+    const corePos = centreRow(core, NW, 30, yCore, NH);
+    const coreNodes = core.map((d, i) => push({
+      id: d.id, kind: "core", name: d.name, sub: d.ip || d.model || "",
+      status: deviceStatus(d.id), device: d, ...corePos[i],
+    }));
+    coreNodes.forEach((c) => fwNodes.forEach((f) => links.push({ from: f.id, to: c.id, kind: "core" })));
+    // Core peer-link, when there is more than one core switch.
+    for (let i = 1; i < coreNodes.length; i++) {
+      links.push({ from: coreNodes[i - 1].id, to: coreNodes[i].id, kind: "peer" });
+    }
+
+    let cx = (totalWidth - (sites.reduce((s, k) => s + siteWidth[k], 0) + COLGAP * Math.max(0, sites.length - 1))) / 2;
+    const siteLabels = [];
+
+    sites.forEach((site) => {
+      const cols = siteCols[site];
+      const width = siteWidth[site];
+      const originX = cx;
+
+      const switchesHere = [
+        ...mSwitches.filter((s) => shortSite(s.site) === site)
+          .map((s) => ({ name: s.name, status: s.status, sub: s.model || "", meraki: s })),
+        ...ciscoAccess.filter((d) => d.site === site)
+          .map((d) => ({ name: d.name, status: deviceStatus(d.id), sub: d.ip || d.model || "", device: d })),
+      ].sort((a, b) => a.name.localeCompare(b.name));
+
+      const swNodes = switchesHere.map((s, i) => {
+        const col = i % cols, row = Math.floor(i / cols);
+        return push({
+          id: `sw:${site}:${s.name}`, kind: "switch", name: s.name, sub: s.sub,
+          status: s.status, device: s.device, meraki: s.meraki, site,
+          x: originX + col * (NW + GAPX), y: ySwitch + row * (NH + GAPY), w: NW, h: NH,
+        });
+      });
+
+      // Every access switch hangs off the core as a whole — the per-switch
+      // uplink port is not in either feed, so no specific core link is claimed.
+      swNodes.forEach((n) => {
+        if (coreNodes.length) links.push({ from: coreNodes[0].id, to: n.id, kind: "access", faint: true });
+      });
+
+      const swRows = Math.ceil(switchesHere.length / cols) || 0;
+      let y = ySwitch + swRows * (NH + GAPY) + 14;
+
+      // AP + sensor clusters for this site, grouped by location token.
+      const apsHere = mAps.filter((a) => shortSite(a.site) === site);
+      const sensorsHere = mSensors.filter((a) => shortSite(a.site) === site);
+      const groups = {};
+      apsHere.forEach((a) => {
+        const k = locationToken(a.name);
+        (groups[k] = groups[k] || { aps: [], sensors: [] }).aps.push(a);
+      });
+      sensorsHere.forEach((a) => {
+        const k = locationToken(a.name);
+        (groups[k] = groups[k] || { aps: [], sensors: [] }).sensors.push(a);
+      });
+
+      Object.keys(groups).sort().forEach((token, i) => {
+        const g = groups[token];
+        const col = i % cols, row = Math.floor(i / cols);
+        const members = [...g.aps, ...g.sensors];
+        const id = `cl:${site}:${token}`;
+        const node = push({
+          id, kind: "cluster", site, token,
+          name: `${site} · ${token}`,
+          sub: `${g.aps.length} AP${g.aps.length === 1 ? "" : "s"}${g.sensors.length ? ` · ${g.sensors.length} sensor${g.sensors.length === 1 ? "" : "s"}` : ""}`,
+          status: worstStatus(members.map((m) => m.status)),
+          members,
+          x: originX + col * (NW + GAPX), y: y + row * (NH + GAPY), w: NW, h: NH,
+        });
+        // Cluster attaches to the site's switch stack, not to a named switch:
+        // neither feed reports which switch an AP is patched into.
+        if (swNodes.length) links.push({ from: swNodes[0].id, to: node.id, kind: "wireless", faint: true });
+
+        if (topoState.expanded[id]) {
+          members.forEach((m, mi) => {
+            const mcol = mi % cols, mrow = Math.floor(mi / cols);
+            const mNode = push({
+              id: `${id}:${m.name}`, kind: m.productType === "sensor" ? "sensor" : "ap",
+              name: m.name, sub: m.model || "", status: m.status, meraki: m, site,
+              x: originX + mcol * (NW + GAPX),
+              y: y + (Math.ceil(Object.keys(groups).length / cols)) * (NH + GAPY) + 10 + mrow * (NH + GAPY),
+              w: NW, h: NH,
+            });
+            links.push({ from: id, to: mNode.id, kind: "member", faint: true });
+          });
+        }
+      });
+
+      const groupRows = Math.ceil(Object.keys(groups).length / cols) || 0;
+      let bottom = y + groupRows * (NH + GAPY);
+      const expandedHere = Object.keys(groups).filter((t) => topoState.expanded[`cl:${site}:${t}`]);
+      if (expandedHere.length) {
+        const maxMembers = Math.max(...expandedHere.map((t) => groups[t].aps.length + groups[t].sensors.length));
+        bottom += 10 + Math.ceil(maxMembers / cols) * (NH + GAPY);
+      }
+
+      siteLabels.push({ site, x: originX, y: ySiteLabel, width, bottom });
+      cx += width + COLGAP;
+    });
+
+    const totalHeight = Math.max(...siteLabels.map((s) => s.bottom), ySwitch + 200) + 40;
+    const byId = new Map(nodes.map((n) => [n.id, n]));
+
+    return { nodes, links, byId, siteLabels, totalWidth, totalHeight, sites };
   }
 
   function topoNeighbours(id) {
@@ -839,177 +1006,142 @@
   function renderTopology() {
     const stage = document.getElementById("topo-stage");
     if (!stage) return;
-    const w = topoState.world || (topoState.world = buildTopoWorld());
+    const w = (topoState.world = buildTopoWorld());
 
     const site = document.getElementById("topo-site")?.value || "all";
     const layer = document.getElementById("topo-layer")?.value || "all";
     const showAps = document.getElementById("topo-show-aps")?.checked !== false;
     const query = (document.getElementById("topo-search")?.value || "").trim().toLowerCase();
 
-    const visible = (d) => {
-      if (site !== "all" && d.layer !== "core" && d.site !== site) return false;
-      if (layer !== "all" && d.layer !== layer && !(layer === "access" && d.layer === "legacy")) return false;
+    const KIND_LAYER = { firewall: "security", core: "core", switch: "access", ap: "wireless", sensor: "wireless", cluster: "wireless", internet: "core" };
+
+    const visible = (n) => {
+      if (!showAps && ["ap", "sensor", "cluster"].includes(n.kind)) return false;
+      if (site !== "all" && n.site && n.site !== site) return false;
+      if (layer !== "all" && KIND_LAYER[n.kind] !== layer) return false;
       return true;
     };
-    const shown = DEVICES.filter((d) => pos_has(w, d.id) && visible(d));
-    const shownIds = new Set(shown.map((d) => d.id));
+    const shown = w.nodes.filter(visible);
+    const shownIds = new Set(shown.map((n) => n.id));
 
     const sel = topoState.selected;
     const near = sel && shownIds.has(sel) ? topoNeighbours(sel) : null;
 
-    const widthFor = (speed) => (!speed ? 1.5 : Math.min(1.5 + Math.sqrt(speed) * 0.9, 8));
-    const anchorTop = (p) => ({ x: p.x + p.w / 2, y: p.y });
-    const anchorBottom = (p) => ({ x: p.x + p.w / 2, y: p.y + p.h });
-    const anchorCenter = (p) => ({ x: p.x + p.w / 2, y: p.y + p.h / 2 });
-
+    const cxOf = (n) => n.x + n.w / 2;
     const parts = [];
-    parts.push(
-      `<svg class="topology-svg" id="topo-svg" viewBox="0 0 ${w.totalWidth} ${w.totalHeight}" ` +
-      `preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">`
-    );
+    parts.push(`<svg class="topology-svg" id="topo-svg" viewBox="0 0 ${w.totalWidth} ${w.totalHeight}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">`);
     parts.push(`<g id="topo-viewport" transform="translate(${topoState.tx} ${topoState.ty}) scale(${topoState.scale})">`);
 
-    function groupBox(list, labelY, rgbVar) {
-      const items = list.filter((d) => shownIds.has(d.id));
-      if (!items.length) return "";
-      const xs = items.map((d) => w.pos[d.id].x);
-      const xs2 = items.map((d) => w.pos[d.id].x + w.pos[d.id].w);
-      const ys2 = items.map((d) => w.pos[d.id].y + w.pos[d.id].h);
-      const pad = 16, top = labelY - 22;
-      return `<rect class="topo-group" x="${Math.min(...xs) - pad}" y="${top}" width="${Math.max(...xs2) - Math.min(...xs) + pad * 2}" height="${Math.max(...ys2) - top + pad}" rx="16" fill="rgba(var(${rgbVar}), 0.07)" stroke="rgba(var(${rgbVar}), 0.22)"/>`;
-    }
-    parts.push(groupBox(w.core, 60, "--layer-core-rgb"));
-    parts.push(groupBox(w.security, 175, "--layer-security-rgb"));
-    parts.push(groupBox(w.sah, 310, "--layer-access-rgb"));
-    parts.push(groupBox(w.bbc, 310, "--layer-access-rgb"));
+    // Site bands sit behind everything so a column reads as one campus.
+    w.siteLabels.forEach((s) => {
+      if (site !== "all" && s.site !== site) return;
+      if (!shown.some((n) => n.site === s.site)) return;
+      parts.push(`<rect class="topo-site-band" x="${s.x - 14}" y="${s.y - 6}" width="${s.width + 28}" height="${s.bottom - s.y + 20}" rx="14"/>`);
+      parts.push(`<text class="topo-group-label" x="${s.x - 6}" y="${s.y + 8}">${esc(s.site)}</text>`);
+    });
 
     w.links.forEach((l) => {
       if (!shownIds.has(l.from) || !shownIds.has(l.to)) return;
-      const a = w.pos[l.from], b = w.pos[l.to];
-      const from = l.backbone ? anchorCenter(a) : anchorTop(a);
-      const to = l.backbone ? anchorCenter(b) : anchorBottom(b);
-      const midY = (from.y + to.y) / 2;
-      const touches = near && (near.has(l.from) && near.has(l.to));
-      const cls = ["topo-link"];
+      const a = w.byId.get(l.from), b = w.byId.get(l.to);
+      const touches = near && near.has(l.from) && near.has(l.to);
+      const cls = ["topo-link", `link-${l.kind}`];
+      if (l.faint) cls.push("faint");
       if (near) cls.push(touches ? "hi" : "dim");
-      parts.push(
-        `<path class="${cls.join(" ")}" d="M ${from.x} ${from.y} C ${from.x} ${midY}, ${to.x} ${midY}, ${to.x} ${to.y}" ` +
-        `stroke-width="${widthFor(l.speed).toFixed(1)}"><title>${esc(l.label || "")} — ${esc(l.speed)}G</title></path>`
-      );
+      if (l.kind === "peer") {
+        parts.push(`<path class="${cls.join(" ")}" d="M ${a.x + a.w} ${a.y + a.h / 2} L ${b.x} ${b.y + b.h / 2}"/>`);
+        return;
+      }
+      // Orthogonal elbows read as structured cabling; a bezier fan at this
+      // node count turns into spaghetti.
+      const x1 = cxOf(a), y1 = a.y + a.h, x2 = cxOf(b), y2 = b.y;
+      const mid = y1 + (y2 - y1) / 2;
+      parts.push(`<path class="${cls.join(" ")}" d="M ${x1} ${y1} V ${mid} H ${x2} V ${y2}"/>`);
     });
 
-    function nodeSvg(d) {
-      const p = w.pos[d.id];
-      const color = LAYER_COLOR[d.layer] || "var(--baseline)";
-      const status = deviceStatus(d.id);
-      const cls = ["topo-node"];
-      if (sel === d.id) cls.push("sel");
-      else if (near) cls.push(near.has(d.id) ? "hi" : "dim");
-      if (query && !`${d.name} ${d.ip || ""} ${d.model || ""}`.toLowerCase().includes(query)) cls.push("nomatch");
-      else if (query) cls.push("match");
-      return `
-        <g class="${cls.join(" ")}" data-id="${esc(d.id)}" tabindex="0" role="button" aria-label="${esc(d.name)}">
-          <rect class="topo-node-bg" x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" rx="9" fill="var(--surface-3)" stroke="${color}"/>
-          <rect x="${p.x}" y="${p.y}" width="4" height="${p.h}" rx="2" fill="${color}"/>
-          <circle class="status-dot-${status}" cx="${p.x + p.w - 11}" cy="${p.y + 11}" r="4.5"/>
-          <text x="${p.x + 13}" y="${p.y + 19}">${esc(d.name)}</text>
-          <text class="sub" x="${p.x + 13}" y="${p.y + 34}">${esc(d.ip || d.model || "")}</text>
-        </g>`;
-    }
-    shown.forEach((d) => parts.push(nodeSvg(d)));
-
-    if (showAps && w.wireless.length) {
-      w.wireless.forEach((s) => {
-        if (site !== "all" && s.label !== site) return;
-        const p = w.pos[`ap:${s.label}`];
-        const down = s.down || 0;
-        const status = down > 0 ? "down" : s.up > 0 ? "up" : "unknown";
-        const cls = ["topo-node", "topo-ap"];
-        if (sel === `ap:${s.label}`) cls.push("sel");
-        else if (near) cls.push("dim");
-        parts.push(`
-          <g class="${cls.join(" ")}" data-id="ap:${esc(s.label)}" tabindex="0" role="button" aria-label="${esc(s.label)} wireless">
-            <rect class="topo-node-bg" x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" rx="9" fill="var(--surface-3)" stroke="var(--layer-access)" stroke-dasharray="4 3"/>
-            <circle class="status-dot-${status}" cx="${p.x + p.w - 12}" cy="${p.y + 12}" r="4.5"/>
-            <text x="${p.x + 14}" y="${p.y + 22}">${esc(s.label)} wireless</text>
-            <text class="sub" x="${p.x + 14}" y="${p.y + 40}">${esc(s.total)} AP${s.total === 1 ? "" : "s"} · ${esc(s.up)} up${down ? ` · ${esc(down)} down` : ""}</text>
-          </g>`);
-      });
-      parts.push(`<text class="topo-group-label" x="40" y="${w.wirelessY - 14}">Wireless — uplinks not modelled</text>`);
-    }
-
-    if (shown.some((d) => w.core.includes(d))) parts.push(`<text class="topo-group-label" x="${(w.totalWidth - w.coreRowWidth) / 2}" y="60">Core Layer</text>`);
-    if (shown.some((d) => w.security.includes(d))) parts.push(`<text class="topo-group-label" x="${(w.totalWidth - w.secRowWidth) / 2}" y="175">Security / Firewall</text>`);
-    if (shown.some((d) => w.sah.includes(d))) parts.push(`<text class="topo-group-label" x="40" y="310">SAH Access &amp; Distribution</text>`);
-    if (shown.some((d) => w.bbc.includes(d))) parts.push(`<text class="topo-group-label" x="${w.sahGridWidth + 110}" y="310">BBC Access &amp; Distribution</text>`);
+    shown.forEach((n) => {
+      const cls = ["topo-node", `kind-${n.kind}`];
+      if (sel === n.id) cls.push("sel");
+      else if (near) cls.push(near.has(n.id) ? "hi" : "dim");
+      if (query) cls.push(`${n.name} ${n.sub}`.toLowerCase().includes(query) ? "match" : "nomatch");
+      const color = TOPO_COLOR[n.kind] || "var(--baseline)";
+      const isCluster = n.kind === "cluster";
+      const open = isCluster && topoState.expanded[n.id];
+      parts.push(`
+        <g class="${cls.join(" ")}" data-id="${esc(n.id)}" tabindex="0" role="button" aria-label="${esc(n.name)}">
+          <rect class="topo-node-bg" x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="10"
+                fill="var(--surface-3)" stroke="${color}"${isCluster ? ' stroke-dasharray="5 3"' : ""}/>
+          <rect x="${n.x}" y="${n.y}" width="4" height="${n.h}" rx="2" fill="${color}"/>
+          <g class="topo-node-icon" style="color:${color}" transform="translate(${n.x + 13} ${n.y + 15})">
+            <svg width="18" height="18" viewBox="0 0 24 24"><use href="#${TOPO_ICON[n.kind]}"/></svg>
+          </g>
+          <circle class="status-dot-${n.status}" cx="${n.x + n.w - 12}" cy="${n.y + 12}" r="4.5"/>
+          <text x="${n.x + 39}" y="${n.y + 22}">${esc(n.name)}</text>
+          <text class="sub" x="${n.x + 39}" y="${n.y + 37}">${esc(n.sub)}</text>
+          ${isCluster ? `<text class="topo-expand" x="${n.x + n.w - 13}" y="${n.y + n.h - 9}">${open ? "− collapse" : "+ expand"}</text>` : ""}
+        </g>`);
+    });
 
     parts.push("</g></svg>");
     stage.innerHTML = parts.join("\n");
 
     const sub = document.getElementById("topo-subtitle");
     if (sub) {
-      const hidden = DEVICES.length - shown.length;
+      const hidden = w.nodes.length - shown.length;
       sub.textContent = hidden
-        ? `Drag to pan, scroll to zoom, click a device for detail. ${shown.length} of ${DEVICES.length} devices shown — ${hidden} filtered out.`
-        : "Drag to pan, scroll to zoom, click a device for detail.";
+        ? `Drag to pan, scroll to zoom, click a device for detail. ${shown.length} of ${w.nodes.length} nodes shown — ${hidden} filtered out.`
+        : "Drag to pan, scroll to zoom, click a device for detail. Click a cluster to expand it.";
     }
-
     renderTopoInspector();
   }
-
-  function pos_has(world, id) { return Object.prototype.hasOwnProperty.call(world.pos, id); }
 
   function renderTopoInspector() {
     const el = document.getElementById("topo-inspector");
     if (!el) return;
     const id = topoState.selected;
-
-    if (!id) {
-      el.innerHTML = `<p class="muted-text" style="margin:0">Select a device to see its detail, uplinks and live status.</p>`;
-      return;
-    }
-
-    if (id.startsWith("ap:")) {
-      const site = id.slice(3);
-      const s = (typeof WIRELESS !== "undefined" ? WIRELESS.bySite || [] : []).find((x) => x.label === site);
-      const aps = (typeof WIRELESS !== "undefined" ? WIRELESS.aps || [] : []).filter((a) => a.site === site);
-      const down = aps.filter((a) => a.status === "down");
-      el.innerHTML = `
-        <h3>${esc(site)} wireless</h3>
-        <dl class="topo-dl">
-          <dt>Access points</dt><dd>${esc(s?.total ?? aps.length)}</dd>
-          <dt>Up</dt><dd>${esc(s?.up ?? 0)}</dd>
-          <dt>Down</dt><dd>${esc(s?.down ?? 0)}</dd>
-        </dl>
-        ${down.length ? `<h4>Currently down</h4><ul class="topo-list">${down.slice(0, 20).map((a) => `<li>${esc(a.name)}<span class="muted-text"> ${esc(a.model || "")}</span></li>`).join("")}</ul>` : `<p class="muted-text">No APs are reporting down.</p>`}
-        <p class="muted-text" style="margin-bottom:0">Auvik does not report which switch each AP uplinks to, so no link is drawn from this cluster.</p>`;
-      return;
-    }
-
-    const d = DEVICES.find((x) => x.id === id);
-    if (!d) { el.innerHTML = ""; return; }
-    const status = deviceStatus(d.id);
-    const live = (DEVICE_STATUS.devices || {})[d.id] || {};
     const w = topoState.world;
-    const up = w.links.filter((l) => l.from === d.id);
-    const dn = w.links.filter((l) => l.to === d.id);
-    const nameOf = (nid) => DEVICES.find((x) => x.id === nid)?.name || nid;
+    if (!id || !w) {
+      el.innerHTML = `<p class="muted-text" style="margin:0">Select a device to see its detail and live status.</p>`;
+      return;
+    }
+    const n = w.byId.get(id);
+    if (!n) { el.innerHTML = ""; return; }
+
+    if (n.kind === "cluster") {
+      const down = n.members.filter((m) => m.status === "down" || m.status === "warning");
+      el.innerHTML = `
+        <h3>${esc(n.name)}</h3>
+        <p class="topo-status"><span class="dot status-dot-${n.status}"></span>${esc(STATUS_LABEL[n.status] || "Unknown")}</p>
+        <dl class="topo-dl">
+          <dt>Access points</dt><dd>${esc(n.members.filter((m) => m.productType === "wireless").length)}</dd>
+          <dt>Sensors</dt><dd>${esc(n.members.filter((m) => m.productType === "sensor").length)}</dd>
+          <dt>Site</dt><dd>${esc(n.site)}</dd>
+        </dl>
+        ${down.length ? `<h4>Needs attention</h4><ul class="topo-list">${down.map((m) => `<li>${esc(m.name)} <span class="muted-text">${esc(STATUS_LABEL[m.status] || "")}</span></li>`).join("")}</ul>` : `<p class="muted-text">All members are up.</p>`}
+        <p class="muted-text" style="margin-bottom:0">Neither Auvik nor Meraki reports which switch each AP is patched into, so this cluster links to the site's switch stack rather than to a named port.</p>`;
+      return;
+    }
+
+    const live = n.device ? (DEVICE_STATUS.devices || {})[n.device.id] || {} : {};
+    const m = n.meraki || {};
+    const up = w.links.filter((l) => l.to === id).map((l) => w.byId.get(l.from)).filter(Boolean);
+    const dn = w.links.filter((l) => l.from === id).map((l) => w.byId.get(l.to)).filter(Boolean);
 
     el.innerHTML = `
-      <h3>${esc(d.name)}</h3>
-      <p class="topo-status"><span class="dot status-dot-${status}"></span>${esc(STATUS_LABEL[status] || "Unknown")}</p>
+      <h3>${esc(n.name)}</h3>
+      <p class="topo-status"><span class="dot status-dot-${n.status}"></span>${esc(STATUS_LABEL[n.status] || "Unknown")}</p>
       <dl class="topo-dl">
-        ${d.ip ? `<dt>IP</dt><dd>${esc(d.ip)}</dd>` : ""}
-        ${d.site ? `<dt>Site</dt><dd>${esc(d.site)}</dd>` : ""}
-        ${d.layer ? `<dt>Layer</dt><dd>${esc(d.layer)}</dd>` : ""}
-        ${live.model || d.model ? `<dt>Model</dt><dd>${esc(live.model || d.model)}</dd>` : ""}
+        <dt>Role</dt><dd>${esc(n.kind)}</dd>
+        ${n.site ? `<dt>Site</dt><dd>${esc(n.site)}</dd>` : ""}
+        ${n.device?.ip ? `<dt>IP</dt><dd>${esc(n.device.ip)}</dd>` : ""}
+        ${m.model || live.model || n.device?.model ? `<dt>Model</dt><dd>${esc(m.model || live.model || n.device.model)}</dd>` : ""}
+        ${m.firmware || live.firmware ? `<dt>Firmware</dt><dd>${esc(m.firmware || live.firmware)}</dd>` : ""}
         ${live.vendor ? `<dt>Vendor</dt><dd>${esc(live.vendor)}</dd>` : ""}
-        ${live.firmware ? `<dt>Firmware</dt><dd>${esc(live.firmware)}</dd>` : ""}
-        ${live.lastSeen ? `<dt>Last seen</dt><dd>${esc(new Date(live.lastSeen).toLocaleString())}</dd>` : ""}
+        ${m.lastSeen || live.lastSeen ? `<dt>Last seen</dt><dd>${esc(new Date(m.lastSeen || live.lastSeen).toLocaleString())}</dd>` : ""}
+        <dt>Source</dt><dd>${n.meraki ? "Meraki" : "Auvik"}</dd>
       </dl>
-      ${up.length ? `<h4>Uplinks to</h4><ul class="topo-list">${up.map((l) => `<li>${esc(nameOf(l.to))}<span class="muted-text"> ${esc(l.speed)}G${l.label ? " · " + esc(l.label) : ""}</span></li>`).join("")}</ul>` : ""}
-      ${dn.length ? `<h4>Downlinks from</h4><ul class="topo-list">${dn.map((l) => `<li>${esc(nameOf(l.from))}<span class="muted-text"> ${esc(l.speed)}G</span></li>`).join("")}</ul>` : ""}
-      ${d.note ? `<p class="muted-text">${esc(d.note)}</p>` : ""}`;
+      ${up.length ? `<h4>Upstream</h4><ul class="topo-list">${up.slice(0, 6).map((x) => `<li>${esc(x.name)}</li>`).join("")}</ul>` : ""}
+      ${dn.length ? `<h4>Downstream</h4><ul class="topo-list">${dn.length > 6 ? `<li>${esc(dn.length)} connected nodes</li>` : dn.map((x) => `<li>${esc(x.name)}</li>`).join("")}</ul>` : ""}
+      ${n.device?.note ? `<p class="muted-text">${esc(n.device.note)}</p>` : ""}`;
   }
 
   function initTopology() {
@@ -1057,7 +1189,14 @@
 
     stage.addEventListener("click", (e) => {
       const node = e.target.closest(".topo-node");
-      topoState.selected = node ? node.getAttribute("data-id") : null;
+      const id = node ? node.getAttribute("data-id") : null;
+      // A second click on an already-selected cluster expands it, so one click
+      // still just inspects — expanding never happens by accident.
+      if (id && id.startsWith("cl:") && topoState.selected === id) {
+        topoState.expanded[id] = !topoState.expanded[id];
+      } else {
+        topoState.selected = id;
+      }
       renderTopology();
     });
     stage.addEventListener("keydown", (e) => {
@@ -1086,14 +1225,26 @@
     document.getElementById("topo-zoom-in")?.addEventListener("click", () => zoomBy(1.25));
     document.getElementById("topo-zoom-out")?.addEventListener("click", () => zoomBy(1 / 1.25));
     document.getElementById("topo-reset")?.addEventListener("click", () => {
-      topoState.scale = 1; topoState.tx = 0; topoState.ty = 0; topoState.selected = null;
+      topoState.scale = 1; topoState.tx = 0; topoState.ty = 0;
+      topoState.selected = null; topoState.expanded = {};
       renderTopology();
     });
 
+    populateTopoFilters();
     ["topo-site", "topo-layer", "topo-show-aps"].forEach((id) => {
       document.getElementById(id)?.addEventListener("change", renderTopology);
     });
     document.getElementById("topo-search")?.addEventListener("input", renderTopology);
+  }
+
+  // Site codes come from the feeds, so the filter is built from the world
+  // rather than hard-coded to SAH/BBC — KIRR, SAH-DMZ and TEST are real.
+  function populateTopoFilters() {
+    const sel = document.getElementById("topo-site");
+    if (!sel) return;
+    const w = topoState.world || (topoState.world = buildTopoWorld());
+    sel.innerHTML = `<option value="all">All sites</option>` +
+      w.sites.map((s) => `<option value="${esc(s)}">${esc(s)}</option>`).join("");
   }
 
   function applyTopoTransform() {
@@ -1430,111 +1581,71 @@
   }
 
   // ---------------------------------------------------------------------
-  // Documentation index
+  // Documentation — SharePoint connection guide
   // ---------------------------------------------------------------------
-  function renderDocs() {
-    renderDocTree();
+  // Rendered from data rather than hand-written markup so the steps stay
+  // editable in one place.
+  const SHAREPOINT_STEPS = [
+    {
+      title: "Register an app in Entra ID",
+      body: "In the Azure portal go to Entra ID → App registrations → New registration. " +
+        "Name it something like “SACS Dashboard — SharePoint reader”, choose " +
+        "single tenant, and leave the redirect URI blank. This is a " +
+        "daemon app, so it signs in as itself, not as a user.",
+      note: "You need an Entra ID role that can register applications. If you cannot, " +
+        "this is the step to hand to whoever administers the tenant.",
+    },
+    {
+      title: "Give it read-only application permissions",
+      body: "On the new app go to API permissions → Add a permission → Microsoft Graph → " +
+        "Application permissions, and add Sites.Read.All. Then click " +
+        "Grant admin consent — the permission does nothing until consent is given.",
+      note: "Sites.Read.All grants read across every site in the tenant. If that is too " +
+        "broad, use Sites.Selected instead and grant this app read on the SACSITTeam " +
+        "site only — narrower, but it needs one extra Graph call to assign.",
+    },
+    {
+      title: "Create a client secret",
+      body: "Certificates & secrets → New client secret. Pick the shortest expiry your " +
+        "process can handle re-issuing, and copy the Value immediately — it is " +
+        "shown once and cannot be retrieved later.",
+    },
+    {
+      title: "Collect three values",
+      body: "From the app's Overview page copy the Application (client) ID and the " +
+        "Directory (tenant) ID. With the secret from step 3 that is everything the sync needs.",
+    },
+    {
+      title: "Add them as GitHub secrets",
+      body: "In this repository go to Settings → Secrets and variables → Actions → " +
+        "New repository secret, and add SHAREPOINT_TENANT_ID, SHAREPOINT_CLIENT_ID " +
+        "and SHAREPOINT_CLIENT_SECRET.",
+      note: "Paste them into GitHub directly. Do not send them through chat — anything " +
+        "pasted into a conversation should be treated as compromised and rotated.",
+    },
+    {
+      title: "Confirm the site and library",
+      body: "The library is at /sites/SACSITTeam, document library “05Infrastructure”. " +
+        "The sync resolves the site ID from that path, so nothing else needs hard-coding.",
+    },
+    {
+      title: "I build the sync",
+      body: "Once the secrets exist I add scripts/sharepoint-index.js and a scheduled " +
+        "workflow that authenticates via client credentials, walks the drive, and writes " +
+        "data/sharepoint.js — folder and file names, paths, sizes, modified dates and " +
+        "SharePoint links. No file contents are downloaded or published.",
+    },
+  ];
 
-    const runbookEl = document.getElementById("runbooks");
-    runbookEl.innerHTML = RUNBOOKS.map((r) => `
-      <div class="card runbook-card">
-        <h2>${esc(r.title)}</h2>
-        <p class="muted-text">${esc(r.summary)}</p>
-        <ol>${r.steps.map((s) => `<li>${esc(s)}</li>`).join("")}</ol>
-      </div>
-    `).join("");
-  }
-
-  const DOC_KIND_ICON = {
-    folder: "icon-docs",
-    page: "icon-arrow",
-    link: "icon-external",
-    doc: "icon-docs",
-    pending: "icon-external",
-  };
-
-  // Renders DOC_TREE as a nested disclosure list. A filter matches a node if
-  // the node itself matches or any descendant does, so a hit deep in a branch
-  // still shows its path rather than appearing at the root with no context.
-  function renderDocTree() {
-    const mount = document.getElementById("doc-tree");
-    if (!mount) return;
-    const q = (document.getElementById("doc-search")?.value || "").trim().toLowerCase();
-
-    const matches = (n) =>
-      !q || `${n.name} ${n.desc || ""}`.toLowerCase().includes(q) || (n.children || []).some(matches);
-
-    function nodeHtml(n, depth) {
-      if (!matches(n)) return "";
-      const kids = (n.children || []).filter(matches);
-      const isFolder = n.kind === "folder";
-      // A search should reveal what it found, so matching branches open even
-      // if the user had collapsed them.
-      const open = isFolder && (q ? true : n.open !== false);
-      const icon = DOC_KIND_ICON[n.kind] || "icon-arrow";
-
-      const label = `
-        <span class="doc-node-text">
-          <span class="doc-node-name">${esc(n.name)}</span>
-          ${n.desc ? `<span class="doc-node-desc">${esc(n.desc)}</span>` : ""}
-        </span>`;
-
-      let row;
-      if (isFolder) {
-        row = `<button type="button" class="doc-node doc-node-folder" aria-expanded="${open}" data-toggle="1">
-            <svg class="icon doc-chev"><use href="#icon-chevron"/></svg>
-            <svg class="icon doc-kind"><use href="#${icon}"/></svg>
-            ${label}
-            ${n.href ? `<a class="doc-open" href="${esc(n.href)}" target="_blank" rel="noopener" title="Open in SharePoint"><svg class="icon"><use href="#icon-external"/></svg></a>` : ""}
-          </button>`;
-      } else if (n.panel) {
-        row = `<button type="button" class="doc-node" data-panel="${esc(n.panel)}">
-            <svg class="icon doc-kind"><use href="#${icon}"/></svg>${label}
-          </button>`;
-      } else {
-        row = `<a class="doc-node" href="${esc(n.href || "#")}"${n.external ? ' target="_blank" rel="noopener"' : ""}>
-            <svg class="icon doc-kind"><use href="#${icon}"/></svg>${label}
-          </a>`;
-      }
-
-      return `<li class="doc-branch${n.kind === "pending" ? " doc-pending" : ""}" style="--depth:${depth}">
-          ${row}
-          ${kids.length ? `<ul class="doc-children"${open ? "" : " hidden"}>${kids.map((k) => nodeHtml(k, depth + 1)).join("")}</ul>` : ""}
-        </li>`;
-    }
-
-    const html = DOC_TREE.map((n) => nodeHtml(n, 0)).join("");
-    mount.innerHTML = html
-      ? `<ul class="doc-root">${html}</ul>`
-      : `<p class="muted-text" style="margin:0">Nothing matches that filter.</p>`;
-  }
-
-  function initDocTree() {
-    const mount = document.getElementById("doc-tree");
-    if (!mount) return;
-
-    mount.addEventListener("click", (e) => {
-      // The external-open affordance sits inside the folder button; let it
-      // navigate instead of toggling the branch underneath it.
-      if (e.target.closest(".doc-open")) { e.stopPropagation(); return; }
-      const toggle = e.target.closest("[data-toggle]");
-      if (!toggle) return;
-      const open = toggle.getAttribute("aria-expanded") === "true";
-      toggle.setAttribute("aria-expanded", String(!open));
-      const kids = toggle.parentElement.querySelector(".doc-children");
-      if (kids) kids.hidden = open;
-    });
-
-    document.getElementById("doc-search")?.addEventListener("input", renderDocTree);
-    const setAll = (open) => {
-      mount.querySelectorAll("[data-toggle]").forEach((t) => {
-        t.setAttribute("aria-expanded", String(open));
-        const kids = t.parentElement.querySelector(".doc-children");
-        if (kids) kids.hidden = !open;
-      });
-    };
-    document.getElementById("doc-expand")?.addEventListener("click", () => setAll(true));
-    document.getElementById("doc-collapse")?.addEventListener("click", () => setAll(false));
+  function renderSharePointSteps() {
+    const el = document.getElementById("sharepoint-steps");
+    if (!el) return;
+    el.innerHTML = SHAREPOINT_STEPS.map((s) => `
+      <li class="setup-step">
+        <h3>${esc(s.title)}</h3>
+        <p>${esc(s.body)}</p>
+        ${s.note ? `<p class="setup-note">${esc(s.note)}</p>` : ""}
+      </li>`).join("");
   }
 
   // ---------------------------------------------------------------------
@@ -2417,33 +2528,43 @@
 
   // A compact read-only version of the topology: same data, no interaction,
   // sized for a card. Clicking through opens the real one.
+  // Compact read-only version of the topology: same data, no interaction,
+  // sized for a card. Clicking through opens the real one.
   function renderOverviewMiniTopo() {
     const el = document.getElementById("ov-mini-topo");
     if (!el) return;
     const w = topoState.world || (topoState.world = buildTopoWorld());
 
-    const core = w.core, security = w.security;
-    const groups = [
-      { label: "Access switches", count: w.sah.length + w.bbc.length, color: "var(--layer-access)", icon: "icon-devices" },
-      { label: "Wireless APs", count: (typeof WIRELESS !== "undefined" ? WIRELESS.total : 0) || 0, color: "var(--layer-legacy)", icon: "icon-topology" },
-      { label: "CCTV cameras", count: (cameraStats(null) || {}).total || 0, color: "var(--layer-security)", icon: "icon-camera" },
-      { label: "Services", count: (typeof SERVICES !== "undefined" ? SERVICES.length : 0) || 0, color: "var(--baseline)", icon: "icon-services" },
-    ];
+    const byKind = (k) => w.nodes.filter((n) => n.kind === k);
+    const fw = byKind("firewall");
+    const core = byKind("core");
+    const switchCount = byKind("switch").length;
+    const apCount = (meraki().devices || []).filter((d) => d.productType === "wireless").length;
+    const sensorCount = (meraki().devices || []).filter((d) => d.productType === "sensor").length;
 
-    const chip = (d) => `
-      <div class="ov-chip" title="${esc(d.name)}${d.ip ? " — " + esc(d.ip) : ""}">
-        <span class="ov-chip-icon" style="color:${LAYER_COLOR[d.layer] || "var(--baseline)"}"><svg class="icon"><use href="#icon-devices"/></svg></span>
-        <span class="ov-chip-text">
-          <span class="ov-chip-name">${esc(d.name)}</span>
-          <span class="ov-chip-sub">${esc(d.ip || "")}</span>
+    const chip = (n) => `
+      <div class="ov-chip" title="${esc(n.name)}${n.sub ? " — " + esc(n.sub) : ""}">
+        <span class="ov-chip-icon" style="color:${TOPO_COLOR[n.kind] || "var(--baseline)"}">
+          <svg class="icon"><use href="#${TOPO_ICON[n.kind]}"/></svg>
         </span>
-        <span class="dot status-dot-${deviceStatus(d.id)}"></span>
+        <span class="ov-chip-text">
+          <span class="ov-chip-name">${esc(n.name)}</span>
+          <span class="ov-chip-sub">${esc(n.sub || "")}</span>
+        </span>
+        <span class="dot status-dot-${n.status}"></span>
       </div>`;
 
+    const groups = [
+      { label: "Access switches", count: switchCount, unit: "devices", color: TOPO_COLOR.switch, icon: TOPO_ICON.switch },
+      { label: "Wireless APs", count: apCount, unit: "devices", color: TOPO_COLOR.ap, icon: TOPO_ICON.ap },
+      { label: "Sensors", count: sensorCount, unit: "devices", color: TOPO_COLOR.sensor, icon: TOPO_ICON.sensor },
+      { label: "CCTV cameras", count: (cameraStats(null) || {}).total || 0, unit: "cameras", color: "var(--layer-security)", icon: "icon-camera" },
+    ];
+
     el.innerHTML = `
-      <div class="ov-tier">${core.map(chip).join("")}</div>
+      <div class="ov-tier">${fw.map(chip).join("")}</div>
       <div class="ov-tier-line"></div>
-      <div class="ov-tier">${security.slice(0, 2).map(chip).join("")}</div>
+      <div class="ov-tier">${core.map(chip).join("")}</div>
       <div class="ov-tier-line"></div>
       <div class="ov-tier ov-tier-groups">
         ${groups.map((g) => `
@@ -2451,7 +2572,7 @@
             <span class="ov-chip-icon" style="color:${g.color}"><svg class="icon"><use href="#${g.icon}"/></svg></span>
             <span class="ov-chip-text">
               <span class="ov-chip-name">${esc(g.label)}</span>
-              <span class="ov-chip-sub">${esc(g.count)} ${g.label === "Services" ? "services" : "devices"}</span>
+              <span class="ov-chip-sub">${esc(g.count)} ${esc(g.unit)}</span>
             </span>
           </div>`).join("")}
       </div>`;
@@ -2534,7 +2655,6 @@
     renderPorts();
     renderRoadmap();
     renderCns();
-    initDocTree();
-    renderDocs();
+    renderSharePointSteps();
   });
 })();

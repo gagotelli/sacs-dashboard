@@ -24,6 +24,11 @@
   <symbol id="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
   <symbol id="icon-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 119.5 4a6.5 6.5 0 1010.5 10.5z"/></symbol>
   <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></symbol>
+  <symbol id="icon-cloud" viewBox="0 0 24 24"><path d="M7 18a4 4 0 010-8 5.5 5.5 0 0110.6-1.4A3.8 3.8 0 0118 18H7z"/></symbol>
+  <symbol id="icon-firewall" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9.3h18M3 14.7h18M9 4v5.3M15 9.3v5.4M9 14.7V20"/></symbol>
+  <symbol id="icon-switch" viewBox="0 0 24 24"><rect x="2.5" y="7" width="19" height="10" rx="1.8"/><path d="M6 11v2M9.5 11v2M13 11v2M16.5 11v2"/></symbol>
+  <symbol id="icon-ap" viewBox="0 0 24 24"><path d="M5.5 9a9 9 0 0113 0"/><path d="M8.4 12a5 5 0 017.2 0"/><circle cx="12" cy="16.5" r="1.8" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="icon-sensor" viewBox="0 0 24 24"><path d="M12 3a2.5 2.5 0 012.5 2.5v7a5 5 0 11-5 0v-7A2.5 2.5 0 0112 3z"/><circle cx="12" cy="17" r="2" fill="currentColor" stroke="none"/></symbol>
   <symbol id="icon-chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
   <symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M20 11A8 8 0 006.3 6.3L4 8.5"/><path d="M4 4v4.5h4.5"/><path d="M4 13a8 8 0 0013.7 4.7L20 15.5"/><path d="M20 20v-4.5h-4.5"/></symbol>
   <symbol id="icon-services" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="1.6"/><path d="M9 9h6M9 13h6M9 17h4"/></symbol>
@@ -168,18 +173,15 @@
     <div class="card topology-card">
       <div class="topo-toolbar">
         <input type="search" id="topo-search" placeholder="Find a device…" />
-        <select id="topo-site">
-          <option value="all">Both campuses</option>
-          <option value="SAH">SAH only</option>
-          <option value="BBC">BBC only</option>
-        </select>
+        <select id="topo-site"><option value="all">All sites</option></select>
         <select id="topo-layer">
           <option value="all">All layers</option>
-          <option value="core">Core</option>
-          <option value="security">Security / firewall</option>
-          <option value="access">Access &amp; distribution</option>
+          <option value="core">Core switching</option>
+          <option value="security">Firewall &amp; security</option>
+          <option value="access">Access switches</option>
+          <option value="wireless">Wireless &amp; sensors</option>
         </select>
-        <label class="topo-check"><input type="checkbox" id="topo-show-aps" checked /> Wireless</label>
+        <label class="topo-check"><input type="checkbox" id="topo-show-aps" checked /> Show wireless</label>
         <span class="topo-spacer"></span>
         <button type="button" class="theme-toggle" id="topo-zoom-out" title="Zoom out">&minus;</button>
         <button type="button" class="theme-toggle" id="topo-zoom-in" title="Zoom in">+</button>
@@ -192,14 +194,15 @@
       </div>
 
       <div class="legend-row topo-legend">
-        <span class="legend-item"><span class="swatch" style="background:var(--layer-core)"></span>Core</span>
-        <span class="legend-item"><span class="swatch" style="background:var(--layer-security)"></span>Security / Firewall</span>
-        <span class="legend-item"><span class="swatch" style="background:var(--layer-access)"></span>Access</span>
-        <span class="legend-item"><span class="swatch" style="background:var(--layer-legacy)"></span>Legacy / 1G</span>
+        <span class="legend-item"><span class="swatch" style="background:var(--layer-security)"></span>Firewall</span>
+        <span class="legend-item"><span class="swatch" style="background:var(--layer-core)"></span>Core switch</span>
+        <span class="legend-item"><span class="swatch" style="background:var(--layer-access)"></span>Access switch</span>
+        <span class="legend-item"><span class="swatch" style="background:var(--layer-legacy)"></span>Access point</span>
+        <span class="legend-item"><span class="swatch" style="background:var(--status-warning)"></span>Sensor</span>
         <span class="legend-item"><span class="dot status-dot-up"></span>Up</span>
+        <span class="legend-item"><span class="dot status-dot-warning"></span>Alerting</span>
         <span class="legend-item"><span class="dot status-dot-down"></span>Down</span>
-        <span class="legend-item"><span class="dot status-dot-unknown"></span>Unknown</span>
-        <span class="legend-item">Line thickness = link speed</span>
+        <span class="legend-item">Dashed = grouped, uplink port not reported</span>
       </div>
     </div>
   </section>
@@ -772,26 +775,60 @@
   </section>
 
   <section id="panel-docs" class="panel">
-    <div class="card" style="margin-bottom:16px">
-      <p class="muted-text" style="margin:0">
-        Everything the team has written down, in one index — reference sections
-        in this dashboard, step-by-step runbooks, and the admin portals for each
-        vendor system. Internal links jump within the dashboard; external links
-        open the vendor's own console (most require being on the school network or VPN).
-      </p>
-    </div>
-    <div class="card">
-      <div class="filters" style="margin-bottom:12px">
-        <input type="search" id="doc-search" placeholder="Filter documents…" />
-        <button type="button" class="theme-toggle" id="doc-expand">Expand all</button>
-        <button type="button" class="theme-toggle" id="doc-collapse">Collapse all</button>
+    <div class="page-head">
+      <div>
+        <h2>Documentation</h2>
+        <div class="subtitle">Connect the SharePoint library so its folders and files list here.</div>
       </div>
-      <div class="doc-tree" id="doc-tree"></div>
+      <a class="link-button" href="https://standrewscs.sharepoint.com/sites/SACSITTeam/05Infrastructure" target="_blank" rel="noopener">
+        Open SharePoint <svg class="icon"><use href="#icon-external"/></svg>
+      </a>
     </div>
 
-    <h2 class="section-heading">Runbooks</h2>
-    <div id="runbooks"></div>
+    <div class="card">
+      <h2>Why this needs setting up</h2>
+      <div class="doc-body">
+        <p>
+          This dashboard is a static site — there is no server behind it. The
+          SharePoint library is behind Entra ID sign-in, so the page cannot read
+          it directly from your browser without exposing credentials in public
+          JavaScript.
+        </p>
+        <p>
+          The fix is the same pattern already used for Auvik, NinjaOne, Meraki
+          and Arctic Wolf: a scheduled GitHub Action authenticates with
+          Microsoft Graph, walks the library, and writes a plain
+          <code>data/sharepoint.js</code> index of folders and file names. The
+          dashboard renders that index. <strong>File contents are never
+          copied</strong> — only names, paths, sizes and modified dates, with
+          each entry linking back to SharePoint where real access control
+          applies.
+        </p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Step by step</h2>
+      <ol class="setup-steps" id="sharepoint-steps"></ol>
+    </div>
+
+    <div class="card">
+      <h2>What you will end up with</h2>
+      <div class="doc-body">
+        <p>
+          A browsable tree of the 05 Infrastructure library — folders expandable,
+          files searchable, each one opening in SharePoint. It refreshes on the
+          schedule you choose, so renames and new uploads appear without anyone
+          maintaining a list by hand.
+        </p>
+        <p class="muted-text" style="margin-bottom:0">
+          Tell me once the app registration exists and I will write the sync
+          script, the workflow and the renderer.
+        </p>
+      </div>
+    </div>
   </section>
+
 </main>
 
 <footer class="app-footer">SACS Network Dashboard — generated from the network topology diagram. Not for public distribution.</footer>
@@ -811,7 +848,6 @@
 <script src="data/ports.js"></script>
 <script src="data/cns-notes.js"></script>
 <script src="data/roadmap.js"></script>
-<script src="data/docs.js"></script>
 <script src="data/status.js"></script>
 <script src="data/wireless.js"></script>
 <script src="data/tickets.js"></script>

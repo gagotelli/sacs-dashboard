@@ -1368,3 +1368,19 @@ main { padding: 16px; max-width: none; }
 .ov-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 @media (max-width: 1420px) { .ov-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 700px) { .ov-stats { grid-template-columns: minmax(0, 1fr); } }
+
+/* Topology v2 */
+.topo-site-band { fill: rgba(var(--layer-core-rgb), 0.04); stroke: rgba(var(--layer-core-rgb), 0.14); }
+.topo-node-icon { pointer-events: none; }
+.topo-node-icon svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.topo-expand { font-size: 8.5px; fill: var(--text-muted); text-anchor: end; font-weight: 600; }
+.topo-node.kind-cluster:hover .topo-expand { fill: var(--layer-core); }
+.topo-link.link-wan { stroke-width: 2.4; }
+.topo-link.link-core { stroke-width: 2.2; }
+.topo-link.link-peer { stroke-width: 2.6; stroke-dasharray: 6 4; }
+.topo-link.link-access { stroke-width: 1.2; }
+.topo-link.link-wireless, .topo-link.link-member { stroke-width: 1; stroke-dasharray: 4 3; }
+.topo-link.faint { opacity: 0.28; }
+.topo-link.faint.hi { opacity: 0.9; }
+.topo-stage { min-height: 520px; }
+.topo-inspector { max-height: 720px; }
