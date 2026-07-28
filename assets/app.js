@@ -1830,19 +1830,26 @@
   function renderSharePoint() {
     const card = document.getElementById("sharepoint-browser-card");
     const setup = document.getElementById("sharepoint-setup-card");
+    const why = document.getElementById("sharepoint-why-card");
+    const subtitle = document.getElementById("doc-subtitle");
     const mount = document.getElementById("sharepoint-tree");
     if (!mount) return;
     const D = SP();
 
     // Until the sync has run there is nothing to browse, so the setup guide is
-    // the page. Once it has, the guide collapses out of the way.
-    if (!D || !(D.tree || []).length) {
-      if (card) card.hidden = true;
-      if (setup) setup.hidden = false;
-      return;
+    // the page. Once it has, the whole guide — rationale included — collapses
+    // out of the way; leaving "why this needs setting up" above a working
+    // library reads as though it still does.
+    const connected = Boolean(D && (D.tree || []).length);
+    if (card) card.hidden = !connected;
+    if (setup) setup.hidden = connected;
+    if (why) why.hidden = connected;
+    if (subtitle) {
+      subtitle.textContent = connected
+        ? `${D.library} — synced from SharePoint. Open any item to view it there.`
+        : "Connect the SharePoint library so its folders and files list here.";
     }
-    if (card) card.hidden = false;
-    if (setup) setup.hidden = true;
+    if (!connected) return;
 
     const meta = document.getElementById("sharepoint-meta");
     if (meta) {
