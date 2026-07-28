@@ -19,7 +19,7 @@
 //
 // Env: SHAREPOINT_TENANT_ID, SHAREPOINT_CLIENT_ID, SHAREPOINT_CLIENT_SECRET
 //      SHAREPOINT_SITE_PATH  (optional, default /sites/SACSITTeam)
-//      SHAREPOINT_LIBRARY    (optional, default 05Infrastructure)
+//      SHAREPOINT_LIBRARY    (optional, default 05-Infrastructure)
 //      SHAREPOINT_EXCLUDE    (optional, extra regex)
 
 const fs = require("fs");
@@ -31,7 +31,7 @@ const CLIENT = process.env.SHAREPOINT_CLIENT_ID || "";
 const SECRET = process.env.SHAREPOINT_CLIENT_SECRET || "";
 const HOSTNAME = process.env.SHAREPOINT_HOSTNAME || "standrewscs.sharepoint.com";
 const SITE_PATH = process.env.SHAREPOINT_SITE_PATH || "/sites/SACSITTeam";
-const LIBRARY = process.env.SHAREPOINT_LIBRARY || "05Infrastructure";
+const LIBRARY = process.env.SHAREPOINT_LIBRARY || "05-Infrastructure";
 const GRAPH = "https://graph.microsoft.com/v1.0";
 const MAX_DEPTH = 6;
 
@@ -141,8 +141,15 @@ async function main() {
   console.log(`site: ${site.displayName || site.name}`);
 
   const drives = await graph(`/sites/${site.id}/drives`);
-  const libRe = new RegExp(LIBRARY.replace(/[^a-z0-9]/gi, ".?"), "i");
-  let drive = (drives.value || []).find((d) => libRe.test(d.name));
+
+  // Compare with separators and case stripped. The library is "05-Infrastructure"
+  // but gets written as "05Infrastructure", "05 Infrastructure" and so on; a
+  // literal regex built from whichever spelling is configured misses the rest.
+  const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const wanted = norm(LIBRARY);
+  const matchesLib = (name) => norm(name) === wanted || norm(name).includes(wanted);
+
+  let drive = (drives.value || []).find((d) => matchesLib(d.name));
   let rootId = "root";
   let rootUrl = drive?.webUrl || null;
 
@@ -151,9 +158,14 @@ async function main() {
     drive = (drives.value || []).find((d) => d.name === "Documents") || (drives.value || [])[0];
     if (!drive) throw new Error("no document library visible to this app");
     const top = await children(drive.id, "root");
-    const folder = top.find((i) => i.folder && libRe.test(i.name));
+    const folder = top.find((i) => i.folder && matchesLib(i.name));
     if (!folder) {
-      throw new Error(`could not find "${LIBRARY}" as a library or as a folder in "${drive.name}"`);
+      // Name what was actually there — "not found" without the candidate list
+      // sent the last debugging round down the wrong path.
+      throw new Error(
+        `could not find "${LIBRARY}" as a library or as a folder in "${drive.name}". ` +
+        `Libraries on this site: ${(drives.value || []).map((d) => d.name).join(", ")}`
+      );
     }
     rootId = folder.id;
     rootUrl = folder.webUrl || null;
