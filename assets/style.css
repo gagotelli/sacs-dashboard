@@ -1122,3 +1122,56 @@ main { padding: 16px; max-width: none; }
    empty folder — it is unfetched, not empty. */
 .doc-pending > .doc-node { opacity: 0.75; font-style: italic; }
 .doc-pending > .doc-node .doc-node-name { font-weight: 500; }
+
+/* ---------------------------------------------------------------
+   Roadmap timeline
+   --------------------------------------------------------------- */
+.timeline { position: relative; }
+.tl-axis { position: relative; height: 18px; margin-left: 300px; margin-right: 150px; }
+.tl-tick {
+  position: absolute; transform: translateX(-50%);
+  font-size: 11px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+}
+.tl-rows { position: relative; }
+.tl-gridline {
+  position: absolute; top: 0; bottom: 0; width: 1px; background: var(--gridline);
+  margin-left: 300px; pointer-events: none;
+}
+.tl-row {
+  display: grid; grid-template-columns: 300px minmax(0, 1fr) 150px;
+  align-items: center; gap: 0; padding: 5px 0;
+}
+.tl-label { display: flex; align-items: center; gap: 8px; padding-right: 12px; min-width: 0; }
+.tl-prio {
+  flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%; color: #fff;
+  font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center;
+}
+.tl-name { font-size: 13px; font-weight: 600; overflow-wrap: break-word; }
+.tl-track { position: relative; height: 26px; }
+.tl-bar {
+  position: absolute; top: 3px; height: 20px; border-radius: 5px;
+  display: flex; align-items: center; padding: 0 8px; min-width: 8px;
+  transition: filter 0.12s ease;
+}
+.tl-bar:hover { filter: brightness(1.1); }
+.tl-bar-text { font-size: 10.5px; font-weight: 600; color: #fff; white-space: nowrap; }
+.tl-budget { font-size: 11.5px; color: var(--text-secondary); padding-left: 12px; overflow-wrap: break-word; }
+
+@media (max-width: 900px) {
+  .tl-axis, .tl-gridline { margin-left: 0; margin-right: 0; }
+  .tl-row { grid-template-columns: minmax(0, 1fr); gap: 4px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .tl-budget { padding-left: 0; }
+}
+
+.phase-grid { display: grid; gap: 12px; }
+.phase-card {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-3);
+}
+.phase-step {
+  flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--layer-core); color: #fff; font-weight: 700; font-size: 13px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.phase-card h3 { margin: 0 0 3px; font-size: 14px; }
+.phase-window { margin: 0 0 6px; font-size: 12px; color: var(--layer-core); font-weight: 600; }

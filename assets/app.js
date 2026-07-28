@@ -1531,10 +1531,112 @@
   // ---------------------------------------------------------------------
   // Roadmap
   // ---------------------------------------------------------------------
+  // "0–30 days", "30–90 days", "60–180 days" — parsed rather than hard-coded
+  // so editing data/roadmap.js moves the bars without touching this file.
+  function parseWindow(target) {
+    const m = String(target || "").match(/(\d+)\s*[–-]\s*(\d+)/);
+    if (m) return { start: Number(m[1]), end: Number(m[2]) };
+    const single = String(target || "").match(/(\d+)/);
+    return single ? { start: 0, end: Number(single[1]) } : null;
+  }
+
+  const PHASES = [
+    { name: "Phase 1 — Stabilise & simplify", window: "0–90 days", detail: "Restore firewall HA, freeze and document the network, audit the DMZ stack, complete ClearPass." },
+    { name: "Phase 2 — Modernise access", window: "60–180 days", detail: "Replace or uplift legacy 1G access uplinks on the priority switches." },
+    { name: "Phase 3 — Reassess core", window: "2027–2028", detail: "Core Nexus pair remains adequate; revisit once the access layer and edge are settled." },
+  ];
+
+  function renderRoadmapTimeline() {
+    const mount = document.getElementById("roadmap-timeline");
+    if (!mount) return;
+
+    const rows = ROADMAP_CRITICAL_ACTIONS
+      .map((a) => ({ ...a, win: parseWindow(a.target) }))
+      .filter((a) => a.win);
+
+    if (!rows.length) {
+      mount.innerHTML = `<p class="muted-text" style="margin:0">No dated actions in the roadmap data.</p>`;
+      return;
+    }
+
+    const max = Math.max(...rows.map((r) => r.win.end));
+    // Round the axis up to a sensible tick so the last bar is not flush with
+    // the right edge and the gridlines land on readable numbers.
+    const axisMax = Math.ceil(max / 30) * 30;
+    const ticks = [];
+    for (let d = 0; d <= axisMax; d += 30) ticks.push(d);
+
+    const gridline = ticks
+      .map((d) => `<div class="tl-gridline" style="left:${((d / axisMax) * 100).toFixed(2)}%"></div>`)
+      .join("");
+
+    mount.innerHTML = `
+      <div class="tl-axis">
+        ${ticks.map((d) => `<span class="tl-tick" style="left:${((d / axisMax) * 100).toFixed(2)}%">${d}d</span>`).join("")}
+      </div>
+      <div class="tl-rows">
+        ${gridline}
+        ${rows.map((r) => {
+          const left = (r.win.start / axisMax) * 100;
+          const width = Math.max(((r.win.end - r.win.start) / axisMax) * 100, 2);
+          const color = PRIORITY_RANK_COLOR[Math.min(r.priority, 5)] || "var(--prio-none)";
+          return `
+            <div class="tl-row">
+              <div class="tl-label">
+                <span class="tl-prio" style="background:${color}">${esc(r.priority)}</span>
+                <span class="tl-name">${esc(r.action)}</span>
+              </div>
+              <div class="tl-track">
+                <div class="tl-bar" style="left:${left.toFixed(2)}%; width:${width.toFixed(2)}%; background:${color}"
+                     title="${esc(r.action)} — ${esc(r.target)}">
+                  <span class="tl-bar-text">${esc(r.target)}</span>
+                </div>
+              </div>
+              <div class="tl-budget">${esc(r.budget)}</div>
+            </div>`;
+        }).join("")}
+      </div>`;
+  }
+
+  function renderRoadmapPhases() {
+    const mount = document.getElementById("roadmap-phases");
+    if (!mount) return;
+    mount.innerHTML = PHASES.map((p, i) => `
+      <div class="phase-card">
+        <div class="phase-step">${i + 1}</div>
+        <div>
+          <h3>${esc(p.name)}</h3>
+          <p class="phase-window">${esc(p.window)}</p>
+          <p class="muted-text" style="margin:0">${esc(p.detail)}</p>
+        </div>
+      </div>`).join("");
+  }
+
+  function renderRoadmapKpis() {
+    const mount = document.getElementById("roadmap-kpi-row");
+    if (!mount) return;
+    const critical = ROADMAP_AREA_STATUS.filter((a) => a.status === "critical").length;
+    const warning = ROADMAP_AREA_STATUS.filter((a) => a.status === "warning").length;
+    mount.innerHTML = [
+      { value: ROADMAP_CRITICAL_ACTIONS.length, label: "Critical actions" },
+      { value: critical, label: "Areas at risk", urgent: true },
+      { value: warning, label: "Areas needing work" },
+      { value: ROADMAP_ACCESS_SWITCHES.length, label: "Switches to uplift" },
+    ].map((k) => `
+      <div class="kpi-tile">
+        <div class="value"${k.urgent && k.value > 0 ? ' style="color:var(--status-critical)"' : ""}>${esc(k.value)}</div>
+        <div class="label">${esc(k.label)}</div>
+      </div>`).join("");
+  }
+
   function renderRoadmap() {
     document.getElementById("roadmap-overall-position").textContent = ROADMAP_HEADER.overallPosition;
     document.getElementById("roadmap-immediate-decision").textContent = ROADMAP_HEADER.immediateDecision;
     document.getElementById("roadmap-budget").textContent = ROADMAP_HEADER.budget12mo;
+
+    renderRoadmapKpis();
+    renderRoadmapTimeline();
+    renderRoadmapPhases();
 
     document.getElementById("roadmap-program-status-body").innerHTML = ROADMAP_PROGRAM_STATUS.map((p) => `
       <tr><td class="name">${esc(p.program)}</td><td class="note">${esc(p.status)}</td><td class="note">${esc(p.cost)}</td></tr>

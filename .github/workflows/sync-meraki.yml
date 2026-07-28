@@ -1,0 +1,35 @@
+name: Sync Meraki estate
+
+# Populates data/wireless.js with the Meraki access points, switches and
+# sensors. See scripts/meraki-devices.js for what is deliberately not written.
+
+on:
+  schedule:
+    - cron: "25 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build data/wireless.js from Meraki
+        env:
+          MERAKI_API: ${{ secrets.MERAKI_API }}
+        run: node scripts/meraki-devices.js
+
+      - name: Commit if changed
+        run: |
+          git add data/wireless.js
+          if git diff --cached --quiet -- data/wireless.js; then
+            echo "no change"
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Update Meraki estate"
+          git push

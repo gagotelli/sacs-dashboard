@@ -603,6 +603,15 @@
   </section>
 
   <section id="panel-roadmap" class="panel">
+    <div class="page-head">
+      <div>
+        <h2>Infrastructure roadmap</h2>
+        <div class="subtitle">Phased plan, sequenced by risk. Windows are from approval, not fixed dates.</div>
+      </div>
+    </div>
+
+    <div class="kpi-row" id="roadmap-kpi-row"></div>
+
     <div class="card">
       <h2>Overall position</h2>
       <p class="muted-text" id="roadmap-overall-position"></p>
@@ -610,6 +619,21 @@
       <p class="muted-text" id="roadmap-immediate-decision"></p>
       <h3>Indicative 12-month budget</h3>
       <p class="muted-text" id="roadmap-budget" style="margin-bottom:0"></p>
+    </div>
+
+    <div class="card">
+      <h2>Delivery timeline</h2>
+      <p class="muted-text">
+        Each bar spans the target window for that action, measured in days from
+        approval. Bars are ordered by priority, so the most urgent work sits at
+        the top — where windows overlap, the actions run in parallel.
+      </p>
+      <div class="timeline" id="roadmap-timeline"></div>
+    </div>
+
+    <div class="card">
+      <h2>Phases</h2>
+      <div class="phase-grid" id="roadmap-phases"></div>
     </div>
 
     <div class="card">
