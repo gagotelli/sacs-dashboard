@@ -82,6 +82,7 @@
   <button data-panel="panel-ports"><svg class="icon"><use href="#icon-ports"/></svg>Port &amp; Speed Summary</button>
   <button data-panel="panel-tickets"><svg class="icon"><use href="#icon-ticket"/></svg>Tickets</button>
   <button data-panel="panel-endpoints"><svg class="icon"><use href="#icon-devices"/></svg>Endpoints</button>
+  <button data-panel="panel-security"><svg class="icon"><use href="#icon-services"/></svg>Security</button>
   <button data-panel="panel-roadmap"><svg class="icon"><use href="#icon-map"/></svg>Roadmap</button>
   <button data-panel="panel-docs"><svg class="icon"><use href="#icon-docs"/></svg>Documentation</button>
 </nav>
@@ -464,6 +465,68 @@
     </div>
   </section>
 
+  <section id="panel-security" class="panel">
+    <div class="ticket-hero">
+      <div>
+        <h2 class="section-heading" style="margin-bottom:4px">Security tickets</h2>
+        <p class="muted-text" style="margin:0" id="security-updated"></p>
+      </div>
+      <a class="link-button" id="security-portal-link" href="#" target="_blank" rel="noopener">
+        Open in Arctic Wolf <svg class="icon"><use href="#icon-external"/></svg>
+      </a>
+    </div>
+
+    <div class="kpi-row" id="security-kpi-row"></div>
+
+    <div class="card" id="security-privacy-note">
+      <h2>Ranked, never hidden</h2>
+      <p class="muted-text">
+        The queue below is sorted so the tickets most likely to need you sit at
+        the top — priority first, then how long it has been open, then how much
+        back-and-forth it has attracted. Nothing is filtered out or auto-closed:
+        every open ticket is listed and counted regardless of its score.
+      </p>
+      <p class="muted-text" style="margin-bottom:0">
+        Ticket titles and descriptions are <strong>not</strong> stored here.
+        Arctic Wolf ticket text names hosts, accounts and attack detail, and
+        this dashboard is public with a client-side-only sign-in — so the sync
+        reads that text only to derive the coarse category shown, and publishes
+        the category alone. Open a ticket in Arctic Wolf to read it.
+      </p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h2>Open tickets by category</h2>
+        <div class="bar-list" id="security-category-bars"></div>
+      </div>
+      <div class="card">
+        <h2>All tickets by priority</h2>
+        <div class="bar-list" id="security-priority-bars"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ticket-hero" style="margin-bottom:10px">
+        <h2 style="margin:0">Triage queue</h2>
+        <span class="muted-text" style="margin:0" id="security-queue-count"></span>
+      </div>
+      <div class="filters">
+        <input type="search" id="security-queue-search" placeholder="Search by ID or category…" />
+        <select id="security-queue-category"><option value="all">All categories</option></select>
+        <select id="security-queue-priority"><option value="all">All priorities</option></select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Priority</th><th>Ticket</th><th>Category</th><th>Status</th><th>Opened</th><th>Age</th><th>Activity</th><th></th></tr>
+          </thead>
+          <tbody id="security-queue-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
   <section id="panel-roadmap" class="panel">
     <div class="card">
       <h2>Overall position</h2>
@@ -656,6 +719,7 @@
 <script src="data/status.js"></script>
 <script src="data/tickets.js"></script>
 <script src="data/endpoints.js"></script>
+<script src="data/security.js"></script>
 <script src="assets/app.js"></script>
 </body>
 </html>

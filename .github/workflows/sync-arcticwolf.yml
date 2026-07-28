@@ -1,0 +1,38 @@
+name: Sync security tickets from Arctic Wolf
+
+# Populates data/security.js with the security ticket roll-up and the ranked
+# triage queue. Aggregates, enums and ids only — see scripts/arcticwolf-tickets.js
+# for what is deliberately not published.
+
+on:
+  schedule:
+    - cron: "45 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build data/security.js from Arctic Wolf
+        env:
+          ARCTICWOLF_API_KEY: ${{ secrets.ARCTICWOLF_API_KEY }}
+        run: node scripts/arcticwolf-tickets.js
+
+      - name: Commit if changed
+        run: |
+          # git diff cannot see an untracked file, so stage first and diff the
+          # index — otherwise the first run reports "no change" and drops it.
+          git add data/security.js
+          if git diff --cached --quiet -- data/security.js; then
+            echo "no change"
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Update security tickets from Arctic Wolf"
+          git push

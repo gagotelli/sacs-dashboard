@@ -1296,6 +1296,132 @@
   }
 
   // ---------------------------------------------------------------------
+  // Security tickets (Arctic Wolf)
+  // ---------------------------------------------------------------------
+  // The queue ranks; it never suppresses. Every open ticket is rendered
+  // regardless of score — the score only decides the order.
+  //
+  // No title or description reaches this file: see scripts/arcticwolf-tickets.js.
+  const SEC = () => (typeof SECURITY_SUMMARY !== "undefined" ? SECURITY_SUMMARY : {});
+
+  const AW_PRIORITY_ORDER = { CRITICAL: 0, HIGH: 1, MEDIUM: 2, NORMAL: 3, LOW: 4 };
+  const AW_PRIORITY_COLOR = {
+    CRITICAL: "var(--prio-1)",
+    HIGH: "var(--prio-1)",
+    MEDIUM: "var(--prio-2)",
+    NORMAL: "var(--prio-3)",
+    LOW: "var(--prio-4)",
+  };
+
+  function renderSecurity() {
+    const updatedEl = document.getElementById("security-updated");
+    if (!updatedEl) return;
+    const S = SEC();
+
+    if (S.total == null) {
+      updatedEl.textContent = "Not connected to Arctic Wolf yet.";
+      document.getElementById("security-kpi-row").innerHTML = "";
+      return;
+    }
+
+    document.getElementById("security-portal-link").href = S.portalUrl || "https://dashboard.arcticwolf.com/";
+    updatedEl.textContent = `Last synced ${new Date(S.updatedAt).toLocaleString()} · ${esc(S.source || "")}`;
+
+    const queue = S.queue || [];
+    const highOpen = queue.filter((q) => q.priority === "HIGH" || q.priority === "CRITICAL").length;
+    const unassigned = queue.filter((q) => !q.assigned).length;
+
+    document.getElementById("security-kpi-row").innerHTML = [
+      { value: S.total, label: "Tickets all time" },
+      { value: S.open, label: "Currently open" },
+      { value: highOpen, label: "Open &amp; high priority", urgent: true },
+      { value: unassigned, label: "Open, unassigned" },
+    ].map((k) => `
+      <div class="kpi-tile">
+        <div class="value"${k.urgent && k.value > 0 ? ' style="color:var(--status-critical)"' : ""}>${esc(Number(k.value || 0).toLocaleString())}</div>
+        <div class="label">${k.label}</div>
+      </div>`).join("");
+
+    document.getElementById("security-category-bars").innerHTML = (S.openByCategory || []).length
+      ? barListHtml(S.openByCategory, "var(--layer-access)")
+      : `<p class="muted-text" style="margin:0">No open security tickets.</p>`;
+
+    const prio = (S.byPriority || []).slice().sort(
+      (a, b) => (AW_PRIORITY_ORDER[a.label] ?? 9) - (AW_PRIORITY_ORDER[b.label] ?? 9)
+    );
+    document.getElementById("security-priority-bars").innerHTML = barListHtml(prio, "var(--layer-core)");
+
+    renderSecurityQueue();
+  }
+
+  function renderSecurityQueue() {
+    const body = document.getElementById("security-queue-body");
+    const countEl = document.getElementById("security-queue-count");
+    if (!body) return;
+    const all = SEC().queue || [];
+
+    if (!all.length) {
+      body.innerHTML = `<tr><td class="note" colspan="8">Nothing open — the queue is clear.</td></tr>`;
+      countEl.textContent = "";
+      return;
+    }
+
+    const q = (document.getElementById("security-queue-search")?.value || "").trim().toLowerCase();
+    const cat = document.getElementById("security-queue-category")?.value || "all";
+    const prio = document.getElementById("security-queue-priority")?.value || "all";
+
+    const rows = all.filter((r) => {
+      if (cat !== "all" && r.category !== cat) return false;
+      if (prio !== "all" && r.priority !== prio) return false;
+      if (!q) return true;
+      return `${r.id} ${r.category} ${r.status}`.toLowerCase().includes(q);
+    });
+
+    countEl.textContent = rows.length === all.length
+      ? `${all.length} open, most urgent first`
+      : `${rows.length} of ${all.length} open`;
+
+    const portal = (SEC().portalUrl || "https://dashboard.arcticwolf.com/").replace(/\/$/, "");
+
+    body.innerHTML = rows.map((r) => {
+      const created = r.createdAt ? Date.parse(r.createdAt) : null;
+      const activity = [
+        r.comments ? `${r.comments} comment${r.comments === 1 ? "" : "s"}` : null,
+        r.attachments ? `${r.attachments} file${r.attachments === 1 ? "" : "s"}` : null,
+      ].filter(Boolean).join(" · ") || "—";
+      return `
+      <tr>
+        <td><span class="swatch" style="background:${AW_PRIORITY_COLOR[r.priority] || "var(--prio-none)"}"></span>${esc(r.priority)}</td>
+        <td>#${esc(r.id)}${r.assigned ? "" : ` <span class="muted-text">unassigned</span>`}</td>
+        <td>${esc(r.category)}</td>
+        <td>${esc(r.status)}</td>
+        <td>${created ? esc(new Date(created).toLocaleDateString()) : "—"}</td>
+        <td>${esc(ticketAgeLabel(created))}</td>
+        <td>${esc(activity)}</td>
+        <td><a class="link-button" href="${esc(portal)}/tickets/${encodeURIComponent(r.id)}" target="_blank" rel="noopener">Open</a></td>
+      </tr>`;
+    }).join("");
+  }
+
+  function initSecurityQueueFilters() {
+    const all = SEC().queue || [];
+    const catSel = document.getElementById("security-queue-category");
+    const prioSel = document.getElementById("security-queue-priority");
+    if (!catSel || !prioSel) return;
+
+    [...new Set(all.map((r) => r.category))].sort()
+      .forEach((c) => catSel.insertAdjacentHTML("beforeend", `<option value="${esc(c)}">${esc(c)}</option>`));
+    [...new Set(all.map((r) => r.priority))]
+      .sort((a, b) => (AW_PRIORITY_ORDER[a] ?? 9) - (AW_PRIORITY_ORDER[b] ?? 9))
+      .forEach((p) => prioSel.insertAdjacentHTML("beforeend", `<option value="${esc(p)}">${esc(p)}</option>`));
+
+    ["security-queue-search", "security-queue-category", "security-queue-priority"].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener(el.tagName === "SELECT" ? "change" : "input", renderSecurityQueue);
+    });
+  }
+
+  // ---------------------------------------------------------------------
   // Managed endpoints (NinjaOne)
   // ---------------------------------------------------------------------
   // Aggregates only — see the privacy note on the page. Two things about this
@@ -1428,6 +1554,8 @@
     initTicketListFilters();
     renderTicketsPage();
     renderEndpoints();
+    initSecurityQueueFilters();
+    renderSecurity();
     renderHealthStrip();
     renderCampusCards();
     renderInfraTiles();
