@@ -21,6 +21,9 @@
     serious: "Degraded",
     down: "Down",
     critical: "Down",
+    // Meraki-specific: never came online, or powered down by schedule. Not a
+    // fault, so it must not read as "Down".
+    dormant: "Dormant",
     unknown: "Unknown",
   };
   const LICENSE_STATUS_LABEL = {
@@ -1473,7 +1476,7 @@
       let row;
       if (isFolder) {
         row = `<button type="button" class="doc-node doc-node-folder" aria-expanded="${open}" data-toggle="1">
-            <svg class="icon doc-chev"><use href="#icon-arrow"/></svg>
+            <svg class="icon doc-chev"><use href="#icon-chevron"/></svg>
             <svg class="icon doc-kind"><use href="#${icon}"/></svg>
             ${label}
             ${n.href ? `<a class="doc-open" href="${esc(n.href)}" target="_blank" rel="noopener" title="Open in SharePoint"><svg class="icon"><use href="#icon-external"/></svg></a>` : ""}
@@ -1740,28 +1743,43 @@
     const sumEl = document.getElementById("wireless-summary");
     if (!sumEl) return;
     const W = WIFI();
-    const aps = W.aps || [];
+    const fleet = W.fleet || {};
+    const devices = fleet.devices || [];
 
-    if (!aps.length) {
-      sumEl.textContent = "No access points discovered yet — run the Auvik sync.";
+    if (!devices.length) {
+      sumEl.textContent = "No Meraki devices synced yet — run the Meraki sync workflow.";
       return;
     }
 
-    const c = W.counts || {};
+    const c = fleet.counts || {};
     sumEl.textContent =
-      `${W.total} access points discovered by Auvik · ${c.up || 0} up` +
-      `${c.down ? `, ${c.down} down` : ""}${c.unknown ? `, ${c.unknown} unknown` : ""}` +
-      ` · last synced ${new Date(W.updatedAt).toLocaleString()}.`;
+      `${fleet.total} Meraki devices across ${(fleet.bySite || []).length} networks · ` +
+      `last synced ${new Date(W.updatedAt).toLocaleString()} from ${W.source || "Meraki"}.`;
 
-    document.getElementById("wireless-site-bars").innerHTML =
-      barListHtml((W.bySite || []).map((s) => ({ label: s.label, value: s.total })), "var(--layer-access)");
-    document.getElementById("wireless-model-bars").innerHTML =
-      barListHtml(W.byModel || [], "var(--layer-core)");
+    document.getElementById("wireless-kpi-row").innerHTML = [
+      { value: W.total, label: "Access points" },
+      { value: (fleet.byKind || []).find((k) => k.label === "Switch")?.value || 0, label: "Switches" },
+      { value: c.up || 0, label: "Online" },
+      { value: c.warning || 0, label: "Alerting", urgent: true },
+      { value: (c.down || 0) + (c.dormant || 0), label: "Offline or dormant" },
+    ].map((k) => `
+      <div class="kpi-tile">
+        <div class="value"${k.urgent && k.value > 0 ? ' style="color:var(--status-warning)"' : ""}>${esc(Number(k.value || 0).toLocaleString())}</div>
+        <div class="label">${esc(k.label)}</div>
+      </div>`).join("");
 
-    const sel = document.getElementById("wireless-site-filter");
-    if (sel && sel.options.length === 1) {
-      [...new Set(aps.map((a) => a.site))].sort()
-        .forEach((s) => sel.insertAdjacentHTML("beforeend", `<option value="${esc(s)}">${esc(s)}</option>`));
+    document.getElementById("wireless-site-bars").innerHTML = barListHtml(fleet.bySite || [], "var(--layer-access)");
+    document.getElementById("wireless-model-bars").innerHTML = barListHtml((fleet.byModel || []).slice(0, 10), "var(--layer-core)");
+
+    const kindSel = document.getElementById("wireless-kind-filter");
+    if (kindSel && kindSel.options.length === 1) {
+      (fleet.byKind || []).forEach((k) =>
+        kindSel.insertAdjacentHTML("beforeend", `<option value="${esc(k.label)}">${esc(k.label)} (${esc(k.value)})</option>`));
+    }
+    const siteSel = document.getElementById("wireless-site-filter");
+    if (siteSel && siteSel.options.length === 1) {
+      (fleet.bySite || []).forEach((s) =>
+        siteSel.insertAdjacentHTML("beforeend", `<option value="${esc(s.label)}">${esc(s.label)}</option>`));
     }
     renderWirelessTable();
   }
@@ -1769,36 +1787,38 @@
   function renderWirelessTable() {
     const body = document.getElementById("wireless-table-body");
     if (!body) return;
-    const aps = WIFI().aps || [];
+    const devices = (WIFI().fleet || {}).devices || [];
     const q = (document.getElementById("wireless-search")?.value || "").trim().toLowerCase();
+    const kind = document.getElementById("wireless-kind-filter")?.value || "all";
     const site = document.getElementById("wireless-site-filter")?.value || "all";
     const status = document.getElementById("wireless-status-filter")?.value || "all";
 
-    const rows = aps.filter((a) => {
+    const rows = devices.filter((a) => {
+      if (kind !== "all" && a.kind !== kind) return false;
       if (site !== "all" && a.site !== site) return false;
       if (status !== "all" && a.status !== status) return false;
       if (!q) return true;
-      return `${a.name} ${a.model || ""} ${a.vendor || ""}`.toLowerCase().includes(q);
+      return `${a.name} ${a.model || ""} ${a.kind}`.toLowerCase().includes(q);
     });
 
     document.getElementById("wireless-count").textContent =
-      rows.length === aps.length ? `${aps.length} access points` : `${rows.length} of ${aps.length} access points`;
+      rows.length === devices.length ? `${devices.length} devices` : `${rows.length} of ${devices.length} devices`;
 
     body.innerHTML = rows.length
       ? rows.map((a) => `
         <tr>
           <td>${esc(a.name)}</td>
+          <td>${esc(a.kind)}</td>
           <td>${esc(a.site)}</td>
           <td>${esc(a.model || "—")}</td>
-          <td>${esc(a.vendor || "—")}</td>
           <td><span class="dot status-dot-${esc(a.status)}"></span>${esc(STATUS_LABEL[a.status] || "Unknown")}</td>
           <td>${a.lastSeen ? esc(new Date(a.lastSeen).toLocaleString()) : "—"}</td>
         </tr>`).join("")
-      : `<tr><td class="note" colspan="6">No access points match this filter.</td></tr>`;
+      : `<tr><td class="note" colspan="6">No Meraki devices match this filter.</td></tr>`;
   }
 
   function initWirelessFilters() {
-    ["wireless-search", "wireless-site-filter", "wireless-status-filter"].forEach((id) => {
+    ["wireless-search", "wireless-kind-filter", "wireless-site-filter", "wireless-status-filter"].forEach((id) => {
       const el = document.getElementById(id);
       if (el) el.addEventListener(el.tagName === "SELECT" ? "change" : "input", renderWirelessTable);
     });

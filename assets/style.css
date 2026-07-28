@@ -33,10 +33,14 @@
   --surface-3: #fbfbfc;
   --rail: #ffffff;
   --rail-hover: #f1f4f9;
-  --rail-sub: #eaeef5;
+  --rail: #f4f5f7;
+  --rail-card: #ffffff;
+  --rail-card-border: #e8eaee;
+  --rail-line: #dcdfe5;
+  --rail-hover: #eaecf0;
   --rail-active-bg: #eaf1fd;
-  --rail-text: #52514e;
-  --rail-text-active: #1c5cab;
+  --rail-text: #5d6470;
+  --rail-text-active: #14161a;
   --rail-border: #e6e8ec;
   --text-primary: #14161a;
   --text-secondary: #5b6270;
@@ -76,7 +80,9 @@
   --surface-3: #232322;
   --rail: #12182a;
   --rail-hover: #1d2740;
-  --rail-sub: #161f33;
+  --rail-card: #1d2740;
+  --rail-card-border: rgba(255,255,255,0.10);
+  --rail-line: rgba(255,255,255,0.16);
   --rail-active-bg: #1d2740;
   --rail-text: rgba(255, 255, 255, 0.62);
   --rail-text-active: #ffffff;
@@ -707,6 +713,7 @@ tbody tr:hover { background: var(--surface-2); }
 .status-dot-critical,
 .status-dot-down { fill: var(--status-critical); }
 .status-dot-unknown { fill: var(--status-unknown); }
+.status-dot-dormant { fill: var(--status-unknown); opacity: 0.55; }
 
 /* The same class names are used on HTML <span class="dot"> in legends, where
    `fill` does nothing — those need background-color or the dot is invisible. */
@@ -717,6 +724,7 @@ span.status-dot-serious { background: var(--status-serious); }
 span.status-dot-critical,
 span.status-dot-down { background: var(--status-critical); }
 span.status-dot-unknown { background: var(--status-unknown); }
+span.status-dot-dormant { background: var(--status-unknown); opacity: 0.55; }
 
 footer.app-footer {
   text-align: center;
@@ -1000,24 +1008,105 @@ main { padding: 16px; max-width: none; }
    Overview v2 — light, card-based, per-campus
    ============================================================ */
 
-/* Sidebar carries labels now, not just icons. */
-.rail { width: 194px; }
-.rail-logo { padding: 14px 16px 16px; justify-content: flex-start; gap: 10px; }
-.rail-item {
+/* Sidebar — wide, horizontal rows, readable type. The 68px icon-stack rail
+   this replaces forced ~9px labels, which were unreadable. */
+.rail {
+  width: 244px;
+  padding: 0 12px 16px;
+  background: var(--rail);
+  border-right: 1px solid var(--rail-border);
+  gap: 2px;
+}
+.rail-logo { padding: 18px 8px 20px; justify-content: flex-start; gap: 10px; }
+.rail-logo img { width: 36px; height: 36px; }
+
+.rail-item,
+.rail-group-toggle {
   flex-direction: row;
   align-items: center;
-  gap: 10px;
-  padding: 9px 16px;
-  font-size: 13px;
+  gap: 12px;
+  width: 100%;
+  padding: 11px 12px;
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.005em;
   border-left: 0;
-  border-radius: 0;
+  border-radius: 10px;
   text-align: left;
+  color: var(--rail-text);
+  position: relative;
 }
-.rail-item .icon { width: 17px; height: 17px; }
-.rail-item span { flex: 1; }
-.rail-item.active { background: var(--rail-active-bg); box-shadow: inset 3px 0 0 var(--layer-core); }
-@media (max-width: 1099px) { .rail { display: none; } nav.tabs { display: flex; } }
-@media (min-width: 1100px) { nav.tabs { display: none; } }
+.rail-item .icon,
+.rail-group-toggle .icon { width: 19px; height: 19px; opacity: 0.85; }
+.rail-item span,
+.rail-group-toggle span { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.rail-item:hover,
+.rail-group-toggle:hover { background: var(--rail-hover); color: var(--rail-text-active); }
+
+/* Active leaf and expanded group both lift onto a white card, matching the
+   reference: the raised surface is what marks "you are here". */
+.rail-item.active,
+.rail-group-toggle[aria-expanded="true"] {
+  background: var(--rail-card);
+  color: var(--rail-text-active);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.10);
+  border: 1px solid var(--rail-card-border);
+  padding: 10px 11px;
+}
+.rail-item.active .icon { opacity: 1; color: var(--layer-core); }
+.rail-group-toggle[aria-expanded="true"] .icon:first-child { opacity: 1; color: var(--layer-core); }
+.rail-group.has-active > .rail-group-toggle { color: var(--rail-text-active); }
+
+.rail-group-toggle .rail-chev {
+  position: static;
+  width: 16px; height: 16px;
+  flex: 0 0 auto;
+  opacity: 0.45;
+  transform: rotate(-90deg);
+  transition: transform 0.18s ease;
+}
+.rail-group-toggle[aria-expanded="true"] .rail-chev { transform: rotate(0deg); opacity: 0.7; }
+
+/* Children hang off a connector line, so the hierarchy reads without relying
+   on indentation alone. */
+.rail-group-items { position: relative; padding: 6px 0 4px 26px; }
+.rail-group-items::before {
+  content: "";
+  position: absolute;
+  left: 21px; top: 0; bottom: 14px;
+  width: 1.5px;
+  background: var(--rail-line);
+}
+.rail-item.sub {
+  padding: 8px 10px;
+  font-size: 14px;
+  font-weight: 500;
+  background: none;
+  opacity: 1;
+  color: var(--rail-text);
+}
+.rail-item.sub::before {
+  content: "";
+  position: absolute;
+  left: -5px; top: 50%;
+  width: 9px; height: 1.5px;
+  background: var(--rail-line);
+}
+.rail-item.sub:hover { background: var(--rail-hover); color: var(--rail-text-active); }
+.rail-item.sub.active {
+  background: var(--rail-card);
+  color: var(--rail-text-active);
+  font-weight: 600;
+  border: 1px solid var(--rail-card-border);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
+  padding: 7px 9px;
+}
+
+@media (max-width: 1199px) { .rail { display: none; } nav.tabs { display: flex; } }
+@media (min-width: 1200px) { nav.tabs { display: none; } }
 
 .page-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
 .page-head h2 { font-size: 21px; font-weight: 700; margin: 0 0 3px; letter-spacing: -0.01em; }
@@ -1110,8 +1199,8 @@ main { padding: 16px; max-width: none; }
 .doc-node-name { font-size: 13.5px; font-weight: 600; overflow-wrap: break-word; }
 .doc-node-desc { font-size: 12px; color: var(--text-secondary); overflow-wrap: break-word; }
 .doc-kind { margin-top: 2px; opacity: 0.65; }
-.doc-chev { margin-top: 2px; transform: rotate(90deg); transition: transform 0.15s ease; opacity: 0.75; }
-.doc-node-folder[aria-expanded="true"] .doc-chev { transform: rotate(-90deg); }
+.doc-chev { margin-top: 2px; transform: rotate(-90deg); transition: transform 0.15s ease; opacity: 0.6; }
+.doc-node-folder[aria-expanded="true"] .doc-chev { transform: rotate(0deg); }
 .doc-node-folder .doc-node-name { font-weight: 700; }
 .doc-open {
   display: inline-flex; align-items: center; padding: 3px 6px; border-radius: 6px;
