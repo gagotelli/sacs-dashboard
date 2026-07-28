@@ -5,7 +5,7 @@
 // content is ever downloaded or published. Items whose names advertise
 // credentials are omitted and counted in `omitted`.
 const SHAREPOINT = {
-  "updatedAt": "2026-07-28T20:03:01.832Z",
+  "updatedAt": "2026-07-28T22:46:23.906Z",
   "source": "SharePoint — Microsoft Graph",
   "library": "05-Infrastructure",
   "rootUrl": "https://standrewscs.sharepoint.com/sites/SACSITTeam/05Infrastructure",
