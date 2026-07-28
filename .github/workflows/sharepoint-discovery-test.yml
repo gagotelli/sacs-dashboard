@@ -1,0 +1,110 @@
+name: SharePoint API discovery (test)
+on: workflow_dispatch
+
+# Confirms the Entra ID app registration works and reports the shape of the
+# 05Infrastructure library before anything is published.
+#
+# Deliberately prints FOLDER names but not FILE names. Folder names describe
+# structure; file names in an infrastructure library can themselves be
+# sensitive ("firewall-admin-creds.xlsx"), and this repo is public — including
+# its Actions logs. File-level detail is summarised by extension and count only.
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Authenticate and walk the library
+        env:
+          SHAREPOINT_TENANT_ID: ${{ secrets.SHAREPOINT_TENANT_ID }}
+          SHAREPOINT_CLIENT_ID: ${{ secrets.SHAREPOINT_CLIENT_ID }}
+          SHAREPOINT_CLIENT_SECRET: ${{ secrets.SHAREPOINT_CLIENT_SECRET }}
+        run: |
+          set -uo pipefail
+          for v in SHAREPOINT_TENANT_ID SHAREPOINT_CLIENT_ID SHAREPOINT_CLIENT_SECRET; do
+            eval "val=\${$v:-}"
+            echo "$v set: $([ -n "$val" ] && echo yes || echo NO)"
+          done
+          echo ""
+
+          TOKEN_URL="https://login.microsoftonline.com/${SHAREPOINT_TENANT_ID}/oauth2/v2.0/token"
+          code=$(curl -sS -o tok.json -w '%{http_code}' --max-time 30 "$TOKEN_URL" \
+            -H 'Content-Type: application/x-www-form-urlencoded' \
+            --data-urlencode "client_id=$SHAREPOINT_CLIENT_ID" \
+            --data-urlencode "client_secret=$SHAREPOINT_CLIENT_SECRET" \
+            --data-urlencode "grant_type=client_credentials" \
+            --data-urlencode "scope=https://graph.microsoft.com/.default" || echo 000)
+          echo "token request -> HTTP $code"
+          TOKEN=$(jq -r '.access_token // empty' tok.json)
+          if [ -z "$TOKEN" ]; then
+            echo "No token. Error was:"
+            jq -r '"  \(.error): \(.error_description // "")"' tok.json 2>/dev/null | head -4
+            echo ""
+            echo "AADSTS7000215 = wrong client secret. AADSTS700016 = wrong client id."
+            echo "AADSTS900023  = wrong tenant id."
+            exit 1
+          fi
+          echo "::add-mask::$TOKEN"
+          echo "token acquired, roles: $(jq -r '.access_token' tok.json | cut -d. -f2 | base64 -d 2>/dev/null | jq -r '(.roles // []) | join(", ")' 2>/dev/null || echo '?')"
+          echo ""
+
+          G="https://graph.microsoft.com/v1.0"
+          AUTH="Authorization: Bearer $TOKEN"
+
+          echo "=== site lookup ==="
+          code=$(curl -sS -o site.json -w '%{http_code}' --max-time 30 \
+            "$G/sites/standrewscs.sharepoint.com:/sites/SACSITTeam" -H "$AUTH" || echo 000)
+          echo "GET /sites/standrewscs.sharepoint.com:/sites/SACSITTeam -> HTTP $code"
+          if [ "$code" != "200" ]; then
+            jq -r '"  \(.error.code): \(.error.message)"' site.json 2>/dev/null | head -3
+            echo ""
+            echo "403 here usually means admin consent was not granted, or the app"
+            echo "has Sites.Selected without this site assigned."
+            exit 1
+          fi
+          SITE_ID=$(jq -r '.id' site.json)
+          echo "::add-mask::$SITE_ID"
+          echo "  site name: $(jq -r '.displayName // .name' site.json)"
+          echo ""
+
+          echo "=== document libraries on this site ==="
+          curl -sS -o drives.json "$G/sites/$SITE_ID/drives" -H "$AUTH"
+          jq -r '.value[]? | "  \(.name)  —  \(.driveType)"' drives.json
+
+          DRIVE_ID=$(jq -r '[.value[]? | select(.name | test("05.?Infrastructure"; "i"))][0].id // empty' drives.json)
+          if [ -z "$DRIVE_ID" ]; then
+            echo ""
+            echo "No library matched 05Infrastructure. If it is a FOLDER inside"
+            echo "Documents rather than its own library, the sync walks from there instead."
+            DRIVE_ID=$(jq -r '[.value[]? | select(.name=="Documents")][0].id // .value[0].id' drives.json)
+          fi
+          echo "::add-mask::$DRIVE_ID"
+          echo ""
+
+          echo "=== library structure (folders named, files counted only) ==="
+          walk() {  # $1 = item path for graph, $2 = display path, $3 = depth
+            local url
+            if [ "$1" = "root" ]; then url="$G/drives/$DRIVE_ID/root/children"
+            else url="$G/drives/$DRIVE_ID/items/$1/children"; fi
+            curl -sS -o "n$3.json" "$url?\$top=200" -H "$AUTH"
+            local files folders
+            files=$(jq '[.value[]? | select(has("file"))] | length' "n$3.json")
+            folders=$(jq '[.value[]? | select(has("folder"))] | length' "n$3.json")
+            printf '%*s%s  (%s folders, %s files)\n' $((3 * $3)) "" "${2:-/}" "$folders" "$files"
+            if [ "$files" -gt 0 ]; then
+              printf '%*s   types: %s\n' $((3 * $3)) "" \
+                "$(jq -r '[.value[]? | select(has("file")) | (.name | split(".") | last | ascii_downcase)] | group_by(.) | map("\(.[0])×\(length)") | join("  ")' "n$3.json")"
+            fi
+            if [ "$3" -lt 2 ]; then
+              for row in $(jq -r '.value[]? | select(has("folder")) | "\(.id)|\(.name)"' "n$3.json" | tr ' ' '~'); do
+                local id name
+                id="${row%%|*}"; name="${row##*|}"
+                walk "$id" "${2}/$(echo "$name" | tr '~' ' ')" $(($3 + 1))
+              done
+            fi
+          }
+          walk root "" 0
+
+          echo ""
+          echo "=== totals ==="
+          curl -sS -o all.json "$G/drives/$DRIVE_ID/root/children?\$top=999" -H "$AUTH"
+          echo "  top-level items: $(jq '.value | length' all.json)"
