@@ -460,17 +460,23 @@
     5: "var(--prio-none)",
   };
 
+  // The overview no longer carries a ticket donut — only the header button
+  // survives. Every element here is optional so this keeps working whichever
+  // of them the page actually has.
   function renderTickets() {
     const labelEl = document.getElementById("ticket-button-label");
     const noteEl = document.getElementById("tickets-not-connected-note");
     const donutEl = document.getElementById("glance-tickets-donut");
     const legendEl = document.getElementById("glance-tickets-legend");
+    if (!labelEl) return;
+    const setHtml = (el, html) => { if (el) el.innerHTML = html; };
+    const setHidden = (el, v) => { if (el) el.hidden = v; };
 
     if (TICKET_SUMMARY.total == null) {
       labelEl.textContent = "Tickets: not connected";
-      donutEl.innerHTML = "";
-      legendEl.innerHTML = "";
-      noteEl.hidden = false;
+      setHtml(donutEl, "");
+      setHtml(legendEl, "");
+      setHidden(noteEl, false);
       return;
     }
 
@@ -495,22 +501,22 @@
 
     if (!haveBreakdown) {
       labelEl.textContent = `Tickets: ${TICKET_SUMMARY.total.toLocaleString()} total`;
-      donutEl.innerHTML = donutSvg(
+      setHtml(donutEl, donutSvg(
         [{ value: 1, color: "var(--status-unknown)", label: "Total" }],
         { centerValue: TICKET_SUMMARY.total, centerLabel: "total" }
-      );
-      legendEl.innerHTML = "";
-      noteEl.textContent =
+      ));
+      setHtml(legendEl, "");
+      if (noteEl) noteEl.textContent =
         "Total is live, but the open/priority breakdown could not be read from " +
         "ManageEngine on the last sync — treat only the total as current.";
-      noteEl.hidden = false;
+      setHidden(noteEl, false);
       return;
     }
 
-    noteEl.hidden = true;
+    setHidden(noteEl, true);
     labelEl.textContent = `${TICKET_SUMMARY.open} open · ${TICKET_SUMMARY.urgent ?? 0} urgent`;
-    donutEl.innerHTML = donutSvg(priorityCounts, { centerValue: TICKET_SUMMARY.open, centerLabel: "open" });
-    legendEl.innerHTML = legendHtml(priorityCounts);
+    setHtml(donutEl, donutSvg(priorityCounts, { centerValue: TICKET_SUMMARY.open, centerLabel: "open" }));
+    setHtml(legendEl, legendHtml(priorityCounts));
   }
 
   // ---------------------------------------------------------------------
@@ -2075,6 +2081,397 @@
   }
 
   // ---------------------------------------------------------------------
+  // Overview
+  // ---------------------------------------------------------------------
+  function overviewSources() {
+    const out = [];
+    if (typeof DEVICE_STATUS !== "undefined" && DEVICE_STATUS.updatedAt) {
+      out.push({ name: DEVICE_STATUS.source || "Auvik", at: DEVICE_STATUS.updatedAt });
+    }
+    if (typeof WIRELESS !== "undefined" && WIRELESS.updatedAt) {
+      out.push({ name: WIRELESS.source || "Meraki", at: WIRELESS.updatedAt });
+    }
+    return out;
+  }
+
+  function renderOverviewMeta() {
+    const srcEl = document.getElementById("ov-live-source");
+    const updEl = document.getElementById("ov-updated");
+    if (!srcEl) return;
+
+    const sources = overviewSources();
+    if (!sources.length) {
+      srcEl.textContent = "Not connected";
+      updEl.textContent = "";
+      return;
+    }
+    srcEl.textContent = `Live from ${sources.map((s) => s.name).join(" + ")}`;
+    // Several feeds land at different times; the oldest is the honest answer
+    // to "how current is this page".
+    const oldest = sources.reduce((a, b) => (Date.parse(a.at) < Date.parse(b.at) ? a : b));
+    updEl.textContent = `Updated ${new Date(oldest.at).toLocaleString()}`;
+  }
+
+  function ringSvg(pct, size) {
+    const r = size / 2 - 14;
+    const c = 2 * Math.PI * r;
+    const on = (Math.max(0, Math.min(100, pct)) / 100) * c;
+    return `
+      <svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" class="ov-ring">
+        <defs>
+          <linearGradient id="ovRingGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="var(--prio-2)"/>
+            <stop offset="100%" stop-color="var(--prio-4)"/>
+          </linearGradient>
+        </defs>
+        <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--gridline)" stroke-width="16"/>
+        <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="url(#ovRingGrad)" stroke-width="16"
+                stroke-linecap="round" stroke-dasharray="${on.toFixed(1)} ${(c - on).toFixed(1)}"
+                transform="rotate(-90 ${size / 2} ${size / 2})"/>
+      </svg>`;
+  }
+
+  function renderOverviewHealth() {
+    const scoreEl = document.getElementById("ov-health-score");
+    if (!scoreEl) return;
+
+    const dev = deviceStats();
+    const devPct = pctOrNull(dev.up, dev.known);
+    const licOk = LICENSES.filter((l) => !["critical", "warning"].includes(licenseStatus(l))).length;
+    const licPct = pctOrNull(licOk, LICENSES.length);
+    const cam = cameraStats(null);
+    const camPct = cam ? pctOrNull(cam.active, cam.total) : null;
+    const vlanPct = pctOrNull(VLANS.filter((v) => String(v.status).toLowerCase() === "up").length, VLANS.length);
+
+    const score = healthScore([
+      { pct: devPct, weight: 4 },
+      { pct: camPct, weight: 2 },
+      { pct: vlanPct, weight: 2 },
+      { pct: licPct, weight: 2 },
+    ]);
+
+    if (score == null) {
+      scoreEl.innerHTML = `—`;
+      document.getElementById("ov-health-verdict").textContent = "No data";
+      document.getElementById("ov-health-note").textContent = "No feed has reported yet.";
+      document.getElementById("ov-health-ring").innerHTML = ringSvg(0, 210);
+      return;
+    }
+
+    const v = verdictFor(score);
+    scoreEl.innerHTML = `${score}<span class="ov-pct">%</span>`;
+    const verdictEl = document.getElementById("ov-health-verdict");
+    verdictEl.innerHTML = `${esc(v.label)} <span class="dot status-dot-${v.status}"></span>`;
+
+    // Say what is actually wrong rather than a fixed reassurance — a fixed
+    // "all systems healthy" string would keep claiming that at 60%.
+    const problems = [];
+    if (dev.down) problems.push(`${dev.down} device${dev.down === 1 ? "" : "s"} down`);
+    if (cam && cam.total - cam.active) problems.push(`${cam.total - cam.active} cameras inactive`);
+    const licBad = LICENSES.length - licOk;
+    if (licBad) problems.push(`${licBad} licence${licBad === 1 ? "" : "s"} need action`);
+
+    document.getElementById("ov-health-note").innerHTML = problems.length
+      ? esc(problems.join(" · "))
+      : "All monitored systems are reporting healthy.";
+    document.getElementById("ov-health-ring").innerHTML = ringSvg(score, 210);
+  }
+
+  function renderOverviewStats() {
+    const el = document.getElementById("ov-stats");
+    if (!el) return;
+
+    const dev = deviceStats();
+    const published = (typeof DEVICE_STATUS !== "undefined" && DEVICE_STATUS.published) || DEVICES.length;
+    const notReporting = published - dev.known;
+    const cam = cameraStats(null);
+    const vlanUp = VLANS.filter((v) => String(v.status).toLowerCase() === "up").length;
+    const licOk = LICENSES.filter((l) => !["critical", "warning"].includes(licenseStatus(l))).length;
+    const cards = [
+      {
+        icon: "icon-devices", title: "Devices",
+        // Count every documented device, not just the ones reporting — showing
+        // only reporters would silently shrink the estate when a poller drops.
+        value: published, unit: "", sub: "Monitored",
+        bad: [
+          dev.down ? `${dev.down} down` : null,
+          notReporting > 0 ? `${notReporting} not reporting` : null,
+        ].filter(Boolean).join(" · ") || null,
+        link: "panel-devices", linkText: "View devices",
+      },
+      {
+        icon: "icon-camera", title: "Cameras",
+        value: cam ? Math.round((cam.active / cam.total) * 100) : null, unit: "%", sub: "Active",
+        bad: cam && cam.total - cam.active ? `${cam.total - cam.active} down` : null,
+        link: "panel-cctv", linkText: "View cameras",
+      },
+      {
+        icon: "icon-vlans", title: "VLANs",
+        value: VLANS.length ? Math.round((vlanUp / VLANS.length) * 100) : null, unit: "%", sub: "Up",
+        bad: VLANS.length - vlanUp ? `${VLANS.length - vlanUp} down` : null,
+        link: "panel-vlans", linkText: "View VLANs",
+      },
+      {
+        icon: "icon-license", title: "Licenses",
+        value: LICENSES.length ? Math.round((licOk / LICENSES.length) * 100) : null, unit: "%", sub: "In good standing",
+        bad: LICENSES.length - licOk ? `${LICENSES.length - licOk} action needed` : null,
+        link: "panel-licenses", linkText: "View licenses",
+      },
+    ];
+
+    el.innerHTML = cards.map((c) => `
+      <div class="card ov-stat">
+        <div class="ov-stat-head"><svg class="icon"><use href="#${c.icon}"/></svg><span>${esc(c.title)}</span></div>
+        <div class="ov-stat-value">${c.value == null ? "—" : esc(Number(c.value).toLocaleString())}${c.unit ? `<span class="ov-pct">${c.unit}</span>` : ""}</div>
+        <div class="ov-stat-sub">${esc(c.sub)}</div>
+        <div class="ov-stat-bad">${c.bad ? esc(c.bad) : ""}</div>
+        <button type="button" class="ov-stat-link" data-panel="${esc(c.link)}">${esc(c.linkText)} <svg class="icon"><use href="#icon-arrow"/></svg></button>
+      </div>`).join("");
+  }
+
+  // Availability is computed from the devices that actually report, per site.
+  // Sites with no reporting device are shown as "no data" rather than 100%,
+  // because an empty average would otherwise look perfect.
+  function renderOverviewCampus() {
+    const el = document.getElementById("ov-campus");
+    if (!el) return;
+
+    const wifiSites = typeof WIRELESS !== "undefined" ? WIRELESS.bySite || [] : [];
+    // "Core" is a layer that spans both campuses, not a campus — showing it
+    // here would report shared kit as if it were a site. Meraki network names
+    // contribute campuses that have wireless but no documented switch.
+    const NOT_A_CAMPUS = /^(core|shared|test)$/i;
+    const fromDevices = [...new Set(DEVICES.map((d) => d.site).filter(Boolean))];
+    const fromWifi = wifiSites.map((w) => String(w.label).replace(/^SACS-/i, ""));
+    const sites = [...new Set([...fromDevices, ...fromWifi])].filter((s) => !NOT_A_CAMPUS.test(s));
+
+    const cards = sites.map((site) => {
+      const list = DEVICES.filter((d) => d.site === site);
+      const known = list.filter((d) => deviceStatus(d.id) !== "unknown");
+      const up = known.filter((d) => deviceStatus(d.id) === "up").length;
+      const layers = [...new Set(list.map((d) => d.layer).filter(Boolean))];
+      // Match the site to a Meraki network by code, e.g. SAH -> SACS-SAH.
+      const wifi = wifiSites.find((w) => new RegExp(`(^|[-_])${site}([-_]|$)`, "i").test(w.label));
+      return {
+        site, layers,
+        pct: known.length ? Math.round((up / known.length) * 100) : null,
+        known: known.length, total: list.length,
+        aps: wifi ? wifi.total : null, apsUp: wifi ? wifi.up : null,
+      };
+    }).sort((a, b) => b.total - a.total);
+
+    el.innerHTML = cards.map((c) => {
+      const status = c.pct == null ? "unknown" : c.pct >= 95 ? "up" : c.pct >= 80 ? "warning" : "down";
+      return `
+        <div class="ov-campus-card">
+          <div class="ov-campus-head">
+            <svg class="icon"><use href="#icon-devices"/></svg>
+            <span class="ov-campus-name">${esc(c.site)}</span>
+            <span class="dot status-dot-${status}"></span>
+          </div>
+          <div class="ov-campus-layers">${esc(c.layers.join(" · ") || "—")}</div>
+          <div class="ov-campus-value">${c.pct == null ? "—" : esc(c.pct)}${c.pct == null ? "" : `<span class="ov-pct">%</span>`}</div>
+          <div class="ov-campus-sub">${c.pct == null ? "No device reporting" : `${esc(c.known)} of ${esc(c.total)} reporting`}</div>
+          ${c.aps != null ? `<div class="ov-campus-wifi">${esc(c.apsUp)}/${esc(c.aps)} APs up</div>` : ""}
+        </div>`;
+    }).join("");
+  }
+
+  // Real issues from the feeds that are wired up, newest signal first. This is
+  // not a ticket list — it is what the monitoring is currently complaining
+  // about, which is why it can be empty.
+  function renderOverviewInbox() {
+    const el = document.getElementById("ov-inbox");
+    if (!el) return;
+    const items = [];
+
+    Object.entries((typeof DEVICE_STATUS !== "undefined" ? DEVICE_STATUS.devices : {}) || {}).forEach(([id, s]) => {
+      if (s.status !== "down") return;
+      const d = DEVICES.find((x) => x.id === id);
+      items.push({
+        sev: "critical", title: "Device down",
+        meta: `${d ? d.name : id}${d && d.site ? " · " + d.site : ""}`,
+        tag: "Network", at: s.lastSeen, panel: "panel-devices",
+      });
+    });
+
+    ((typeof WIRELESS !== "undefined" ? WIRELESS.fleet?.devices : null) || [])
+      .filter((d) => d.status === "warning" || d.status === "down")
+      .slice(0, 6)
+      .forEach((d) => items.push({
+        sev: d.status === "down" ? "critical" : "warning",
+        title: d.status === "down" ? `${d.kind} offline` : `${d.kind} alerting`,
+        meta: `${d.name} · ${d.site}`, tag: "Wireless", at: d.lastSeen, panel: "panel-devices",
+      }));
+
+    ((typeof ENDPOINT_SUMMARY !== "undefined" ? ENDPOINT_SUMMARY.alerts?.byCondition : null) || [])
+      .slice(0, 3)
+      .forEach((c) => items.push({
+        sev: "warning", title: c.label,
+        meta: `${c.value} endpoint${c.value === 1 ? "" : "s"}`, tag: "Endpoints",
+        at: typeof ENDPOINT_SUMMARY !== "undefined" ? ENDPOINT_SUMMARY.updatedAt : null,
+        panel: "panel-endpoints",
+      }));
+
+    ((typeof SECURITY_SUMMARY !== "undefined" ? SECURITY_SUMMARY.queue : null) || [])
+      .slice(0, 4)
+      .forEach((q) => items.push({
+        sev: AW_ATTENTION.has(q.priority) ? "critical" : "info",
+        title: q.category, meta: `Arctic Wolf #${q.id} · ${q.priority}`,
+        tag: "Security", at: q.updatedAt || q.createdAt, panel: "panel-security",
+      }));
+
+    LICENSES.filter((l) => ["critical", "warning"].includes(licenseStatus(l)))
+      .slice(0, 4)
+      .forEach((l) => items.push({
+        sev: licenseStatus(l) === "critical" ? "critical" : "warning",
+        title: "Licence needs action", meta: `${l.product || l.id}${l.host ? " · " + l.host : ""}`,
+        tag: "License", at: null, panel: "panel-licenses",
+      }));
+
+    const SEV_ORDER = { critical: 0, warning: 1, info: 2 };
+    items.sort((a, b) =>
+      SEV_ORDER[a.sev] - SEV_ORDER[b.sev] ||
+      (Date.parse(b.at || 0) || 0) - (Date.parse(a.at || 0) || 0));
+
+    if (!items.length) {
+      el.innerHTML = `<p class="muted-text" style="margin:0">Nothing is currently flagged by the connected monitoring.</p>`;
+      return;
+    }
+
+    el.innerHTML = items.slice(0, 8).map((i) => `
+      <button type="button" class="ov-inbox-row" data-panel="${esc(i.panel)}">
+        <span class="ov-inbox-dot sev-${esc(i.sev)}"></span>
+        <span class="ov-inbox-text">
+          <span class="ov-inbox-title">${esc(i.title)}</span>
+          <span class="ov-inbox-meta">${esc(i.meta)}</span>
+        </span>
+        <span class="ov-tag">${esc(i.tag)}</span>
+        <span class="ov-inbox-age">${i.at ? esc(relativeAge(i.at)) : ""}</span>
+      </button>`).join("");
+  }
+
+  function relativeAge(ts) {
+    const ms = Date.now() - Date.parse(ts);
+    if (!Number.isFinite(ms) || ms < 0) return "";
+    const m = Math.floor(ms / 60000);
+    if (m < 60) return `${m}m ago`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h}h ago`;
+    return `${Math.floor(h / 24)}d ago`;
+  }
+
+  // Trends need a time series, and nothing here stores one yet — every sync
+  // overwrites its data file. Rather than draw a plausible-looking line from
+  // a single sample, this says what is missing.
+  function renderOverviewTrends() {
+    const el = document.getElementById("ov-trends");
+    if (!el) return;
+
+    const history = typeof HISTORY !== "undefined" ? HISTORY : null;
+    if (!history || !(history.samples || []).length) {
+      el.innerHTML = `
+        <p class="muted-text" style="margin:0 0 10px">
+          No 24-hour history yet. The syncs currently overwrite their data each
+          run, so there is no time series to plot — drawing one from a single
+          sample would be inventing a trend.
+        </p>
+        <p class="muted-text" style="margin:0">
+          Once history collection is enabled, device availability, wireless
+          health and open alerts will chart here.
+        </p>`;
+      return;
+    }
+
+    const series = [
+      { key: "devicesUp", label: "Devices up", color: "var(--layer-core)" },
+      { key: "apsUp", label: "Access points up", color: "var(--status-good)" },
+      { key: "openAlerts", label: "Open alerts", color: "var(--status-warning)" },
+    ];
+
+    el.innerHTML = series.map((s) => {
+      const pts = history.samples.map((x) => x[s.key]).filter((v) => v != null);
+      if (!pts.length) return "";
+      const last = pts[pts.length - 1];
+      const first = pts[0];
+      const delta = first ? Math.round(((last - first) / first) * 100) : 0;
+      const max = Math.max(...pts, 1);
+      const min = Math.min(...pts, 0);
+      const span = max - min || 1;
+      const d = pts.map((v, i) =>
+        `${(i / Math.max(pts.length - 1, 1)) * 100},${30 - ((v - min) / span) * 26}`).join(" ");
+      return `
+        <div class="ov-trend">
+          <div class="ov-trend-head">
+            <span class="ov-trend-label">${esc(s.label)}</span>
+            <span class="ov-trend-value">${esc(last)}
+              <span class="ov-trend-delta ${delta >= 0 ? "up" : "down"}">${delta >= 0 ? "▲" : "▼"} ${esc(Math.abs(delta))}%</span>
+            </span>
+          </div>
+          <svg class="ov-spark" viewBox="0 0 100 32" preserveAspectRatio="none">
+            <polyline points="${d}" fill="none" stroke="${s.color}" stroke-width="1.6" vector-effect="non-scaling-stroke"/>
+          </svg>
+        </div>`;
+    }).join("");
+  }
+
+  // A compact read-only version of the topology: same data, no interaction,
+  // sized for a card. Clicking through opens the real one.
+  function renderOverviewMiniTopo() {
+    const el = document.getElementById("ov-mini-topo");
+    if (!el) return;
+    const w = topoState.world || (topoState.world = buildTopoWorld());
+
+    const core = w.core, security = w.security;
+    const groups = [
+      { label: "Access switches", count: w.sah.length + w.bbc.length, color: "var(--layer-access)", icon: "icon-devices" },
+      { label: "Wireless APs", count: (typeof WIRELESS !== "undefined" ? WIRELESS.total : 0) || 0, color: "var(--layer-legacy)", icon: "icon-topology" },
+      { label: "CCTV cameras", count: (cameraStats(null) || {}).total || 0, color: "var(--layer-security)", icon: "icon-camera" },
+      { label: "Services", count: (typeof SERVICES !== "undefined" ? SERVICES.length : 0) || 0, color: "var(--baseline)", icon: "icon-services" },
+    ];
+
+    const chip = (d) => `
+      <div class="ov-chip" title="${esc(d.name)}${d.ip ? " — " + esc(d.ip) : ""}">
+        <span class="ov-chip-icon" style="color:${LAYER_COLOR[d.layer] || "var(--baseline)"}"><svg class="icon"><use href="#icon-devices"/></svg></span>
+        <span class="ov-chip-text">
+          <span class="ov-chip-name">${esc(d.name)}</span>
+          <span class="ov-chip-sub">${esc(d.ip || "")}</span>
+        </span>
+        <span class="dot status-dot-${deviceStatus(d.id)}"></span>
+      </div>`;
+
+    el.innerHTML = `
+      <div class="ov-tier">${core.map(chip).join("")}</div>
+      <div class="ov-tier-line"></div>
+      <div class="ov-tier">${security.slice(0, 2).map(chip).join("")}</div>
+      <div class="ov-tier-line"></div>
+      <div class="ov-tier ov-tier-groups">
+        ${groups.map((g) => `
+          <div class="ov-group-chip" style="border-color:${g.color}">
+            <span class="ov-chip-icon" style="color:${g.color}"><svg class="icon"><use href="#${g.icon}"/></svg></span>
+            <span class="ov-chip-text">
+              <span class="ov-chip-name">${esc(g.label)}</span>
+              <span class="ov-chip-sub">${esc(g.count)} ${g.label === "Services" ? "services" : "devices"}</span>
+            </span>
+          </div>`).join("")}
+      </div>`;
+  }
+
+  function renderOverview() {
+    renderOverviewMeta();
+    renderOverviewHealth();
+    renderOverviewStats();
+    renderOverviewCampus();
+    renderOverviewInbox();
+    renderOverviewMiniTopo();
+    renderOverviewTrends();
+  }
+
+  function initOverview() {
+    document.getElementById("ov-refresh")?.addEventListener("click", () => location.reload());
+  }
+
+  // ---------------------------------------------------------------------
   // Status banner
   // ---------------------------------------------------------------------
   function renderStatusBanner() {
@@ -2114,7 +2511,6 @@
     initTabs();
     initTheme();
     initLogout();
-    renderStatusBanner();
 
     renderTickets();
     initTicketListFilters();
@@ -2122,10 +2518,8 @@
     renderEndpoints();
     initSecurityQueueFilters();
     renderSecurity();
-    renderHealthStrip();
-    renderCampusCards();
-    renderInfraTiles();
-    renderGlance();
+    initOverview();
+    renderOverview();
     initTopology();
     renderTopology();
     initWirelessFilters();

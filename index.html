@@ -25,6 +25,7 @@
   <symbol id="icon-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 119.5 4a6.5 6.5 0 1010.5 10.5z"/></symbol>
   <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6"/></symbol>
   <symbol id="icon-chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M20 11A8 8 0 006.3 6.3L4 8.5"/><path d="M4 4v4.5h4.5"/><path d="M4 13a8 8 0 0013.7 4.7L20 15.5"/><path d="M20 20v-4.5h-4.5"/></symbol>
   <symbol id="icon-services" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="1.6"/><path d="M9 9h6M9 13h6M9 17h4"/></symbol>
   <symbol id="icon-camera" viewBox="0 0 24 24"><rect x="3" y="7" width="14" height="11" rx="1.6"/><path d="M17 10.5 21 8v9l-4-2.5"/><circle cx="10" cy="12.5" r="3"/></symbol>
   <symbol id="icon-logout" viewBox="0 0 24 24"><path d="M9 4H5a1 1 0 00-1 1v14a1 1 0 001 1h4"/><path d="M15 8l4 4-4 4"/><path d="M19 12H9"/></symbol>
@@ -65,7 +66,6 @@
     <span class="brand-mark"><img src="assets/sacs-crest.png" alt="St Andrew's Cathedral School crest" /></span>
     <div>
       <h1>SACS Network Dashboard</h1>
-      <div class="subtitle">SAH &amp; BBC campuses — core, security, access &amp; distribution</div>
     </div>
   </div>
   <div class="header-actions">
@@ -101,73 +101,59 @@
 </nav>
 
 <main>
-  <div class="status-banner"><span id="status-banner-text"></span></div>
 
   <section id="panel-overview" class="panel active">
-    <div class="page-head">
-      <div>
-        <h2>Network Overview</h2>
-        <div class="subtitle">SAH &amp; BBC campuses — core, security, access &amp; distribution</div>
-      </div>
+    <div class="ov-meta">
+      <span class="ov-live"><span class="ov-live-dot"></span><span id="ov-live-source">Live</span></span>
+      <span class="ov-updated" id="ov-updated"></span>
+      <button type="button" class="ov-refresh" id="ov-refresh">
+        <svg class="icon"><use href="#icon-refresh"/></svg> Refresh
+      </button>
     </div>
 
-    <div class="card">
-      <div class="health-strip" id="health-strip"></div>
-    </div>
-
-    <div class="campus-grid" id="campus-grid"></div>
-
-    <div class="card">
-      <h2>Shared infrastructure</h2>
-      <div class="infra-tiles" id="infra-tiles"></div>
-    </div>
-
-    <div class="overview-cols">
-      <div class="card">
-        <h2>Licenses overview</h2>
-        <div class="glance-donut-row">
-          <div id="glance-license-donut"></div>
-          <div class="legend-col" id="glance-license-legend"></div>
+    <div class="ov-row-1">
+      <div class="card ov-health">
+        <div class="ov-health-text">
+          <h3>Network health</h3>
+          <div class="ov-health-score" id="ov-health-score">—</div>
+          <div class="ov-health-verdict" id="ov-health-verdict"></div>
+          <p class="ov-health-note" id="ov-health-note"></p>
         </div>
+        <div class="ov-health-ring" id="ov-health-ring"></div>
+      </div>
+      <div class="ov-stats" id="ov-stats"></div>
+    </div>
+
+    <div class="ov-row-2">
+      <div class="card">
+        <h2>Campus availability</h2>
+        <div class="ov-campus" id="ov-campus"></div>
       </div>
       <div class="card">
-        <h2>Open tickets by priority</h2>
-        <div class="glance-donut-row">
-          <div id="glance-tickets-donut"></div>
-          <div class="legend-col" id="glance-tickets-legend"></div>
-        </div>
-        <p class="muted-text" id="tickets-not-connected-note" style="margin:10px 0 0"></p>
+        <h2 class="ov-card-head">Issue inbox
+          <button type="button" class="link-button" data-panel="panel-tickets">View all tickets <svg class="icon"><use href="#icon-arrow"/></svg></button>
+        </h2>
+        <div class="ov-inbox" id="ov-inbox"></div>
       </div>
     </div>
 
-    <div class="topology-heading-row">
-      <h2 class="section-heading">Cross-campus topology</h2>
-      <button type="button" class="link-button" data-panel="panel-topology">Open full view <svg class="icon"><use href="#icon-arrow"/></svg></button>
-    </div>
-    <div class="legend-row">
-      <span class="legend-item"><span class="swatch" style="background:var(--layer-core)"></span>Core</span>
-      <span class="legend-item"><span class="swatch" style="background:var(--layer-security)"></span>Security / Firewall</span>
-      <span class="legend-item"><span class="swatch" style="background:var(--layer-access)"></span>Access</span>
-      <span class="legend-item"><span class="swatch" style="background:var(--layer-legacy)"></span>Legacy / 1G</span>
-      <span class="legend-item">Line thickness = link speed</span>
-    </div>
-    <div class="card topology-card">
-      <div class="table-wrap topology-mount"></div>
-    </div>
-
-    <div class="card">
-      <h2>About this dashboard</h2>
-      <p class="muted-text">
-        Built from the <em>SACS Topology (Current Final, with CNS)</em> diagram:
-        core switching, security/firewall, SAH and BBC access &amp; distribution
-        layers, VLANs, critical infrastructure services, and port/speed documentation.
-      </p>
-      <p class="muted-text" style="margin-bottom:0">
-        <strong>Status is not live yet.</strong> Every device shows "Unknown" until
-        a poller is wired up against the vendor APIs available on-site (Meraki,
-        Palo Alto, ClearPass). See <code>README.md</code> in this repo for the
-        integration plan and the exact file to populate.
-      </p>
+    <div class="ov-row-2">
+      <div class="card">
+        <h2 class="ov-card-head">Network topology
+          <button type="button" class="link-button" data-panel="panel-topology">Expand topology <svg class="icon"><use href="#icon-arrow"/></svg></button>
+        </h2>
+        <div class="legend-row ov-mini-legend">
+          <span class="legend-item"><span class="swatch" style="background:var(--layer-core)"></span>Core</span>
+          <span class="legend-item"><span class="swatch" style="background:var(--layer-security)"></span>Security</span>
+          <span class="legend-item"><span class="swatch" style="background:var(--layer-access)"></span>Access</span>
+          <span class="legend-item"><span class="swatch" style="background:var(--layer-legacy)"></span>Wireless</span>
+        </div>
+        <div class="ov-mini-topo" id="ov-mini-topo"></div>
+      </div>
+      <div class="card">
+        <h2 class="ov-card-head">Network trends (24h)</h2>
+        <div class="ov-trends" id="ov-trends"></div>
+      </div>
     </div>
   </section>
 
