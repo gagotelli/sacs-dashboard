@@ -893,7 +893,7 @@
             <rect class="topo-node-bg" x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" rx="9" fill="var(--surface-3)" stroke="var(--layer-access)" stroke-dasharray="4 3"/>
             <circle class="status-dot-${status}" cx="${p.x + p.w - 12}" cy="${p.y + 12}" r="4.5"/>
             <text x="${p.x + 14}" y="${p.y + 22}">${esc(s.label)} wireless</text>
-            <text class="sub" x="${p.x + 14}" y="${p.y + 40}">${esc(s.total)} APs · ${esc(s.up)} up${down ? ` · ${esc(down)} down` : ""}</text>
+            <text class="sub" x="${p.x + 14}" y="${p.y + 40}">${esc(s.total)} AP${s.total === 1 ? "" : "s"} · ${esc(s.up)} up${down ? ` · ${esc(down)} down` : ""}</text>
           </g>`);
       });
       parts.push(`<text class="topo-group-label" x="40" y="${w.wirelessY - 14}">Wireless — uplinks not modelled</text>`);
