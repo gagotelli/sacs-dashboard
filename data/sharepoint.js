@@ -5,14 +5,14 @@
 // content is ever downloaded or published. Items whose names advertise
 // credentials are omitted and counted in `omitted`.
 const SHAREPOINT = {
-  "updatedAt": "2026-07-28T22:46:23.906Z",
+  "updatedAt": "2026-07-29T03:51:45.516Z",
   "source": "SharePoint — Microsoft Graph",
   "library": "05-Infrastructure",
   "rootUrl": "https://standrewscs.sharepoint.com/sites/SACSITTeam/05Infrastructure",
   "folders": 14,
   "files": 79,
   "omitted": 0,
-  "totalBytes": 6962397,
+  "totalBytes": 6958155,
   "tree": [
     {
       "name": "10-Server-Infrastructure",
@@ -49,8 +49,8 @@ const SHAREPOINT = {
               "name": "05-INF-CFG-001-AARNET-Zone-File-sacs-nsw-edu-au-2026-07-22.xlsx",
               "kind": "file",
               "ext": "xlsx",
-              "size": 34569,
-              "modified": "2026-07-22T09:22:46Z",
+              "size": 30327,
+              "modified": "2026-07-29T02:58:53Z",
               "href": "https://standrewscs.sharepoint.com/sites/SACSITTeam/_layouts/15/Doc.aspx?sourcedoc=%7BCA248D58-1015-4B74-AB9F-9A1F18809F54%7D&file=05-INF-CFG-001-AARNET-Zone-File-sacs-nsw-edu-au-2026-07-22.xlsx&action=default&mobileredirect=true"
             }
           ]
