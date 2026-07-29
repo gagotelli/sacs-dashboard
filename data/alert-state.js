@@ -7,14 +7,8 @@
 // disappears is reported as cleared and removed, so it alerts again if it
 // returns.
 const ALERT_STATE = {
-  "updatedAt": "2026-07-29T01:12:40.684Z",
+  "updatedAt": "2026-07-29T04:15:47.043Z",
   "seen": {
-    "aps-down": {
-      "at": "2026-07-29T01:08:46.690Z",
-      "title": "1 access point offline",
-      "severity": "warning",
-      "detail": "Meraki reports 1 of 188 APs offline."
-    },
     "aps-alerting": {
       "at": "2026-07-29T01:08:46.767Z",
       "title": "15 access points alerting",
