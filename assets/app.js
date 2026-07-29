@@ -121,47 +121,88 @@
   // ---------------------------------------------------------------------
   // Logout
   // ---------------------------------------------------------------------
-  function initLogout() {
-    const btn = document.getElementById("logout-button");
-    if (!btn) return;
-    btn.addEventListener("click", () => {
+  function initAccountMenu() {
+    const wrap = document.getElementById("account");
+    const btn = document.getElementById("account-btn");
+    const menu = document.getElementById("account-menu");
+    if (!wrap || !btn || !menu) return;
+
+    const setOpen = (open) => {
+      menu.hidden = !open;
+      btn.setAttribute("aria-expanded", String(open));
+      wrap.classList.toggle("open", open);
+    };
+
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      setOpen(menu.hidden);
+    });
+    // Click-away and Escape both close it. A popover that only closes by
+    // clicking its own button feels stuck.
+    document.addEventListener("click", (e) => {
+      if (!menu.hidden && !wrap.contains(e.target)) setOpen(false);
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !menu.hidden) { setOpen(false); btn.focus(); }
+    });
+
+    document.getElementById("logout-button")?.addEventListener("click", () => {
       sessionStorage.removeItem("sacs-gate-ok");
       location.reload();
     });
   }
 
   // ---------------------------------------------------------------------
-  // Theme toggle
+  // Theme — auto | light | dark
   // ---------------------------------------------------------------------
-  function initTheme() {
-    const btn = document.getElementById("theme-toggle");
-    const iconUse = document.querySelector("#theme-icon use");
-    const label = document.getElementById("theme-label");
-    const root = document.documentElement;
-    const stored = localStorage.getItem("sacs-theme");
-    if (stored) root.setAttribute("data-theme", stored);
+  // The stylesheet has no prefers-color-scheme rules; dark is reachable only
+  // through :root[data-theme="dark"]. "Auto" is therefore resolved here and
+  // re-resolved when the OS setting changes, rather than handed to CSS.
+  const THEME_KEY = "sacs-theme";
+  const systemDark = () =>
+    window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
 
-    // Must match the stylesheet's default, which is light. If these two
-    // disagree the first click is a no-op, because it "switches" to the
-    // theme already showing.
-    function current() {
-      return root.getAttribute("data-theme") || "light";
-    }
-    function sync() {
-      const c = current();
-      iconUse.setAttribute("href", c === "dark" ? "#icon-sun" : "#icon-moon");
-      label.textContent = c === "dark" ? "Light" : "Dark";
-    }
-    sync();
-    btn.addEventListener("click", () => {
-      const next = current() === "dark" ? "light" : "dark";
-      root.setAttribute("data-theme", next);
-      localStorage.setItem("sacs-theme", next);
-      sync();
-      // Group tints are baked into the SVG markup, so it is rebuilt on a
+  function storedTheme() {
+    const v = localStorage.getItem(THEME_KEY);
+    // Anything unrecognised — including the plain "light"/"dark" written by
+    // the previous two-state toggle — is still valid; only a missing value
+    // falls back to auto.
+    return v === "light" || v === "dark" || v === "auto" ? v : "auto";
+  }
+
+  function applyTheme(pref) {
+    const resolved = pref === "auto" ? (systemDark() ? "dark" : "light") : pref;
+    document.documentElement.setAttribute("data-theme", resolved);
+    return resolved;
+  }
+
+  function initTheme() {
+    const select = document.getElementById("theme-select");
+    let pref = storedTheme();
+    applyTheme(pref);
+    if (select) select.value = pref;
+
+    select?.addEventListener("change", () => {
+      pref = select.value;
+      localStorage.setItem(THEME_KEY, pref);
+      applyTheme(pref);
+      // Topology tints are baked into the SVG markup, so it is rebuilt on a
       // theme change. Listeners are bound once in initTopology, not here.
       renderTopology();
     });
+
+    // Follow the OS while on auto. Without this, "Auto" would only mean
+    // "whatever the OS was when the page loaded".
+    const mq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+    const onSystemChange = () => {
+      if (storedTheme() !== "auto") return;
+      applyTheme("auto");
+      renderTopology();
+    };
+    if (mq) {
+      if (mq.addEventListener) mq.addEventListener("change", onSystemChange);
+      else if (mq.addListener) mq.addListener(onSystemChange);
+    }
   }
 
   // ---------------------------------------------------------------------
@@ -3637,7 +3678,7 @@
   document.addEventListener("DOMContentLoaded", () => {
     initTabs();
     initTheme();
-    initLogout();
+    initAccountMenu();
 
     initAlerts();
     renderAlerts();

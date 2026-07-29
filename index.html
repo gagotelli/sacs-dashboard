@@ -6,6 +6,20 @@
 <title>SACS Network Dashboard</title>
 <link rel="icon" type="image/png" href="assets/sacs-crest.png" />
 <link rel="stylesheet" href="assets/style.css" />
+<script>
+  // Applied before first paint. Left to DOMContentLoaded, a dark-mode user
+  // sees a white flash on every page load while the stylesheet's light
+  // default renders and is then replaced.
+  (function () {
+    try {
+      var v = localStorage.getItem("sacs-theme");
+      var pref = (v === "light" || v === "dark" || v === "auto") ? v : "auto";
+      var dark = pref === "dark" || (pref === "auto" &&
+        window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+    } catch (e) { /* private mode: fall through to the stylesheet default */ }
+  })();
+</script>
 </head>
 <body>
 
@@ -84,14 +98,39 @@
 <div class="app-main">
 <header class="app-header">
   <div class="header-actions">
-    <button class="theme-toggle" id="theme-toggle" type="button">
-      <svg class="icon" width="15" height="15" id="theme-icon"><use href="#icon-moon"/></svg>
-      <span id="theme-label">Dark</span>
-    </button>
-    <button class="theme-toggle" id="logout-button" type="button">
-      <svg class="icon" width="15" height="15"><use href="#icon-logout"/></svg>
-      <span>Log out</span>
-    </button>
+    <div class="account" id="account">
+      <button class="account-btn" id="account-btn" type="button"
+              aria-haspopup="menu" aria-expanded="false" aria-controls="account-menu"
+              title="Account and settings">
+        <img src="assets/sacs-crest.png" alt="" />
+      </button>
+
+      <div class="account-menu" id="account-menu" role="menu" hidden>
+        <div class="account-id">
+          <img src="assets/sacs-crest.png" alt="" />
+          <div class="account-id-text">
+            <strong>SACS</strong>
+            <span class="account-sub">Network Dashboard</span>
+            <span class="account-state">
+              <span class="dot status-dot-up"></span>Signed in &middot; shared password
+            </span>
+          </div>
+        </div>
+
+        <div class="account-row">
+          <label for="theme-select">Theme</label>
+          <select id="theme-select">
+            <option value="auto">Auto</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </div>
+
+        <button type="button" class="account-action danger" id="logout-button" role="menuitem">
+          Sign out
+        </button>
+      </div>
+    </div>
   </div>
 </header>
 
