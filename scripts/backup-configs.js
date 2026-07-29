@@ -23,19 +23,61 @@ const BASE = "https://api.meraki.com/api/v1";
 const OUT = process.env.BACKUP_OUT || "/tmp/meraki-config-backup.json";
 const MANIFEST = process.env.MANIFEST_OUT || "/tmp/backup-manifest.json";
 
-async function api(pathname, { optional = false } = {}) {
-  const res = await fetch(`${BASE}${pathname}`, {
-    headers: { Authorization: `Bearer ${KEY}`, Accept: "application/json" },
-  });
-  if (res.status === 404 || (optional && !res.ok)) return null;
+// Rate-limit handling comes FIRST, before the `optional` early return.
+// Written the other way round, a 429 on an optional path returned null and that
+// section vanished from the backup without a word — and nearly every call here
+// is optional. A backup that silently loses parts of itself under load is worse
+// than one that fails.
+//
+// Retries are capped: an unbounded retry loop does not fail, it hangs, and a
+// job that never finishes is indistinguishable from one still working.
+const MAX_429_RETRIES = 6;
+
+async function api(pathname, { optional = false, attempt = 0 } = {}) {
+  let res;
+  try {
+    res = await fetch(`${BASE}${pathname}`, {
+      headers: { Authorization: `Bearer ${KEY}`, Accept: "application/json" },
+    });
+  } catch (e) {
+    if (attempt < 3) {
+      await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+      return api(pathname, { optional, attempt: attempt + 1 });
+    }
+    throw e;
+  }
+
   if (res.status === 429) {
-    // Meraki rate limits at 10 req/s per org. Back off rather than losing a
-    // section of the backup to a burst.
-    await new Promise((r) => setTimeout(r, 2000));
-    return api(pathname, { optional });
+    if (attempt >= MAX_429_RETRIES) {
+      throw new Error(`still rate limited after ${MAX_429_RETRIES} retries for ${pathname}`);
+    }
+    const wait = Number(res.headers.get("retry-after")) * 1000 || 1000 * 2 ** attempt;
+    await new Promise((r) => setTimeout(r, wait));
+    return api(pathname, { optional, attempt: attempt + 1 });
+  }
+
+  if (res.status === 404) return null;
+  if (optional && !res.ok) {
+    console.log(`  (skipped ${pathname}: HTTP ${res.status})`);
+    return null;
   }
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${pathname}`);
   return res.json();
+}
+
+// Meraki allows ~10 req/s per organization. Serial requests made the first run
+// take over ten minutes on an estate this size; a small amount of concurrency
+// stays well inside the limit and cuts it to about a minute.
+async function pool(items, limit, fn) {
+  const out = new Array(items.length);
+  let i = 0;
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (i < items.length) {
+      const idx = i++;
+      out[idx] = await fn(items[idx], idx);
+    }
+  }));
+  return out;
 }
 
 async function main() {
@@ -95,14 +137,20 @@ async function main() {
   // rebuild from memory after a stack replacement.
   snapshot.switchPorts = {};
   const switches = devices.filter((d) => /^MS/.test(d.model || ""));
-  for (const sw of switches) {
-    const ports = await api(`/devices/${sw.serial}/switch/ports`, { optional: true });
+  console.log(`fetching port config for ${switches.length} switches…`);
+  const portResults = await pool(switches, 5, (sw) =>
+    api(`/devices/${sw.serial}/switch/ports`, { optional: true }));
+  switches.forEach((sw, i) => {
+    const ports = portResults[i];
     if (ports) {
       snapshot.switchPorts[sw.serial] = ports;
       counts.switchPorts += ports.length;
     }
-  }
+  });
+  const missed = switches.length - Object.keys(snapshot.switchPorts).length;
   console.log(`switch port config captured for ${Object.keys(snapshot.switchPorts).length} of ${switches.length} switches`);
+  // Say it plainly rather than letting a partial backup look complete.
+  if (missed) console.log(`WARNING: ${missed} switch(es) returned no port config — this backup is incomplete for those`);
 
   const json = JSON.stringify(snapshot, null, 2);
   fs.writeFileSync(OUT, json);
