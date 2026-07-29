@@ -4,11 +4,11 @@
 // Aggregate counts only, by design: no ticket subjects, requester
 // names, or descriptions ever leave ManageEngine. This repo is public.
 const TICKET_SUMMARY = {
-  "updatedAt": "2026-07-29T08:38:46Z",
+  "updatedAt": "2026-07-29T11:25:05Z",
   "source": "ManageEngine ServiceDesk Plus",
   "portalUrl": "https://sacs.sdpondemand.manageengine.com/app/itdesk/ui/requests",
-  "total": 15676,
-  "open": 526,
+  "total": 15677,
+  "open": 527,
   "urgent": 9,
   "byStatus": [
     {
@@ -21,7 +21,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Open",
-      "value": 470
+      "value": 471
     },
     {
       "label": "Resolved",
@@ -43,7 +43,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Normal: End of Next Day",
-      "value": 298
+      "value": 299
     },
     {
       "label": "Unassigned",
@@ -105,7 +105,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Uncategorised",
-      "value": 340
+      "value": 341
     }
   ],
   "byTechnician": [
@@ -116,18 +116,18 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Unassigned",
-      "open": 68,
+      "open": 67,
       "total": null
+    },
+    {
+      "label": "Maggay, Michael",
+      "open": 58,
+      "total": 1344
     },
     {
       "label": "Si, Mike",
       "open": 58,
       "total": 2141
-    },
-    {
-      "label": "Maggay, Michael",
-      "open": 57,
-      "total": 1343
     },
     {
       "label": "Bao, Paul",
@@ -151,8 +151,8 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Tong, Fred",
-      "open": 22,
-      "total": 4272
+      "open": 23,
+      "total": 4273
     },
     {
       "label": "Gu, Matthew",
@@ -224,7 +224,7 @@ const TICKET_SUMMARY = {
         },
         {
           "label": "Normal: End of Next Day",
-          "value": 267
+          "value": 268
         },
         {
           "label": "Urgent",
@@ -234,6 +234,14 @@ const TICKET_SUMMARY = {
     }
   ],
   "recentOpen": [
+    {
+      "id": "23010000045646140",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785322605322",
+      "dueBy": null
+    },
     {
       "id": "23010000045646113",
       "status": "Open",
@@ -1025,14 +1033,6 @@ const TICKET_SUMMARY = {
       "category": null,
       "created": "1784782156711",
       "dueBy": "1785386960271"
-    },
-    {
-      "id": "23010000045538001",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1784780286253",
-      "dueBy": null
     }
   ]
 };
