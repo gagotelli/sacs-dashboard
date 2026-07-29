@@ -33,7 +33,7 @@
   overlay.innerHTML = `
     <form id="sacs-gate-form" class="gate-card">
       <div class="gate-icon"><img src="assets/sacs-crest.png" alt="" /></div>
-      <h1>SACS Network Dashboard</h1>
+      <h1>SACS Monitoring System</h1>
       <p>Sign in to continue.</p>
       <input type="text" id="sacs-gate-user" placeholder="Username" autocomplete="username" autofocus />
       <input type="password" id="sacs-gate-pass" placeholder="Password" autocomplete="current-password" />

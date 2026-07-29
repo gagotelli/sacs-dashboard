@@ -275,7 +275,7 @@ async function postToTeams(alerts, recovered) {
             })),
           },
         } : {}),
-        body: [{ type: "TextBlock", size: "Medium", weight: "Bolder", text: "SACS Network Dashboard" }, ...lines],
+        body: [{ type: "TextBlock", size: "Medium", weight: "Bolder", text: "SACS Monitoring System" }, ...lines],
         actions: [{ type: "Action.OpenUrl", title: "Open dashboard", url: DASHBOARD }],
       },
     }],

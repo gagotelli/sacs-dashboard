@@ -1,4 +1,4 @@
-# SACS Network Dashboard
+# SACS Monitoring System
 
 A reference dashboard for the SACS network (SAH and BBC campuses), built from
 the *SACS Topology (Current Final, with CNS)* diagram. It's a static site —
