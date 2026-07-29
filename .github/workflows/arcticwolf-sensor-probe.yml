@@ -1,0 +1,74 @@
+name: Arctic Wolf sensor probe (test)
+on: workflow_dispatch
+
+# The Ticket API gives tickets and nothing else, so the two Arctic Wolf MDR
+# sensors sit at "unknown" on the topology — Auvik cannot poll them either.
+# This probes whether the same personal API key can reach any sensor or device
+# endpoint, before assuming it cannot.
+#
+# Status codes and field NAMES only. Sensor records can carry hostnames and
+# internal addresses, and this repo is public.
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Look for a sensor endpoint
+        env:
+          ARCTICWOLF_API_KEY: ${{ secrets.ARCTICWOLF_API_KEY }}
+        run: |
+          set -uo pipefail
+          ORG_URL='https://eloc.global-prod.arcticwolf.net/api/v1/organizations'
+          AUTH="Authorization: Bearer $ARCTICWOLF_API_KEY"
+
+          code=$(curl -sS -o org.json -w '%{http_code}' --max-time 30 "$ORG_URL" -H "$AUTH" -H 'Accept: application/json' || echo 000)
+          echo "organizations -> HTTP $code"
+          [ "$code" = "200" ] || { head -c 200 org.json; exit 1; }
+
+          POD=$(jq -r '[.[]?.pod // empty][0]')
+          ORG=$(jq -r '[.[]?.id // empty][0]')
+          echo "::add-mask::$ORG"
+          echo "pod: $POD"
+          echo ""
+
+          probe() {  # $1 = base, $2 = path
+            local code
+            code=$(curl -sS -o r.json -w '%{http_code}' --max-time 25 "$1$2" \
+              -H "$AUTH" -H 'Accept: application/json' 2>/dev/null || echo 000)
+            printf '  %-56s HTTP %s' "$2" "$code"
+            if [ "$code" = "200" ]; then
+              printf '  fields: %s' "$(jq -r '
+                (if type=="array" then (.[0] // {})
+                 elif has("results") then (.results[0] // {})
+                 elif has("data") then (.data[0] // {})
+                 else . end)
+                | if type=="object" then (keys | join(", ")) else type end' r.json 2>/dev/null | head -c 200)"
+              printf '  count: %s' "$(jq -r 'if type=="array" then length elif has("results") then (.results|length) else 1 end' r.json 2>/dev/null)"
+            fi
+            echo ""
+          }
+
+          TICKET_BASE="https://ticket-api.managedgw.${POD}-prod.arcticwolf.net/api/v1/organizations/${ORG}"
+          echo "=== on the ticket API host ==="
+          for path in /sensors /devices /agents /assets /appliances /collectors /scanners; do
+            probe "$TICKET_BASE" "$path"
+          done
+
+          echo ""
+          echo "=== on the global org API host ==="
+          GLOBAL="https://eloc.global-prod.arcticwolf.net/api/v1/organizations/${ORG}"
+          for path in /sensors /devices /agents /assets /appliances; do
+            probe "$GLOBAL" "$path"
+          done
+
+          echo ""
+          echo "=== other managedgw services on this pod ==="
+          for host in sensor-api asset-api device-api inventory-api telemetry-api; do
+            h="${host}.managedgw.${POD}-prod.arcticwolf.net"
+            if getent hosts "$h" >/dev/null 2>&1; then
+              echo "  $h RESOLVES"
+              probe "https://$h/api/v1/organizations/${ORG}" "/sensors"
+            else
+              echo "  $h does not resolve"
+            fi
+          done
