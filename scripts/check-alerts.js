@@ -284,8 +284,13 @@ async function postToTeams(alerts, recovered) {
   // Without a webhook this is a dry run, and a dry run that only says "nothing
   // sent" cannot tell you whether the mention block came out right. Print the
   // payload instead, so the card can be checked before it reaches a channel.
+  // Logged on real posts too, not just dry runs: "did it tag anyone" is the
+  // one thing you cannot tell from a card that arrived, and an unset
+  // TEAMS_MENTION fails by being silently polite rather than by erroring.
+  console.log(`mentions: ${mentions.length ? mentions.map((m) => `${m.name} <${m.upn}>`).join(", ") : "NONE — TEAMS_MENTION is not set, this post will not notify anyone"}`);
+
   if (!WEBHOOK) {
-    console.log(`would post (mentions: ${mentions.length ? mentions.map((m) => m.name).join(", ") : "none"}):`);
+    console.log("would post:");
     console.log(JSON.stringify(card, null, 2));
     return;
   }

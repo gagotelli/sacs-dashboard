@@ -6,32 +6,9 @@
 // still true after the reminder window is re-announced; one that
 // disappears is reported as cleared and removed, so it alerts again if it
 // returns.
+//
+// Cleared by hand to force a test post with @mentions.
 const ALERT_STATE = {
-  "updatedAt": "2026-07-29T00:48:14.584Z",
-  "seen": {
-    "aps-down": {
-      "at": "2026-07-29T00:40:12.084Z",
-      "title": "1 access point offline",
-      "severity": "warning",
-      "detail": "Meraki reports 1 of 188 APs offline."
-    },
-    "aps-alerting": {
-      "at": "2026-07-29T00:40:12.085Z",
-      "title": "15 access points alerting",
-      "severity": "warning",
-      "detail": "Meraki reports 15 of 188 APs in an alerting state."
-    },
-    "licence-pool:MS120-8FP,MS125-48,MS210-48FP,MS225-48FP,MS425-16": {
-      "at": "2026-07-29T00:48:14.583Z",
-      "title": "No spare Meraki licences for 5 switch models",
-      "severity": "warning",
-      "detail": "Every licensed slot is in use for MS120-8FP, MS125-48, MS210-48FP, MS225-48FP, MS425-16. None of these can have another unit added until a licence is bought."
-    },
-    "licence-unaudited": {
-      "at": "2026-07-29T00:40:12.085Z",
-      "title": "2 licences have no confirmed expiry date",
-      "severity": "critical",
-      "detail": "Windows Server 2025 Datacenter, Windows Server 2025 Datacenter. This is how the 2026-07-20 DHCP outage started — run the audit runbook and record the dates."
-    }
-  }
+  "updatedAt": null,
+  "seen": {}
 };
