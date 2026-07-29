@@ -3112,52 +3112,145 @@
   // Teams message about the same estate.
   const ALERT_SEV_RANK = { critical: 0, warning: 1 };
 
+  // Acknowledgements. There is no backend, so these live in this browser only.
+  //
+  // Two rules make this safe rather than a way of hiding problems:
+  //   1. Acknowledging never deletes. The row moves to a collapsed section that
+  //      still shows a count, so an acknowledged fault stays visible as a fact.
+  //   2. An acknowledgement is bound to the occurrence it was made against, via
+  //      the alert's `at` timestamp. If the condition clears and returns, or is
+  //      re-announced, `at` changes and the acknowledgement stops applying — so
+  //      a new occurrence of an old problem always comes back.
+  const ACK_KEY = "sacs-alert-acks";
+
+  function loadAcks() {
+    try {
+      return JSON.parse(localStorage.getItem(ACK_KEY) || "{}") || {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function saveAcks(acks) {
+    try {
+      localStorage.setItem(ACK_KEY, JSON.stringify(acks));
+    } catch (e) {
+      /* storage disabled or full — acknowledging simply will not persist */
+    }
+  }
+
+  function setAck(key, at, on) {
+    const acks = loadAcks();
+    if (on) acks[key] = { at: at || null, ackedAt: new Date().toISOString() };
+    else delete acks[key];
+    saveAcks(acks);
+    renderAlerts();
+  }
+
+  function alertRowHtml(r, acked) {
+    return `
+      <div class="alert-row sev-${esc(r.severity || "warning")}${acked ? " acked" : ""}">
+        <div class="alert-row-head">
+          <span class="badge alert-sev">${esc((r.severity || "warning").toUpperCase())}</span>
+          <strong>${esc(r.title)}</strong>
+          <button type="button" class="alert-ack-btn" data-ack="${esc(r.key)}"
+                  data-at="${esc(r.at || "")}" data-on="${acked ? "0" : "1"}">
+            ${acked ? "Restore" : "Mark done"}
+          </button>
+        </div>
+        ${r.detail ? `<p class="alert-detail">${esc(r.detail)}</p>` : ""}
+        <p class="alert-since">Since ${r.at ? esc(new Date(r.at).toLocaleString()) : "unknown"}${
+          acked && r.ackedAt ? ` · marked done ${esc(new Date(r.ackedAt).toLocaleString())}` : ""
+        }</p>
+      </div>`;
+  }
+
   function renderAlerts() {
     const list = document.getElementById("alerts-list");
     if (!list) return;
     const state = typeof ALERT_STATE === "undefined" ? null : ALERT_STATE;
-    const rows = Object.entries(state?.seen || {})
+    const acks = loadAcks();
+
+    const all = Object.entries(state?.seen || {})
       .map(([key, v]) => ({ key, ...v }))
       .sort((a, b) => (ALERT_SEV_RANK[a.severity] ?? 9) - (ALERT_SEV_RANK[b.severity] ?? 9)
         || Date.parse(b.at || 0) - Date.parse(a.at || 0));
 
+    // An acknowledgement only counts against the same occurrence.
+    const isAcked = (r) => acks[r.key] && (acks[r.key].at || null) === (r.at || null);
+    const open = all.filter((r) => !isAcked(r));
+    const done = all.filter(isAcked).map((r) => ({ ...r, ackedAt: acks[r.key].ackedAt }));
+
+    // Drop acknowledgements for conditions that are no longer active at all,
+    // so the store cannot grow forever or silence a returning problem.
+    const live = new Set(all.map((r) => r.key));
+    let pruned = false;
+    Object.keys(acks).forEach((k) => {
+      if (!live.has(k)) { delete acks[k]; pruned = true; }
+    });
+    if (pruned) saveAcks(acks);
+
     const updated = document.getElementById("alerts-updated");
     const badge = document.getElementById("rail-alert-count");
-    const crit = rows.filter((r) => r.severity === "critical").length;
+    const crit = open.filter((r) => r.severity === "critical").length;
 
+    // The badge counts what still needs attention, not what has been read.
     if (badge) {
-      badge.hidden = rows.length === 0;
-      badge.textContent = String(rows.length);
+      badge.hidden = open.length === 0;
+      badge.textContent = String(open.length);
       badge.classList.toggle("crit", crit > 0);
     }
 
     if (updated) {
       updated.textContent = state?.updatedAt
-        ? `${rows.length} active · last evaluated ${new Date(state.updatedAt).toLocaleString()}`
+        ? `${open.length} open${done.length ? `, ${done.length} marked done` : ""} · last evaluated ${new Date(state.updatedAt).toLocaleString()}`
         : "Never evaluated.";
     }
 
-    if (!rows.length) {
+    let html = "";
+
+    if (!all.length) {
       // "Nothing active" and "the checker never ran" look identical on a page
       // like this, and they mean opposite things, so they are said separately.
-      list.innerHTML = state?.updatedAt
+      html = state?.updatedAt
         ? `<div class="card"><p class="muted-text" style="margin:0">
              Nothing is currently tripping a threshold.</p></div>`
         : `<div class="card"><p class="muted-text" style="margin:0">
              The alert checker has not run yet, so this is not an all-clear —
              it is no data. Run the <code>Check alerts</code> workflow.</p></div>`;
-      return;
+    } else {
+      html += open.length
+        ? `<div class="alert-rows">${open.map((r) => alertRowHtml(r, false)).join("")}</div>`
+        : `<div class="card"><p class="muted-text" style="margin:0">
+             Everything currently tripping a threshold has been marked done.
+             <strong>The conditions below are still true</strong> — the checker
+             re-reports them until they actually clear.</p></div>`;
+
+      if (done.length) {
+        html += `
+          <details class="alert-done" ${open.length ? "" : "open"}>
+            <summary>${done.length} marked done <span class="muted-text">— still active, hidden from the list above</span></summary>
+            <div class="alert-rows" style="margin-top:10px">
+              ${done.map((r) => alertRowHtml(r, true)).join("")}
+            </div>
+            <button type="button" class="alert-ack-btn" id="alerts-restore-all"
+                    style="margin-top:10px">Restore all</button>
+          </details>`;
+      }
     }
 
-    list.innerHTML = `<div class="alert-rows">${rows.map((r) => `
-      <div class="alert-row sev-${esc(r.severity || "warning")}">
-        <div class="alert-row-head">
-          <span class="badge alert-sev">${esc((r.severity || "warning").toUpperCase())}</span>
-          <strong>${esc(r.title)}</strong>
-        </div>
-        ${r.detail ? `<p class="alert-detail">${esc(r.detail)}</p>` : ""}
-        <p class="alert-since">Since ${r.at ? esc(new Date(r.at).toLocaleString()) : "unknown"}</p>
-      </div>`).join("")}</div>`;
+    list.innerHTML = html;
+  }
+
+  function initAlerts() {
+    const list = document.getElementById("alerts-list");
+    if (!list) return;
+    list.addEventListener("click", (e) => {
+      if (e.target.id === "alerts-restore-all") { saveAcks({}); renderAlerts(); return; }
+      const btn = e.target.closest("[data-ack]");
+      if (!btn) return;
+      setAck(btn.dataset.ack, btn.dataset.at || null, btn.dataset.on === "1");
+    });
   }
 
   document.addEventListener("DOMContentLoaded", () => {
@@ -3165,6 +3258,7 @@
     initTheme();
     initLogout();
 
+    initAlerts();
     renderAlerts();
     renderTickets();
     initTicketListFilters();

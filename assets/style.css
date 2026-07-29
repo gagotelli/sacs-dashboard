@@ -488,6 +488,43 @@ tbody tr:hover { background: var(--surface-2); }
   border-color: currentColor;
 }
 .alert-row.sev-critical .alert-sev { color: var(--status-critical); }
+.alert-row-head strong { flex: 1; min-width: 0; }
+.alert-ack-btn {
+  flex: 0 0 auto;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-1);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.alert-ack-btn:hover { border-color: var(--text-muted); color: var(--text-primary, inherit); }
+
+/* An acknowledged row stays legible rather than being greyed into invisibility
+   — it is still a live fault, just one someone has taken. */
+.alert-row.acked { border-left-color: var(--border); background: var(--surface-2); }
+.alert-row.acked .alert-sev { opacity: 0.6; }
+
+.alert-done { margin-top: 12px; }
+.alert-done > summary {
+  cursor: pointer;
+  /* Both are needed — display:none on the webkit marker alone still leaves the
+     native triangle in current Chromium, giving two arrows. */
+  list-style: none;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-2);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.alert-done > summary::-webkit-details-marker { display: none; }
+.alert-done > summary::before { content: "▸ "; color: var(--text-muted); }
+.alert-done[open] > summary::before { content: "▾ "; }
+
 .alert-detail { margin: 7px 0 0; color: var(--text-secondary); font-size: 13px; line-height: 1.5; }
 .alert-since { margin: 6px 0 0; color: var(--text-muted); font-size: 11.5px; }
 
