@@ -57,6 +57,22 @@ function evaluate() {
     });
   });
 
+  // --- attested devices --------------------------------------------------
+  // Devices no feed can poll carry a human check instead. That check is only
+  // worth anything while it is recent — an attestation nobody revisits is a
+  // green dot backed by a memory, which is exactly the failure mode the undated
+  // licence rule below exists to catch.
+  const ATTEST_STALE_DAYS = 90;
+  const stale = (loadConst("devices.js", "DEVICES") || [])
+    .filter((d) => d.attested?.on && -days(d.attested.on) > ATTEST_STALE_DAYS);
+  if (stale.length) {
+    alerts.push({
+      key: "attestation-stale", severity: "warning",
+      title: `${stale.length} device${stale.length === 1 ? "" : "s"} last confirmed over ${ATTEST_STALE_DAYS} days ago`,
+      detail: `${stale.map((d) => `${d.name} (${d.attested.on})`).join(", ")}. Nothing polls ${stale.length === 1 ? "it" : "them"}, so re-check in the vendor portal and update data/devices.js.`,
+    });
+  }
+
   // --- wireless ----------------------------------------------------------
   const apDown = wireless?.counts?.down || 0;
   if (apDown > 0) {

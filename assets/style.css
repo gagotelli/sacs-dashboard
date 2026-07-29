@@ -725,6 +725,14 @@ tbody tr:hover { background: var(--surface-2); }
 .status-dot-down { fill: var(--status-critical); }
 .status-dot-unknown { fill: var(--status-unknown); }
 .status-dot-dormant { fill: var(--status-unknown); opacity: 0.55; }
+/* Attested: healthy, but hollow. The ring carries the meaning — same colour as
+   "up" so it does not read as a fault, unfilled so it never passes for a live
+   poll at a glance. */
+.status-dot-attested {
+  fill: var(--surface-1);
+  stroke: var(--status-good);
+  stroke-width: 2.5;
+}
 
 /* The same class names are used on HTML <span class="dot"> in legends, where
    `fill` does nothing — those need background-color or the dot is invisible. */
@@ -736,6 +744,25 @@ span.status-dot-critical,
 span.status-dot-down { background: var(--status-critical); }
 span.status-dot-unknown { background: var(--status-unknown); }
 span.status-dot-dormant { background: var(--status-unknown); opacity: 0.55; }
+span.status-dot-attested {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--status-good);
+}
+
+/* The explanation shown when a node's status came from a human check rather
+   than a feed. Deliberately prominent — the whole point is that the reader
+   should not mistake it for live data. */
+.topo-attested {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--status-good);
+  background: var(--surface-2, transparent);
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
 
 footer.app-footer {
   text-align: center;

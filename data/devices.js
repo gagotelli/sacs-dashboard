@@ -10,6 +10,8 @@
 //   layer     - core | security | access | legacy | wireless
 //   uplink    - { to, port, speedGbps } describing the uplink shown on the diagram
 //   note      - free-text extras from the diagram (HA state, stack info, etc.)
+//   attested  - { status, by, on } for devices no feed can poll. A human
+//               confirmation, shown as such and never merged into live status.
 const DEVICES = [
   // ---- Core layer ----
   {
@@ -61,6 +63,16 @@ const DEVICES = [
     uplink: { to: "sqcs-sah-swc-01", port: "Po61", speedGbps: 20 },
     note: "Po61 Passive (standby)",
   },
+  // Neither feed can see these two, and both possibilities were probed on
+  // 2026-07-29 rather than assumed:
+  //   - Arctic Wolf's Ticket API returns 403 for /sensors, /devices, /agents,
+  //     /assets, /appliances, /collectors and /scanners on the ticket host and
+  //     404 on every other host tried. That API carries tickets, nothing else.
+  //   - Auvik has no device on 10.160.0.71 or .72, none anywhere in
+  //     10.160.0.0/24, and none whose vendor or model mentions Arctic Wolf.
+  // So there is no live reading to be had. `attested` records a human
+  // confirmation from the Arctic Wolf portal instead, deliberately in its own
+  // field so the dashboard can never present it as something it polled.
   {
     id: "arctic-wolf-01",
     name: "Arctic Wolf Sensor 01",
@@ -69,6 +81,7 @@ const DEVICES = [
     site: "Core",
     layer: "security",
     note: "GW 10.160.0.65 · DNS 10.30.2.40 · Mgmt VLAN 2604",
+    attested: { status: "up", by: "Arctic Wolf portal", on: "2026-07-29" },
   },
   {
     id: "arctic-wolf-02",
@@ -78,6 +91,7 @@ const DEVICES = [
     site: "Core",
     layer: "security",
     note: "GW 10.160.0.65 · DNS 10.30.2.40 · Mgmt VLAN 2604",
+    attested: { status: "up", by: "Arctic Wolf portal", on: "2026-07-29" },
   },
 
   // ---- SAH Access & Distribution ----

@@ -25,6 +25,10 @@
     // fault, so it must not read as "Down".
     dormant: "Dormant",
     unknown: "Unknown",
+    // No feed can reach the device, so this is a recorded human check rather
+    // than a reading. Labelled to make that unmistakable — rendering it as
+    // plain "Up" would claim a poll that never happened.
+    attested: "Up (not polled)",
   };
   const LICENSE_STATUS_LABEL = {
     critical: "Action needed",
@@ -39,10 +43,23 @@
     ));
   }
 
+  const DEVICE_BY_ID = new Map(DEVICES.map((d) => [d.id, d]));
+
   function deviceStatus(id) {
     const entry = (DEVICE_STATUS && DEVICE_STATUS.devices && DEVICE_STATUS.devices[id]) || null;
-    return entry && entry.status ? entry.status : "unknown";
+    if (entry && entry.status) return entry.status;
+    // A live reading always wins. Only when no feed has one does the recorded
+    // human check stand in, and it stands in under its own status value so it
+    // stays visibly distinct from a poll.
+    if (DEVICE_BY_ID.get(id)?.attested) return "attested";
+    return "unknown";
   }
+
+  // Availability percentages must be built from devices something actually
+  // polls. An attested device is neither a live "up" nor an unexplained
+  // "unknown", so it is excluded from the denominator rather than quietly
+  // inflating or deflating the number.
+  const isPolled = (s) => s !== "unknown" && s !== "attested";
 
   // ---------------------------------------------------------------------
   // Tabs
@@ -226,9 +243,10 @@
 
   function deviceStats(filterFn) {
     const list = DEVICES.filter(filterFn || (() => true));
-    const known = list.filter((d) => deviceStatus(d.id) !== "unknown");
+    const known = list.filter((d) => isPolled(deviceStatus(d.id)));
     const up = list.filter((d) => deviceStatus(d.id) === "up").length;
-    return { total: list.length, up, known: known.length };
+    const attested = list.filter((d) => deviceStatus(d.id) === "attested").length;
+    return { total: list.length, up, known: known.length, attested };
   }
 
   function cameraStats(site) {
@@ -326,7 +344,7 @@
       if (cam && cam.active < cam.total) {
         issues.push({ tone: "warning", text: `${cam.total - cam.active} cameras not confirmed working`, where: "" });
       }
-      const notReporting = dev.total - dev.known;
+      const notReporting = dev.total - dev.known - dev.attested;
       if (notReporting) issues.push({ tone: "unknown", text: `${notReporting} device${notReporting > 1 ? "s" : ""} not polled by Auvik`, where: "" });
 
       // A headline of "Excellent" above a list of open problems is worse than
@@ -1281,6 +1299,7 @@
 
     const live = n.device ? (DEVICE_STATUS.devices || {})[n.device.id] || {} : {};
     const m = n.meraki || {};
+    const att = n.status === "attested" ? n.device?.attested : null;
     const up = w.links.filter((l) => l.to === id).map((l) => w.byId.get(l.from)).filter(Boolean);
     const dn = w.links.filter((l) => l.from === id).map((l) => w.byId.get(l.to)).filter(Boolean);
 
@@ -1295,8 +1314,10 @@
         ${m.firmware || live.firmware ? `<dt>Firmware</dt><dd>${esc(m.firmware || live.firmware)}</dd>` : ""}
         ${live.vendor ? `<dt>Vendor</dt><dd>${esc(live.vendor)}</dd>` : ""}
         ${m.lastSeen || live.lastSeen ? `<dt>Last seen</dt><dd>${esc(new Date(m.lastSeen || live.lastSeen).toLocaleString())}</dd>` : ""}
-        <dt>Source</dt><dd>${n.meraki ? "Meraki" : "Auvik"}</dd>
+        ${att ? `<dt>Confirmed</dt><dd>${esc(att.on)} via ${esc(att.by)}</dd>` : ""}
+        <dt>Source</dt><dd>${att ? "Manual check — no feed reaches this device" : n.meraki ? "Meraki" : "Auvik"}</dd>
       </dl>
+      ${att ? `<p class="topo-attested">Arctic Wolf's Ticket API exposes tickets only, and Auvik does not discover this subnet, so nothing polls this sensor. The status above is the last recorded human check, not a live reading — re-confirm it in the Arctic Wolf portal.</p>` : ""}
       ${up.length ? `<h4>Upstream</h4><ul class="topo-list">${up.slice(0, 6).map((x) => `<li>${esc(x.name)}</li>`).join("")}</ul>` : ""}
       ${dn.length ? `<h4>Downstream</h4><ul class="topo-list">${dn.length > 6 ? `<li>${esc(dn.length)} connected nodes</li>` : dn.map((x) => `<li>${esc(x.name)}</li>`).join("")}</ul>` : ""}
       ${n.device?.note ? `<p class="muted-text">${esc(n.device.note)}</p>` : ""}`;
@@ -1958,6 +1979,9 @@
     down: 0, critical: 0, offline: 0,
     warning: 1, alerting: 1, degraded: 1, serious: 1,
     unknown: 2, dormant: 3,
+    // Keyed by the rendered label, like every other entry here — this table is
+    // matched against cell text, not against the raw status value.
+    "up (not polled)": 3,
     up: 4, online: 4, good: 4, ok: 4, active: 4,
   };
 
@@ -2675,7 +2699,9 @@
 
     const dev = deviceStats();
     const published = (typeof DEVICE_STATUS !== "undefined" && DEVICE_STATUS.published) || DEVICES.length;
-    const notReporting = published - dev.known;
+    // Attested devices are accounted for, just not by a poller. Leaving them in
+    // "not reporting" would keep flagging a gap that has already been answered.
+    const notReporting = published - dev.known - dev.attested;
     const cam = cameraStats(null);
     const vlanUp = VLANS.filter((v) => String(v.status).toLowerCase() === "up").length;
     const licOk = LICENSES.filter((l) => !["critical", "warning"].includes(licenseStatus(l))).length;
@@ -2740,7 +2766,7 @@
 
     const cards = sites.map((site) => {
       const list = DEVICES.filter((d) => d.site === site);
-      const known = list.filter((d) => deviceStatus(d.id) !== "unknown");
+      const known = list.filter((d) => isPolled(deviceStatus(d.id)));
       const up = known.filter((d) => deviceStatus(d.id) === "up").length;
       const layers = [...new Set(list.map((d) => d.layer).filter(Boolean))];
       // Match the site to a Meraki network by code, e.g. SAH -> SACS-SAH.
@@ -2994,12 +3020,16 @@
     const when = new Date(DEVICE_STATUS.updatedAt).toLocaleString();
 
     // A device published here but absent from the poller is genuinely unknown,
-    // so say so rather than letting it read as healthy.
-    const notReporting = (DEVICE_STATUS.published || entries.length) - entries.length;
+    // so say so rather than letting it read as healthy. Devices carrying a
+    // recorded manual check are counted apart — they are unpolled but not
+    // unaccounted for, and lumping them in reports a gap that is already closed.
+    const attested = DEVICES.filter((d) => d.attested && !DEVICE_STATUS.devices?.[d.id]).length;
+    const notReporting = (DEVICE_STATUS.published || entries.length) - entries.length - attested;
 
     let health = `<strong>${up} up</strong>`;
     if (warn) health += ` · <strong>${warn} warning</strong>`;
     if (down) health += ` · <strong>${down} down</strong>`;
+    if (attested > 0) health += ` · ${attested} confirmed manually`;
     if (notReporting > 0) health += ` · ${notReporting} not reporting`;
 
     el.innerHTML = `${health} — live from <strong>${esc(DEVICE_STATUS.source || "poller")}</strong>, updated ${esc(when)}.`;
