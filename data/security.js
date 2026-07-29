@@ -8,12 +8,12 @@
 // `score` ranks the queue — it never hides anything. Every open ticket
 // appears in `queue` regardless of score.
 const SECURITY_SUMMARY = {
-  "updatedAt": "2026-07-29T01:13:37.079Z",
+  "updatedAt": "2026-07-29T04:53:18.356Z",
   "source": "Arctic Wolf",
   "portalUrl": "https://dashboard.arcticwolf.com/",
   "total": 138,
-  "open": 7,
-  "closed": 131,
+  "open": 5,
+  "closed": 133,
   "byPriority": [
     {
       "label": "NORMAL",
@@ -31,15 +31,11 @@ const SECURITY_SUMMARY = {
   "byStatus": [
     {
       "label": "CLOSED",
-      "value": 131
+      "value": 133
     },
     {
       "label": "PENDING",
-      "value": 6
-    },
-    {
-      "label": "OPEN",
-      "value": 1
+      "value": 5
     }
   ],
   "byType": [
@@ -49,10 +45,6 @@ const SECURITY_SUMMARY = {
     }
   ],
   "openByCategory": [
-    {
-      "label": "Suspicious login",
-      "value": 3
-    },
     {
       "label": "Configuration / policy",
       "value": 1
@@ -67,6 +59,10 @@ const SECURITY_SUMMARY = {
     },
     {
       "label": "Scanning / recon",
+      "value": 1
+    },
+    {
+      "label": "Suspicious login",
       "value": 1
     }
   ],
@@ -124,19 +120,6 @@ const SECURITY_SUMMARY = {
       "score": 66
     },
     {
-      "id": 17796328,
-      "priority": "NORMAL",
-      "status": "OPEN",
-      "type": "INCIDENT",
-      "category": "Suspicious login",
-      "createdAt": "2026-07-24T01:45:54Z",
-      "updatedAt": "2026-07-29T01:07:34Z",
-      "comments": 7,
-      "attachments": 7,
-      "assigned": true,
-      "score": 66
-    },
-    {
       "id": 17816989,
       "priority": "NORMAL",
       "status": "PENDING",
@@ -147,20 +130,7 @@ const SECURITY_SUMMARY = {
       "comments": 2,
       "attachments": 1,
       "assigned": true,
-      "score": 41
-    },
-    {
-      "id": 17817213,
-      "priority": "LOW",
-      "status": "PENDING",
-      "type": "INCIDENT",
-      "category": "Suspicious login",
-      "createdAt": "2026-07-28T05:23:25Z",
-      "updatedAt": "2026-07-28T22:57:28Z",
-      "comments": 2,
-      "attachments": 0,
-      "assigned": true,
-      "score": 16
+      "score": 45
     }
   ]
 };
