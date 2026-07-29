@@ -2712,19 +2712,26 @@
     const scoreEl = document.getElementById("ov-health-score");
     if (!scoreEl) return;
 
+    // Built from LIVE feeds only. This used to average in cameras, VLANs and
+    // licences — all three of which are hand-maintained files that no sync
+    // touches — so 60% of a number labelled "Network health" could not change
+    // no matter what the network did. Worse, the 188 access points, by far the
+    // largest thing being polled, were left out entirely.
+    //
+    // Cameras, VLANs and licences still matter; they have their own pages and
+    // their own alerts. They are just not evidence of health right now.
     const dev = deviceStats();
     const devPct = pctOrNull(dev.up, dev.known);
-    const licOk = LICENSES.filter((l) => !["critical", "warning"].includes(licenseStatus(l))).length;
-    const licPct = pctOrNull(licOk, LICENSES.length);
-    const cam = cameraStats(null);
-    const camPct = cam ? pctOrNull(cam.active, cam.total) : null;
-    const vlanPct = pctOrNull(VLANS.filter((v) => String(v.status).toLowerCase() === "up").length, VLANS.length);
+
+    const w = typeof WIRELESS !== "undefined" ? WIRELESS : null;
+    // Dormant means never brought online or powered down on schedule, which is
+    // not a fault — counting it against health would permanently cap the score.
+    const apKnown = w ? (w.total || 0) - (w.counts?.dormant || 0) : 0;
+    const apPct = apKnown > 0 ? pctOrNull(w.counts?.up || 0, apKnown) : null;
 
     const score = healthScore([
-      { pct: devPct, weight: 4 },
-      { pct: camPct, weight: 2 },
-      { pct: vlanPct, weight: 2 },
-      { pct: licPct, weight: 2 },
+      { pct: devPct, weight: 3 },
+      { pct: apPct, weight: 4 },
     ]);
 
     if (score == null) {
@@ -2742,17 +2749,17 @@
     // which are not fields on it, so the verdict word rendered blank.
     verdictEl.innerHTML = `<span style="color:${v.color}">${esc(v.word)}</span> <span class="dot status-dot-${v.tone}"></span>`;
 
-    // Say what is actually wrong rather than a fixed reassurance — a fixed
-    // "all systems healthy" string would keep claiming that at 60%.
+    // Only things a feed reported. The old version listed inactive cameras and
+    // licences needing action, both read from hand-maintained files, so the same
+    // sentence sat there unchanged for weeks and read as a stuck display.
     const problems = [];
-    if (dev.down) problems.push(`${dev.down} device${dev.down === 1 ? "" : "s"} down`);
-    if (cam && cam.total - cam.active) problems.push(`${cam.total - cam.active} cameras inactive`);
-    const licBad = LICENSES.length - licOk;
-    if (licBad) problems.push(`${licBad} licence${licBad === 1 ? "" : "s"} need action`);
+    if (dev.down) problems.push(`${dev.down} core device${dev.down === 1 ? "" : "s"} down`);
+    if (w?.counts?.down) problems.push(`${w.counts.down} AP${w.counts.down === 1 ? "" : "s"} offline`);
+    if (w?.counts?.warning) problems.push(`${w.counts.warning} APs alerting`);
 
     document.getElementById("ov-health-note").innerHTML = problems.length
       ? esc(problems.join(" · "))
-      : "All monitored systems are reporting healthy.";
+      : `All ${dev.known + apKnown} polled devices reporting healthy.`;
     document.getElementById("ov-health-ring").innerHTML = ringSvg(score, 210);
   }
 
@@ -2765,17 +2772,27 @@
     // Attested devices are accounted for, just not by a poller. Leaving them in
     // "not reporting" would keep flagging a gap that has already been answered.
     const notReporting = published - dev.known - dev.attested;
+    const wl = typeof WIRELESS !== "undefined" ? WIRELESS : null;
+    const apTotal = wl?.total || 0;
+    const apDown = wl?.counts?.down || 0;
+    const apWarn = wl?.counts?.warning || 0;
     const cam = cameraStats(null);
     const vlanUp = VLANS.filter((v) => String(v.status).toLowerCase() === "up").length;
     const licOk = LICENSES.filter((l) => !["critical", "warning"].includes(licenseStatus(l))).length;
     const cards = [
       {
         icon: "icon-devices", title: "Devices",
+        // Access points are included. Showing 30 while Meraki polls another 188
+        // made the estate look an order of magnitude smaller than it is, and the
+        // APs are where nearly all the faults actually are.
+        //
         // Count every documented device, not just the ones reporting — showing
         // only reporters would silently shrink the estate when a poller drops.
-        value: published, unit: "", sub: "Monitored",
+        value: published + apTotal, unit: "", sub: apTotal ? `Incl. ${apTotal} access points` : "Monitored",
         bad: [
-          dev.down ? `${dev.down} down` : null,
+          dev.down ? `${dev.down} core down` : null,
+          apDown ? `${apDown} AP${apDown === 1 ? "" : "s"} down` : null,
+          apWarn ? `${apWarn} alerting` : null,
           notReporting > 0 ? `${notReporting} not reporting` : null,
         ].filter(Boolean).join(" · ") || null,
         link: "panel-devices", linkText: "View devices",
