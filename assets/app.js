@@ -233,11 +233,16 @@
   // trends — the tile is omitted rather than filled with a plausible number.
   function pctOrNull(n, d) { return d ? (n / d) * 100 : null; }
 
+  // Single source of truth for how a health score reads. Everything that
+  // colours a score — the overview ring, the campus pills, the gauges — comes
+  // through here, so a number cannot be green in one place and amber in
+  // another.
   function verdictFor(score) {
     if (score == null) return { word: "Unknown", tone: "unknown", color: "var(--status-unknown)" };
     if (score >= 90) return { word: "Excellent", tone: "good", color: "var(--status-good)" };
     if (score >= 75) return { word: "Good", tone: "good", color: "var(--status-good)" };
-    if (score >= 55) return { word: "Fair", tone: "warning", color: "var(--status-warning)" };
+    if (score >= 50) return { word: "Fair", tone: "warning", color: "var(--status-warning)" };
+    if (score >= 30) return { word: "Poor", tone: "serious", color: "var(--status-serious)" };
     return { word: "Needs attention", tone: "critical", color: "var(--status-critical)" };
   }
 
@@ -602,8 +607,64 @@
       : `<p class="muted-text" style="margin:0">No category breakdown in the last sync — re-run the
          sync workflow to populate it.</p>`;
 
+    renderTicketTechnicians();
     renderTicketMatrix();
     renderTicketList();
+  }
+
+  // Ranked by open tickets — who is carrying the most right now. All-time is
+  // shown alongside but does not drive the order: ranking by all-time would
+  // just rank by how long someone has worked here.
+  //
+  // These are assignees, not requesters. Nothing here says who reported a
+  // ticket or what it was about.
+  function renderTicketTechnicians() {
+    const mount = document.getElementById("ticket-tech");
+    if (!mount) return;
+    const note = document.getElementById("ticket-tech-note");
+    const rows = (TICKET_SUMMARY.byTechnician || []).slice();
+
+    if (!rows.length) {
+      if (note) note.textContent = "";
+      mount.innerHTML = `<p class="muted-text" style="margin:0">No technician breakdown in the last
+        sync — re-run the ticket sync workflow to populate it.</p>`;
+      return;
+    }
+
+    const max = Math.max(...rows.map((r) => r.open || 0), 1);
+    if (note) {
+      note.textContent = `Open tickets currently assigned, highest first. ${rows.length} ${rows.length === 1 ? "queue" : "queues"}.`;
+    }
+
+    // Unassigned is not a person and must not be given a rank number, or the
+    // list reads as though someone is responsible for it.
+    let rank = 0;
+    mount.innerHTML = `
+      <div class="table-wrap">
+        <table class="tech-table">
+          <thead>
+            <tr><th>#</th><th>Technician</th><th class="tech-bar-col"></th>
+                <th class="num">Open</th><th class="num">All time</th></tr>
+          </thead>
+          <tbody>
+            ${rows.map((r) => {
+              const unassigned = /^unassigned$/i.test(r.label || "");
+              if (!unassigned) rank++;
+              const pct = Math.round(((r.open || 0) / max) * 100);
+              return `
+                <tr class="${unassigned ? "tech-unassigned" : ""}">
+                  <td class="tech-rank">${unassigned ? "—" : rank}</td>
+                  <td class="name">${esc(r.label)}</td>
+                  <td class="tech-bar-col"><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${
+                    unassigned ? "var(--status-unknown)" : "var(--layer-core)"
+                  }"></div></div></td>
+                  <td class="num"><strong>${r.open || 0}</strong></td>
+                  <td class="num muted-text">${r.total == null ? "—" : r.total}</td>
+                </tr>`;
+            }).join("")}
+          </tbody>
+        </table>
+      </div>`;
   }
 
 
@@ -2628,20 +2689,20 @@
     updEl.textContent = `Updated ${new Date(oldest.at).toLocaleString()}`;
   }
 
+  // The ring used to be a fixed orange-to-purple gradient, which looked like a
+  // severity signal while carrying no information at all — 95% and 25% drew the
+  // same colours. The arc length is one encoding; the colour is now a second,
+  // reading straight off the score.
+  const healthColor = (pct) => verdictFor(Math.round(Number(pct) || 0)).color;
+
   function ringSvg(pct, size) {
     const r = size / 2 - 14;
     const c = 2 * Math.PI * r;
     const on = (Math.max(0, Math.min(100, pct)) / 100) * c;
     return `
       <svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" class="ov-ring">
-        <defs>
-          <linearGradient id="ovRingGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="var(--prio-2)"/>
-            <stop offset="100%" stop-color="var(--prio-4)"/>
-          </linearGradient>
-        </defs>
         <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--gridline)" stroke-width="16"/>
-        <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="url(#ovRingGrad)" stroke-width="16"
+        <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${healthColor(pct)}" stroke-width="16"
                 stroke-linecap="round" stroke-dasharray="${on.toFixed(1)} ${(c - on).toFixed(1)}"
                 transform="rotate(-90 ${size / 2} ${size / 2})"/>
       </svg>`;
@@ -2677,7 +2738,9 @@
     const v = verdictFor(score);
     scoreEl.innerHTML = `${score}<span class="ov-pct">%</span>`;
     const verdictEl = document.getElementById("ov-health-verdict");
-    verdictEl.innerHTML = `${esc(v.label)} <span class="dot status-dot-${v.status}"></span>`;
+    // verdictFor returns { word, tone, color }. This read `v.label` / `v.status`,
+    // which are not fields on it, so the verdict word rendered blank.
+    verdictEl.innerHTML = `<span style="color:${v.color}">${esc(v.word)}</span> <span class="dot status-dot-${v.tone}"></span>`;
 
     // Say what is actually wrong rather than a fixed reassurance — a fixed
     // "all systems healthy" string would keep claiming that at 60%.

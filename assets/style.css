@@ -467,6 +467,19 @@ tbody tr:hover { background: var(--surface-2); }
 
 .table-wrap { overflow-x: auto; }
 
+/* Workload leaderboard. The bar column is the widest thing here on purpose —
+   the ranking is meant to be read at a glance, not counted. */
+.tech-table td.num, .tech-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.tech-table .tech-bar-col { width: 40%; min-width: 120px; }
+.tech-table td.tech-rank {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  width: 40px;
+}
+/* Not a person, so it gets neither a rank number nor the accent colour. */
+.tech-table tr.tech-unassigned td.name { color: var(--text-muted); }
+
 .grid-2 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));

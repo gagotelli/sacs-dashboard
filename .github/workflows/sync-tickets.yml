@@ -158,11 +158,16 @@ jobs:
           # category / request_type describe what a ticket is ABOUT without
           # naming anyone, so they are safe to publish. Subject, requester and
           # description are deliberately never requested.
+          #
+          # `technician` is the IT staff member a ticket is ASSIGNED to, not the
+          # person who raised it. Assignee is team workload; requester is who
+          # was having the problem, which on a public repo would name students
+          # and staff — that field stays unrequested.
           sample() {  # $1 = asc|desc
             local q
             q=$(jq -nc --arg o "$1" \
               '{list_info:{row_count:100,start_index:1,get_total_count:false,
-                           fields_required:["status","priority","category","request_type"],
+                           fields_required:["status","priority","category","request_type","technician"],
                            sort_field:"created_time",sort_order:$o}}')
             curl -sS -G "$API/requests" \
               -H "Authorization: Zoho-oauthtoken $ACCESS_TOKEN" \
@@ -187,6 +192,11 @@ jobs:
           ALL_CATEGORIES=$(jq -s -c '
             [ .[] | .requests[]? | .category?.name? // empty ] | unique | .[0:14]' s1.json s2.json)
           echo "categories found: $(echo "$ALL_CATEGORIES" | jq -c .)"
+          # Technician names only — no email, no id, no requester. Capped at 20
+          # because each name costs two count queries below.
+          ALL_TECHNICIANS=$(jq -s -c '
+            [ .[] | .requests[]? | .technician?.name? // empty ] | unique | .[0:20]' s1.json s2.json)
+          echo "technicians found: $(echo "$ALL_TECHNICIANS" | jq 'length')"
 
           # Anything not obviously finished counts as open.
           OPEN_STATUSES=$(echo "$ALL_STATUSES" | jq -c '
@@ -261,6 +271,37 @@ jobs:
               '. + [{label:"Uncategorised",value:$v}]')
           fi
 
+          # Workload per technician: how many open tickets each person is
+          # carrying, and how many they have handled all-time. Ranked by open
+          # count, because that is the one that says who needs help this week.
+          #
+          # Two counts per name rather than one: open alone rewards whoever
+          # closes fastest by making them look idle, and all-time alone just
+          # ranks by tenure. Together they read as workload plus experience.
+          echo "=== counting tickets per technician ==="
+          BY_TECH="[]"
+          while IFS= read -r name; do
+            [ -z "$name" ] && continue
+            ocrit=$(jq -nc --arg n "$name" --argjson v "$OPEN_STATUSES" \
+              '[{field:"status.name",condition:"is",values:$v},
+                {field:"technician.name",condition:"is",value:$n,logical_operator:"AND"}]')
+            o=$(count_for "$ocrit")
+            tcrit=$(jq -nc --arg n "$name" '[{field:"technician.name",condition:"is",value:$n}]')
+            t=$(count_for "$tcrit")
+            echo "  technician '$name': $o open, $t total"
+            BY_TECH=$(echo "$BY_TECH" | jq -c --arg l "$name" --argjson o "$o" --argjson t "$t" \
+              '. + [{label:$l,open:$o,total:$t}]')
+          done < <(echo "$ALL_TECHNICIANS" | jq -r '.[]')
+
+          # Unassigned open tickets belong on this list too — a queue nobody
+          # owns is the most important row here, not a rounding error.
+          TECH_OPEN_SUM=$(echo "$BY_TECH" | jq '[.[].open] | add // 0')
+          if [ "$TECH_OPEN_SUM" -lt "$OPEN" ]; then
+            BY_TECH=$(echo "$BY_TECH" | jq -c --argjson v "$(( OPEN - TECH_OPEN_SUM ))" \
+              '. + [{label:"Unassigned",open:$v,total:null}]')
+          fi
+          BY_TECH=$(echo "$BY_TECH" | jq -c '[ .[] | select(.open > 0 or (.total // 0) > 0) ] | sort_by(-.open)')
+
           # Open tickets per status x priority, so the page can show where the
           # urgent work actually sits rather than just how much there is.
           MATRIX="[]"
@@ -326,13 +367,14 @@ jobs:
             --argjson byStatus "$BY_STATUS" \
             --argjson byPriority "$BY_PRIORITY" \
             --argjson byCategory "$BY_CATEGORY" \
+            --argjson byTechnician "$BY_TECH" \
             --argjson matrix "$MATRIX" \
             --arg portal "https://sacs.sdpondemand.manageengine.com/app/itdesk/ui/requests" \
             '{updatedAt:$updatedAt,source:"ManageEngine ServiceDesk Plus",
               portalUrl:$portal,
               total:$total,open:$open,urgent:$urgent,
               byStatus:$byStatus,byPriority:$byPriority,
-              byCategory:$byCategory,openMatrix:$matrix,
+              byCategory:$byCategory,byTechnician:$byTechnician,openMatrix:$matrix,
               recentOpen:$recent}' > summary.json
 
           {
