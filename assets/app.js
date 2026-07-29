@@ -3103,11 +3103,69 @@
     }
   }
 
+  // ---------------------------------------------------------------------
+  // Alerts (data/alert-state.js, written by check-alerts.yml)
+  // ---------------------------------------------------------------------
+  // Deliberately reads the alert engine's own state file rather than
+  // re-evaluating the thresholds here. Two implementations of "what counts as
+  // an alert" would drift, and the page would eventually disagree with the
+  // Teams message about the same estate.
+  const ALERT_SEV_RANK = { critical: 0, warning: 1 };
+
+  function renderAlerts() {
+    const list = document.getElementById("alerts-list");
+    if (!list) return;
+    const state = typeof ALERT_STATE === "undefined" ? null : ALERT_STATE;
+    const rows = Object.entries(state?.seen || {})
+      .map(([key, v]) => ({ key, ...v }))
+      .sort((a, b) => (ALERT_SEV_RANK[a.severity] ?? 9) - (ALERT_SEV_RANK[b.severity] ?? 9)
+        || Date.parse(b.at || 0) - Date.parse(a.at || 0));
+
+    const updated = document.getElementById("alerts-updated");
+    const badge = document.getElementById("rail-alert-count");
+    const crit = rows.filter((r) => r.severity === "critical").length;
+
+    if (badge) {
+      badge.hidden = rows.length === 0;
+      badge.textContent = String(rows.length);
+      badge.classList.toggle("crit", crit > 0);
+    }
+
+    if (updated) {
+      updated.textContent = state?.updatedAt
+        ? `${rows.length} active · last evaluated ${new Date(state.updatedAt).toLocaleString()}`
+        : "Never evaluated.";
+    }
+
+    if (!rows.length) {
+      // "Nothing active" and "the checker never ran" look identical on a page
+      // like this, and they mean opposite things, so they are said separately.
+      list.innerHTML = state?.updatedAt
+        ? `<div class="card"><p class="muted-text" style="margin:0">
+             Nothing is currently tripping a threshold.</p></div>`
+        : `<div class="card"><p class="muted-text" style="margin:0">
+             The alert checker has not run yet, so this is not an all-clear —
+             it is no data. Run the <code>Check alerts</code> workflow.</p></div>`;
+      return;
+    }
+
+    list.innerHTML = `<div class="alert-rows">${rows.map((r) => `
+      <div class="alert-row sev-${esc(r.severity || "warning")}">
+        <div class="alert-row-head">
+          <span class="badge alert-sev">${esc((r.severity || "warning").toUpperCase())}</span>
+          <strong>${esc(r.title)}</strong>
+        </div>
+        ${r.detail ? `<p class="alert-detail">${esc(r.detail)}</p>` : ""}
+        <p class="alert-since">Since ${r.at ? esc(new Date(r.at).toLocaleString()) : "unknown"}</p>
+      </div>`).join("")}</div>`;
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     initTabs();
     initTheme();
     initLogout();
 
+    renderAlerts();
     renderTickets();
     initTicketListFilters();
     renderTicketsPage();

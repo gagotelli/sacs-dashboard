@@ -20,6 +20,10 @@ jobs:
       - name: Evaluate thresholds
         env:
           TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          # Optional. Comma-separated UPNs to @mention — a Workflows post into
+          # a channel is silent without one, so this is what actually raises a
+          # notification. Unset means post exactly as before.
+          TEAMS_MENTION: ${{ secrets.TEAMS_MENTION }}
           DASHBOARD_URL: https://gagotelli.github.io/sacs-dashboard/
         run: node scripts/check-alerts.js
       - name: Commit alert state

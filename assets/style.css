@@ -467,6 +467,46 @@ tbody tr:hover { background: var(--surface-2); }
 
 .table-wrap { overflow-x: auto; }
 
+/* Alerts list. Severity is carried by a left edge rather than a full-bleed
+   tint — eight tinted blocks in a row is the wall of colour that makes a list
+   like this get skimmed. */
+.alert-rows { display: grid; gap: 10px; }
+.alert-row {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--status-warning);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.alert-row.sev-critical { border-left-color: var(--status-critical); }
+.alert-row-head { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+.alert-row-head strong { font-size: 14px; }
+.alert-sev {
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  color: var(--status-warning);
+  border-color: currentColor;
+}
+.alert-row.sev-critical .alert-sev { color: var(--status-critical); }
+.alert-detail { margin: 7px 0 0; color: var(--text-secondary); font-size: 13px; line-height: 1.5; }
+.alert-since { margin: 6px 0 0; color: var(--text-muted); font-size: 11.5px; }
+
+/* Count beside the rail's Alerts item, so a problem is visible from any page. */
+.rail-badge {
+  margin-left: auto;
+  /* Without this the badge is a flex item that grows to fill the rail. */
+  flex: 0 0 auto;
+  min-width: 19px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--status-warning);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+.rail-badge.crit { background: var(--status-critical); }
+
 /* Workload leaderboard. The bar column is the widest thing here on purpose —
    the ranking is meant to be read at a glance, not counted. */
 .tech-table td.num, .tech-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
@@ -1111,6 +1151,9 @@ main { padding: 16px; max-width: none; }
 .rail-group-toggle .icon { width: 19px; height: 19px; opacity: 0.85; }
 .rail-item span,
 .rail-group-toggle span { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* The count badge is also a span in here, and flex:1 above stretches it to
+   share the rail's width. It sizes to its content. */
+.rail-item span.rail-badge { flex: 0 0 auto; }
 
 .rail-item:hover,
 .rail-group-toggle:hover { background: var(--rail-hover); color: var(--rail-text-active); }
