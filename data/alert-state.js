@@ -5,10 +5,48 @@
 // condition still true after the reminder window is re-announced; one that
 // disappears is reported as cleared and removed, so it alerts again if it
 // returns.
-//
-// Reset by hand once, to verify the Teams webhook end to end — with every
-// condition already marked seen, a test run posts nothing and proves nothing.
 const ALERT_STATE = {
-  "updatedAt": null,
-  "seen": {}
+  "updatedAt": "2026-07-29T00:40:12.085Z",
+  "seen": {
+    "aps-down": {
+      "at": "2026-07-29T00:40:12.084Z",
+      "title": "1 access point offline",
+      "severity": "warning"
+    },
+    "aps-alerting": {
+      "at": "2026-07-29T00:40:12.085Z",
+      "title": "15 access points alerting",
+      "severity": "warning"
+    },
+    "licence-pool:MS120-8FP": {
+      "at": "2026-07-29T00:40:12.085Z",
+      "title": "No spare Meraki licences for MS120-8FP",
+      "severity": "warning"
+    },
+    "licence-pool:MS125-48": {
+      "at": "2026-07-29T00:40:12.085Z",
+      "title": "No spare Meraki licences for MS125-48",
+      "severity": "warning"
+    },
+    "licence-pool:MS210-48FP": {
+      "at": "2026-07-29T00:40:12.085Z",
+      "title": "No spare Meraki licences for MS210-48FP",
+      "severity": "warning"
+    },
+    "licence-pool:MS225-48FP": {
+      "at": "2026-07-29T00:40:12.085Z",
+      "title": "No spare Meraki licences for MS225-48FP",
+      "severity": "warning"
+    },
+    "licence-pool:MS425-16": {
+      "at": "2026-07-29T00:40:12.085Z",
+      "title": "No spare Meraki licences for MS425-16",
+      "severity": "warning"
+    },
+    "licence-unaudited": {
+      "at": "2026-07-29T00:40:12.085Z",
+      "title": "2 licences have no confirmed expiry date",
+      "severity": "critical"
+    }
+  }
 };
