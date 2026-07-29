@@ -8,12 +8,12 @@
 // `score` ranks the queue — it never hides anything. Every open ticket
 // appears in `queue` regardless of score.
 const SECURITY_SUMMARY = {
-  "updatedAt": "2026-07-29T22:42:31.234Z",
+  "updatedAt": "2026-07-29T23:46:08.027Z",
   "source": "Arctic Wolf",
   "portalUrl": "https://dashboard.arcticwolf.com/",
   "total": 139,
-  "open": 6,
-  "closed": 133,
+  "open": 3,
+  "closed": 136,
   "byPriority": [
     {
       "label": "NORMAL",
@@ -31,11 +31,11 @@ const SECURITY_SUMMARY = {
   "byStatus": [
     {
       "label": "CLOSED",
-      "value": 133
+      "value": 136
     },
     {
       "label": "PENDING",
-      "value": 6
+      "value": 3
     }
   ],
   "byType": [
@@ -46,10 +46,6 @@ const SECURITY_SUMMARY = {
   ],
   "openByCategory": [
     {
-      "label": "Malware",
-      "value": 2
-    },
-    {
       "label": "Configuration / policy",
       "value": 1
     },
@@ -59,10 +55,6 @@ const SECURITY_SUMMARY = {
     },
     {
       "label": "Scanning / recon",
-      "value": 1
-    },
-    {
-      "label": "Suspicious login",
       "value": 1
     }
   ],
@@ -105,45 +97,6 @@ const SECURITY_SUMMARY = {
       "attachments": 2,
       "assigned": true,
       "score": 90
-    },
-    {
-      "id": 17797133,
-      "priority": "NORMAL",
-      "status": "PENDING",
-      "type": "INCIDENT",
-      "category": "Suspicious login",
-      "createdAt": "2026-07-24T07:40:35Z",
-      "updatedAt": "2026-07-28T02:03:05Z",
-      "comments": 5,
-      "attachments": 1,
-      "assigned": true,
-      "score": 70
-    },
-    {
-      "id": 17816989,
-      "priority": "NORMAL",
-      "status": "PENDING",
-      "type": "INCIDENT",
-      "category": "Malware",
-      "createdAt": "2026-07-28T03:32:04Z",
-      "updatedAt": "2026-07-28T22:59:23Z",
-      "comments": 2,
-      "attachments": 1,
-      "assigned": true,
-      "score": 45
-    },
-    {
-      "id": 17826193,
-      "priority": "NORMAL",
-      "status": "PENDING",
-      "type": "INCIDENT",
-      "category": "Malware",
-      "createdAt": "2026-07-29T05:34:56Z",
-      "updatedAt": "2026-07-29T05:35:10Z",
-      "comments": 1,
-      "attachments": 1,
-      "assigned": true,
-      "score": 38
     }
   ]
 };
