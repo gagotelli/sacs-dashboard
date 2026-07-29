@@ -4,16 +4,16 @@
 // Aggregate counts only, by design: no ticket subjects, requester
 // names, or descriptions ever leave ManageEngine. This repo is public.
 const TICKET_SUMMARY = {
-  "updatedAt": "2026-07-28T23:56:53Z",
+  "updatedAt": "2026-07-29T00:34:23Z",
   "source": "ManageEngine ServiceDesk Plus",
   "portalUrl": "https://sacs.sdpondemand.manageengine.com/app/itdesk/ui/requests",
-  "total": 15687,
-  "open": 525,
+  "total": 15692,
+  "open": 527,
   "urgent": 9,
   "byStatus": [
     {
       "label": "Closed",
-      "value": 14695
+      "value": 14698
     },
     {
       "label": "On Hold",
@@ -21,7 +21,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Open",
-      "value": 469
+      "value": 471
     },
     {
       "label": "Resolved",
@@ -35,7 +35,7 @@ const TICKET_SUMMARY = {
   "byPriority": [
     {
       "label": "1 Week",
-      "value": 196
+      "value": 197
     },
     {
       "label": "Critical: Drop Everything",
@@ -43,7 +43,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Normal: End of Next Day",
-      "value": 298
+      "value": 299
     },
     {
       "label": "Term Break",
@@ -109,7 +109,59 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Uncategorised",
-      "value": 353
+      "value": 355
+    }
+  ],
+  "byTechnician": [
+    {
+      "label": "Unassigned",
+      "open": 120,
+      "total": null
+    },
+    {
+      "label": "Zammit, Ethan",
+      "open": 111,
+      "total": 973
+    },
+    {
+      "label": "Maggay, Michael",
+      "open": 59,
+      "total": 1342
+    },
+    {
+      "label": "Si, Mike",
+      "open": 57,
+      "total": 2144
+    },
+    {
+      "label": "Bao, Paul",
+      "open": 52,
+      "total": 1179
+    },
+    {
+      "label": "Levy, Dan",
+      "open": 46,
+      "total": 1104
+    },
+    {
+      "label": "Alina, Marjorie",
+      "open": 32,
+      "total": 1087
+    },
+    {
+      "label": "Tong, Fred",
+      "open": 32,
+      "total": 4272
+    },
+    {
+      "label": "Gu, Matthew",
+      "open": 11,
+      "total": 49
+    },
+    {
+      "label": "Gingell, Oliver",
+      "open": 7,
+      "total": 655
     }
   ],
   "openMatrix": [
@@ -155,7 +207,7 @@ const TICKET_SUMMARY = {
       "cells": [
         {
           "label": "1 Week",
-          "value": 180
+          "value": 181
         },
         {
           "label": "Critical: Drop Everything",
@@ -175,7 +227,7 @@ const TICKET_SUMMARY = {
         },
         {
           "label": "Normal: End of Next Day",
-          "value": 267
+          "value": 268
         },
         {
           "label": "Term Break",
@@ -190,12 +242,44 @@ const TICKET_SUMMARY = {
   ],
   "recentOpen": [
     {
+      "id": "23010000045639578",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785285173805",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045639561",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785285171862",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045639541",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785284033490",
+      "dueBy": "1785888835945"
+    },
+    {
+      "id": "23010000045639522",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785283789914",
+      "dueBy": null
+    },
+    {
       "id": "23010000045639491",
       "status": "Open",
       "priority": "1 Week",
       "category": null,
       "created": "1785282137674",
-      "dueBy": null
+      "dueBy": "1785886941049"
     },
     {
       "id": "23010000045639480",
@@ -219,7 +303,7 @@ const TICKET_SUMMARY = {
       "priority": "Normal: End of Next Day",
       "category": null,
       "created": "1785281231965",
-      "dueBy": null
+      "dueBy": "1785886036795"
     },
     {
       "id": "23010000045585031",
@@ -598,14 +682,6 @@ const TICKET_SUMMARY = {
       "dueBy": null
     },
     {
-      "id": "23010000045618396",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": null,
-      "created": "1785131640596",
-      "dueBy": "1785736443581"
-    },
-    {
       "id": "23010000045618386",
       "status": "Open",
       "priority": "1 Week",
@@ -668,14 +744,6 @@ const TICKET_SUMMARY = {
       "category": null,
       "created": "1785123085642",
       "dueBy": null
-    },
-    {
-      "id": "23010000045610015",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": "Z. Hardware",
-      "created": "1785121902681",
-      "dueBy": "1785726706091"
     },
     {
       "id": "23010000045586871",
@@ -972,22 +1040,6 @@ const TICKET_SUMMARY = {
       "category": null,
       "created": "1784782156711",
       "dueBy": "1785386960271"
-    },
-    {
-      "id": "23010000045538001",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": null,
-      "created": "1784780286253",
-      "dueBy": null
-    },
-    {
-      "id": "23010000045505640",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": "Audio Visual - Services",
-      "created": "1784776676185",
-      "dueBy": "1785381477115"
     }
   ]
 };
