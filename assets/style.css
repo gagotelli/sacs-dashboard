@@ -508,6 +508,13 @@ tbody tr:hover { background: var(--surface-2); }
 .alert-row.acked { border-left-color: var(--border); background: var(--surface-2); }
 .alert-row.acked .alert-sev { opacity: 0.6; }
 
+/* Separates the live operational pages from the records at the foot of the rail. */
+.rail-divider {
+  height: 1px;
+  margin: 11px 14px 7px;
+  background: var(--rail-line, var(--border));
+}
+
 /* History sparkline grid. Each metric gets equal visual weight — the point is
    comparing shapes across metrics, not reading exact values off the chart. */
 .hist-grid {

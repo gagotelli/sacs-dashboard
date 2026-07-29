@@ -3379,7 +3379,8 @@
     const ageH = (Date.now() - Date.parse(latest.at)) / 3600000;
     const stale = ageH > 36;
     if (updated) {
-      updated.textContent = `${B.total || snaps.length} snapshots retained · latest ${new Date(latest.at).toLocaleString()}`;
+      const n = B.total || snaps.length;
+      updated.textContent = `${n} snapshot${n === 1 ? "" : "s"} retained · latest ${new Date(latest.at).toLocaleString()}`;
     }
 
     const kb = (n) => `${(n / 1024).toFixed(1)} KB`;
@@ -3397,18 +3398,30 @@
               <tr><td class="name">Taken</td><td>${esc(new Date(latest.at).toLocaleString())}</td></tr>
               <tr><td class="name">Networks</td><td>${esc(latest.networks)}</td></tr>
               <tr><td class="name">Devices</td><td>${esc(latest.devices)}</td></tr>
-              <tr><td class="name">VLANs</td><td>${esc(c.vlans ?? "—")}</td></tr>
-              <tr><td class="name">Firewall rules</td><td>${esc(c.firewallRules ?? "—")}</td></tr>
               <tr><td class="name">Enabled SSIDs</td><td>${esc(c.ssids ?? "—")}</td></tr>
               <tr><td class="name">Group policies</td><td>${esc(c.groupPolicies ?? "—")}</td></tr>
               <tr><td class="name">Switch ports</td><td>${esc(c.switchPorts ?? "—")}</td></tr>
+              <tr><td class="name">VLANs</td><td>${esc(c.vlans ?? "—")}${
+                c.vlans === 0 ? ` <span class="muted-text">— none in Meraki</span>` : ""}</td></tr>
+              <tr><td class="name">Firewall rules</td><td>${esc(c.firewallRules ?? "—")}${
+                c.firewallRules === 0 ? ` <span class="muted-text">— none in Meraki</span>` : ""}</td></tr>
               <tr><td class="name">Encrypted size</td><td>${esc(kb(latest.bytes || 0))}</td></tr>
+              ${/* No inline currentColor: the badge sets no colour of its own, so
+                    currentColor resolves to body text and the dot renders black. */ ""}
               <tr><td class="name">Restore verified</td><td>${latest.restoreChecked
-                ? `<span class="badge"><span class="dot status-dot-up" style="background:currentColor"></span>Yes, decrypted and read back</span>`
-                : `<span class="badge"><span class="dot status-dot-unknown" style="background:currentColor"></span>Not checked</span>`}</td></tr>
+                ? `<span class="badge"><span class="dot status-dot-up"></span>Yes, decrypted and read back</span>`
+                : `<span class="badge"><span class="dot status-dot-unknown"></span>Not checked</span>`}</td></tr>
             </tbody>
           </table>
         </div>
+        ${(c.vlans === 0 && c.firewallRules === 0) ? `
+          <p class="alert-detail" style="border-left:3px solid var(--status-warning);padding-left:10px">
+            <strong>This does not back up your firewall rules.</strong> Those zeros are
+            correct, not a failure: there are no Meraki MX appliances here, so Meraki
+            holds no VLANs or firewall rules to export. Routing and firewalling live on
+            the Palo Alto pair and the Cisco core, which need their own backup — this
+            snapshot covers the wireless and switching estate only.
+          </p>` : ""}
         <p class="muted-text" style="margin:10px 0 0">
           Every snapshot is decrypted and re-read immediately after it is written.
           A backup nobody has opened is a hope, not a backup.
