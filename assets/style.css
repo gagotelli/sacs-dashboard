@@ -508,6 +508,40 @@ tbody tr:hover { background: var(--surface-2); }
 .alert-row.acked { border-left-color: var(--border); background: var(--surface-2); }
 .alert-row.acked .alert-sev { opacity: 0.6; }
 
+/* History sparkline grid. Each metric gets equal visual weight — the point is
+   comparing shapes across metrics, not reading exact values off the chart. */
+.hist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 12px;
+}
+.hist-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.hist-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.hist-label { font-size: 12px; color: var(--text-secondary); font-weight: 600; }
+.hist-now { font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.hist-spark { width: 100%; height: 54px; display: block; margin: 6px 0 4px; overflow: visible; }
+.hist-foot { display: flex; align-items: center; justify-content: space-between; font-size: 11px; }
+.hist-delta { font-weight: 700; font-variant-numeric: tabular-nums; }
+.hist-delta.good { color: var(--status-good); }
+.hist-delta.bad { color: var(--status-critical); }
+
+.code-block {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  overflow-x: auto;
+  white-space: pre;
+}
+
 .alert-done { margin-top: 12px; }
 .alert-done > summary {
   cursor: pointer;

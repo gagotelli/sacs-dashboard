@@ -3242,6 +3242,212 @@
     list.innerHTML = html;
   }
 
+  // ---------------------------------------------------------------------
+  // History (data/history.js, one sample per hour, 30-day retention)
+  // ---------------------------------------------------------------------
+  const HISTORY_SERIES = [
+    { key: "devicesUp", label: "Core devices up", color: "var(--layer-core)" },
+    { key: "apsUp", label: "Access points up", color: "var(--status-good)" },
+    { key: "apsDown", label: "Access points down", color: "var(--status-critical)", invert: true },
+    { key: "endpointsOnline", label: "Endpoints online", color: "var(--prio-3)" },
+    { key: "endpointAlerts", label: "Endpoint alerts", color: "var(--status-warning)", invert: true },
+    { key: "ticketsOpen", label: "Open tickets", color: "var(--prio-4)", invert: true },
+    { key: "ticketsUrgent", label: "Urgent tickets", color: "var(--prio-1)", invert: true },
+    { key: "securityOpen", label: "Open security tickets", color: "var(--status-serious)", invert: true },
+  ];
+
+  // A gap in a feed is stored as null, not zero — plotting it as zero would
+  // draw a cliff that never happened. Nulls break the line instead.
+  function historyPathHtml(pts, color, w, h) {
+    const vals = pts.filter((p) => p.v != null).map((p) => p.v);
+    if (vals.length < 2) return null;
+    const max = Math.max(...vals);
+    const min = Math.min(...vals);
+    const span = max - min || 1;
+    const x = (i) => (i / Math.max(pts.length - 1, 1)) * w;
+    const y = (v) => h - 4 - ((v - min) / span) * (h - 10);
+
+    let d = "";
+    let pen = false;
+    pts.forEach((p, i) => {
+      if (p.v == null) { pen = false; return; }
+      d += `${pen ? "L" : "M"}${x(i).toFixed(1)},${y(p.v).toFixed(1)} `;
+      pen = true;
+    });
+    return { d, min, max };
+  }
+
+  function renderHistory() {
+    const mount = document.getElementById("history-charts");
+    if (!mount) return;
+    const H = typeof HISTORY === "undefined" ? null : HISTORY;
+    const samples = (H && H.samples) || [];
+    const updated = document.getElementById("history-updated");
+
+    if (samples.length < 2) {
+      if (updated) {
+        updated.textContent = samples.length
+          ? `${samples.length} sample so far — collection started ${new Date(samples[0].at).toLocaleString()}`
+          : "No samples yet.";
+      }
+      // One point is not a trend. Saying so beats drawing a flat line that
+      // looks like stability.
+      mount.innerHTML = `<div class="card"><p class="muted-text" style="margin:0">
+        ${samples.length
+          ? `Only ${samples.length} sample collected so far. Charts appear once there are at least two — a single point cannot show a change.`
+          : `No history collected yet. The <code>Collect history sample</code> workflow runs hourly at :55.`}
+      </p></div>`;
+      return;
+    }
+
+    const first = samples[0], last = samples[samples.length - 1];
+    // Early on the span is minutes, and "over 0h" reads like a bug.
+    const mins = Math.round((Date.parse(last.at) - Date.parse(first.at)) / 60000);
+    const span = mins < 90 ? `${mins} min`
+      : mins < 2880 ? `${Math.round(mins / 60)}h`
+      : `${Math.round(mins / 1440)} days`;
+    if (updated) {
+      updated.textContent = `${samples.length} samples over ${span} · latest ${new Date(last.at).toLocaleString()}`;
+    }
+
+    const W = 260, Hh = 54;
+    const cards = HISTORY_SERIES.map((s) => {
+      const pts = samples.map((x) => ({ at: x.at, v: x[s.key] == null ? null : Number(x[s.key]) }));
+      const known = pts.filter((p) => p.v != null);
+      if (known.length < 2) return "";
+
+      const path = historyPathHtml(pts, s.color, W, Hh);
+      if (!path) return "";
+      const a = known[0].v, b = known[known.length - 1].v;
+      const diff = b - a;
+      // "Better" is not always "up": more open tickets is worse. invert says so.
+      const good = s.invert ? diff <= 0 : diff >= 0;
+      const arrow = diff === 0 ? "→" : diff > 0 ? "▲" : "▼";
+
+      return `
+        <div class="hist-card">
+          <div class="hist-head">
+            <span class="hist-label">${esc(s.label)}</span>
+            <span class="hist-now">${esc(b)}</span>
+          </div>
+          <svg viewBox="0 0 ${W} ${Hh}" preserveAspectRatio="none" class="hist-spark">
+            <path d="${path.d.trim()}" fill="none" stroke="${s.color}" stroke-width="2"
+                  stroke-linejoin="round" stroke-linecap="round"/>
+          </svg>
+          <div class="hist-foot">
+            <span class="hist-delta ${good ? "good" : "bad"}">${arrow} ${esc(Math.abs(diff))}</span>
+            <span class="muted-text">range ${esc(path.min)}–${esc(path.max)}</span>
+          </div>
+        </div>`;
+    }).filter(Boolean).join("");
+
+    mount.innerHTML = `<div class="hist-grid">${cards}</div>`;
+  }
+
+  // ---------------------------------------------------------------------
+  // Backups (data/backups.js — an index only, never configuration)
+  // ---------------------------------------------------------------------
+  function renderBackups() {
+    const mount = document.getElementById("backups-body");
+    if (!mount) return;
+    const B = typeof BACKUPS === "undefined" ? null : BACKUPS;
+    const snaps = (B && B.snapshots) || [];
+    const updated = document.getElementById("backups-updated");
+
+    if (!snaps.length) {
+      if (updated) updated.textContent = "No backup has run yet.";
+      mount.innerHTML = `<div class="card">
+        <p style="margin:0 0 8px"><strong>No configuration backup has been taken yet.</strong></p>
+        <p class="muted-text" style="margin:0 0 8px">
+          This is not a display problem — there is genuinely nothing stored. The
+          workflow needs a <code>BACKUP_PASSPHRASE</code> repository secret before
+          it will run; it refuses to continue without one rather than write
+          pre-shared keys and firewall rules in plaintext to a public repository.
+        </p>
+        <p class="muted-text" style="margin:0">
+          Generate one with <code>openssl rand -base64 32</code>, add it at
+          <em>Settings → Secrets and variables → Actions</em>, then use
+          <strong>Run a backup now</strong> above. Keep a copy of the passphrase
+          somewhere outside this repository — it is the only thing that can open
+          the backups.
+        </p>
+      </div>`;
+      return;
+    }
+
+    const latest = snaps[snaps.length - 1];
+    const ageH = (Date.now() - Date.parse(latest.at)) / 3600000;
+    const stale = ageH > 36;
+    if (updated) {
+      updated.textContent = `${B.total || snaps.length} snapshots retained · latest ${new Date(latest.at).toLocaleString()}`;
+    }
+
+    const kb = (n) => `${(n / 1024).toFixed(1)} KB`;
+    const c = latest.counts || {};
+
+    mount.innerHTML = `
+      <div class="card">
+        <h2>Latest snapshot</h2>
+        ${stale ? `<p class="alert-detail" style="color:var(--status-warning)">
+          <strong>Last backup was ${Math.round(ageH)} hours ago.</strong> The schedule is
+          daily, so this one is overdue — check the workflow.</p>` : ""}
+        <div class="table-wrap">
+          <table>
+            <tbody>
+              <tr><td class="name">Taken</td><td>${esc(new Date(latest.at).toLocaleString())}</td></tr>
+              <tr><td class="name">Networks</td><td>${esc(latest.networks)}</td></tr>
+              <tr><td class="name">Devices</td><td>${esc(latest.devices)}</td></tr>
+              <tr><td class="name">VLANs</td><td>${esc(c.vlans ?? "—")}</td></tr>
+              <tr><td class="name">Firewall rules</td><td>${esc(c.firewallRules ?? "—")}</td></tr>
+              <tr><td class="name">Enabled SSIDs</td><td>${esc(c.ssids ?? "—")}</td></tr>
+              <tr><td class="name">Group policies</td><td>${esc(c.groupPolicies ?? "—")}</td></tr>
+              <tr><td class="name">Switch ports</td><td>${esc(c.switchPorts ?? "—")}</td></tr>
+              <tr><td class="name">Encrypted size</td><td>${esc(kb(latest.bytes || 0))}</td></tr>
+              <tr><td class="name">Restore verified</td><td>${latest.restoreChecked
+                ? `<span class="badge"><span class="dot status-dot-up" style="background:currentColor"></span>Yes, decrypted and read back</span>`
+                : `<span class="badge"><span class="dot status-dot-unknown" style="background:currentColor"></span>Not checked</span>`}</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted-text" style="margin:10px 0 0">
+          Every snapshot is decrypted and re-read immediately after it is written.
+          A backup nobody has opened is a hope, not a backup.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>How to restore</h2>
+        <p class="muted-text" style="margin:0 0 8px">
+          Download the file from the <code>backups/</code> folder of the repository, then:
+        </p>
+        <pre class="code-block">gpg --decrypt --output config.json ${esc(latest.file || "backups/meraki-....json.gpg")}</pre>
+        <p class="muted-text" style="margin:8px 0 0">
+          It will prompt for the passphrase. The result is JSON — apply the parts
+          you need through the Meraki dashboard or API. This is a record to read
+          from, not an automatic rollback.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>All snapshots</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Taken</th><th>Networks</th><th>Devices</th><th>Size</th><th>SHA-256</th></tr></thead>
+            <tbody>
+              ${[...snaps].reverse().map((s) => `
+                <tr>
+                  <td>${esc(new Date(s.at).toLocaleString())}</td>
+                  <td>${esc(s.networks)}</td>
+                  <td>${esc(s.devices)}</td>
+                  <td>${esc(kb(s.bytes || 0))}</td>
+                  <td class="ip">${esc((s.sha256 || "").slice(0, 16))}…</td>
+                </tr>`).join("")}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+  }
+
   function initAlerts() {
     const list = document.getElementById("alerts-list");
     if (!list) return;
@@ -3260,6 +3466,8 @@
 
     initAlerts();
     renderAlerts();
+    renderHistory();
+    renderBackups();
     renderTickets();
     initTicketListFilters();
     renderTicketsPage();
