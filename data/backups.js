@@ -7,17 +7,33 @@
 // configuration; it exists so the dashboard can show that backups are
 // running, how much they cover, and when the last one was verified.
 const BACKUPS = {
-  "updatedAt": "2026-07-29T02:59:15.696Z",
+  "updatedAt": "2026-07-29T17:41:34.437Z",
   "source": "Meraki Dashboard API",
   "retain": 30,
   "oldest": "backups/meraki-2026-07-29T025914Z.json.gpg",
-  "total": 1,
+  "total": 2,
   "snapshots": [
     {
       "at": "2026-07-29T02:58:28.330Z",
       "file": "backups/meraki-2026-07-29T025914Z.json.gpg",
       "bytes": 56484,
       "sha256": "b493fb43133e51d40382ddecea94499378b0ce85a3f4fcc29382f698df32b39c",
+      "networks": 7,
+      "devices": 240,
+      "counts": {
+        "vlans": 0,
+        "firewallRules": 0,
+        "ssids": 13,
+        "groupPolicies": 24,
+        "switchPorts": 2088
+      },
+      "restoreChecked": true
+    },
+    {
+      "at": "2026-07-29T17:41:15.357Z",
+      "file": "backups/meraki-2026-07-29T174133Z.json.gpg",
+      "bytes": 56716,
+      "sha256": "3a137096372ba2f1fbaa41c2d926643b5c4fb4fd28164484d91e38c4f4e4c898",
       "networks": 7,
       "devices": 240,
       "counts": {
