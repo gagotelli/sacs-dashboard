@@ -1,0 +1,27 @@
+name: Auvik sensor probe (test)
+on: workflow_dispatch
+
+# The Arctic Wolf Ticket API turned out to expose tickets and nothing else, so
+# the two MDR sensors have no status source. Before declaring them unpollable,
+# check the other direction: does Auvik already discover 10.160.0.71/.72 and
+# the sync is simply failing to match them?
+#
+# Actions logs on a public repo are public. The two IPs below are already in
+# data/devices.js, so echoing them leaks nothing — but discovered device NAMES
+# are not published anywhere, so this prints counts and status only.
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Does Auvik see the sensor subnet?
+        env:
+          AUVIK_API_USERNAME: ${{ secrets.AUVIK_API_USERNAME }}
+          AUVIK_API_KEY: ${{ secrets.AUVIK_API_KEY }}
+          AUVIK_API_DOMAIN: ${{ secrets.AUVIK_API_DOMAIN }}
+        run: node scripts/auvik-sensor-probe.js
