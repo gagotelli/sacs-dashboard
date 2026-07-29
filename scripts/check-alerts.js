@@ -308,7 +308,13 @@ async function main() {
   const state = loadConst("alert-state.js", "ALERT_STATE") || { seen: {} };
   const now = Date.now();
 
+  // FORCE_POST re-announces everything currently active. Testing the webhook
+  // otherwise means hand-editing the state file, and a correct test run says
+  // "nothing new to post" and sends nothing — indistinguishable from a broken
+  // webhook, which is the worst possible result from a test.
+  const FORCE = /^(1|true|yes)$/i.test(process.env.FORCE_POST || "");
   const isNew = (a) => {
+    if (FORCE) return true;
     const prev = state.seen[a.key];
     if (!prev) return true;
     return (now - Date.parse(prev.at)) / 3600000 >= REMIND_AFTER_HOURS;
@@ -335,7 +341,12 @@ async function main() {
   const seen = {};
   alerts.forEach((a) => {
     seen[a.key] = {
-      at: state.seen[a.key] && !isNew(a) ? state.seen[a.key].at : new Date().toISOString(),
+      // A forced test re-posts, but must not rewrite when the condition
+      // started — that would reset the "Since" age of every standing alert on
+      // the dashboard just because someone tested the webhook.
+      at: state.seen[a.key] && (FORCE || !isNew(a))
+        ? state.seen[a.key].at
+        : new Date().toISOString(),
       title: a.title,
       severity: a.severity,
       // Carried so the dashboard's Alerts page can show the same explanation

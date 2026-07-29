@@ -8,6 +8,15 @@ on:
   schedule:
     - cron: "5 * * * *"
   workflow_dispatch:
+    inputs:
+      force:
+        description: >-
+          Re-post every active condition even if it has already been
+          announced. For testing the Teams webhook and @mentions — without
+          it a test run correctly says "nothing new to post" and sends
+          nothing, which cannot be told apart from a broken webhook.
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -25,6 +34,7 @@ jobs:
           # notification. Unset means post exactly as before.
           TEAMS_MENTION: ${{ secrets.TEAMS_MENTION }}
           DASHBOARD_URL: https://gagotelli.github.io/sacs-dashboard/
+          FORCE_POST: ${{ inputs.force }}
         run: node scripts/check-alerts.js
       - name: Commit alert state
         run: |
