@@ -4,11 +4,11 @@
 // Aggregate counts only, by design: no ticket subjects, requester
 // names, or descriptions ever leave ManageEngine. This repo is public.
 const TICKET_SUMMARY = {
-  "updatedAt": "2026-07-29T20:11:53Z",
+  "updatedAt": "2026-07-29T22:00:13Z",
   "source": "ManageEngine ServiceDesk Plus",
   "portalUrl": "https://sacs.sdpondemand.manageengine.com/app/itdesk/ui/requests",
-  "total": 15677,
-  "open": 527,
+  "total": 15678,
+  "open": 528,
   "urgent": 9,
   "byStatus": [
     {
@@ -21,7 +21,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Open",
-      "value": 471
+      "value": 472
     },
     {
       "label": "Resolved",
@@ -43,7 +43,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Normal: End of Next Day",
-      "value": 299
+      "value": 300
     },
     {
       "label": "Unassigned",
@@ -105,7 +105,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Uncategorised",
-      "value": 341
+      "value": 342
     }
   ],
   "byTechnician": [
@@ -121,8 +121,8 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Maggay, Michael",
-      "open": 58,
-      "total": 1344
+      "open": 59,
+      "total": 1345
     },
     {
       "label": "Si, Mike",
@@ -224,7 +224,7 @@ const TICKET_SUMMARY = {
         },
         {
           "label": "Normal: End of Next Day",
-          "value": 268
+          "value": 269
         },
         {
           "label": "Urgent",
@@ -234,6 +234,14 @@ const TICKET_SUMMARY = {
     }
   ],
   "recentOpen": [
+    {
+      "id": "23010000045646164",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785359481765",
+      "dueBy": null
+    },
     {
       "id": "23010000045646140",
       "status": "Open",
@@ -1025,14 +1033,6 @@ const TICKET_SUMMARY = {
       "category": null,
       "created": "1784840845365",
       "dueBy": "1785445647195"
-    },
-    {
-      "id": "23010000045505737",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": null,
-      "created": "1784782156711",
-      "dueBy": "1785386960271"
     }
   ]
 };
