@@ -25,8 +25,15 @@ jobs:
           echo "organizations -> HTTP $code"
           [ "$code" = "200" ] || { head -c 200 org.json; exit 1; }
 
-          POD=$(jq -r '[.[]?.pod // empty][0]')
-          ORG=$(jq -r '[.[]?.id // empty][0]')
+          # jq needs the file; without it it reads empty stdin and every URL
+          # below is built with a blank pod and org, which fails for the wrong
+          # reason and reads as "no sensor endpoint exists".
+          POD=$(jq -r '[.[]?.pod // empty][0]' org.json)
+          ORG=$(jq -r '[.[]?.id // empty][0]' org.json)
+          if [ -z "$POD" ] || [ -z "$ORG" ]; then
+            echo "could not read pod/org from the organizations response"
+            exit 1
+          fi
           echo "::add-mask::$ORG"
           echo "pod: $POD"
           echo ""
