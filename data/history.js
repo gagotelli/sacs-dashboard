@@ -5,7 +5,7 @@
 // is null when that feed had not reported, so a gap is never plotted as a
 // real drop to zero. Trimmed to the last 30 days.
 const HISTORY = {
-  "updatedAt": "2026-07-29T16:59:46.356Z",
+  "updatedAt": "2026-07-29T18:44:16.177Z",
   "retainDays": 30,
   "samples": [
     {
@@ -99,6 +99,18 @@ const HISTORY = {
       "apsUp": 156,
       "apsDown": 15,
       "endpointsOnline": 52,
+      "endpointAlerts": 47,
+      "securityOpen": 6,
+      "ticketsOpen": 527,
+      "ticketsUrgent": 9
+    },
+    {
+      "at": "2026-07-29T18:44:16.177Z",
+      "devicesUp": 28,
+      "devicesDown": 0,
+      "apsUp": 156,
+      "apsDown": 15,
+      "endpointsOnline": 54,
       "endpointAlerts": 47,
       "securityOpen": 6,
       "ticketsOpen": 527,
