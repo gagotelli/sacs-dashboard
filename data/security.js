@@ -8,7 +8,7 @@
 // `score` ranks the queue — it never hides anything. Every open ticket
 // appears in `queue` regardless of score.
 const SECURITY_SUMMARY = {
-  "updatedAt": "2026-07-29T08:11:28.272Z",
+  "updatedAt": "2026-07-29T11:10:19.923Z",
   "source": "Arctic Wolf",
   "portalUrl": "https://dashboard.arcticwolf.com/",
   "total": 139,
