@@ -281,6 +281,15 @@ async function postToTeams(alerts, recovered) {
     }],
   };
 
+  // Without a webhook this is a dry run, and a dry run that only says "nothing
+  // sent" cannot tell you whether the mention block came out right. Print the
+  // payload instead, so the card can be checked before it reaches a channel.
+  if (!WEBHOOK) {
+    console.log(`would post (mentions: ${mentions.length ? mentions.map((m) => m.name).join(", ") : "none"}):`);
+    console.log(JSON.stringify(card, null, 2));
+    return;
+  }
+
   const res = await fetch(WEBHOOK, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -310,12 +319,8 @@ async function main() {
   alerts.forEach((a) => console.log(`  [${a.severity}] ${a.title}${isNew(a) ? " (NEW)" : ""}`));
 
   if (fresh.length || recovered.length) {
-    if (WEBHOOK) {
-      await postToTeams(fresh, recovered);
-      console.log("posted to Teams");
-    } else {
-      console.log("TEAMS_WEBHOOK_URL not set — dry run, nothing sent");
-    }
+    await postToTeams(fresh, recovered);
+    console.log(WEBHOOK ? "posted to Teams" : "TEAMS_WEBHOOK_URL not set — dry run, nothing sent");
   } else {
     console.log("nothing new to post");
   }
