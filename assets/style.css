@@ -1560,23 +1560,57 @@ main { padding: 16px; max-width: none; }
 @media (max-width: 1420px) { .ov-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 700px) { .ov-stats { grid-template-columns: minmax(0, 1fr); } }
 
-/* Topology v2 */
-/* The site band was a blue wash that tinted every node inside it and fought
-   with the status colours. A hairline outline groups just as well. */
-.topo-site-band { fill: none; stroke: var(--border); stroke-width: 1; stroke-dasharray: 3 4; }
+/* Topology v3 — rebuilt around progressive disclosure.
+   The SVG now fills the stage rather than sizing to its content, because pan
+   and zoom are done in stage pixels. height:auto let the element collapse and
+   made the fit maths wrong on first paint. */
+.topology-svg { width: 100%; height: 100%; display: block; }
+.topo-stage { min-height: 600px; height: 600px; }
+.topo-inspector { max-height: 600px; }
+
+/* Node: a plain card with a coloured spine. Full coloured borders competed
+   with the status dot; the spine says "what kind" and the dot says "how is
+   it", and the two never argue. */
+.topo-node-bg {
+  fill: var(--surface-1);
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.topo-node-edge { pointer-events: none; }
+.topo-node-name { font-size: 11px; font-weight: 650; fill: var(--text-primary); }
+.topo-node-sub { font-size: 9px; font-weight: 400; fill: var(--text-muted); font-variant-numeric: tabular-nums; }
+.topo-node-chev { font-size: 13px; font-weight: 700; fill: var(--text-muted); text-anchor: middle; }
 .topo-node-icon { pointer-events: none; }
-.topo-node-icon svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.topo-expand { font-size: 8.5px; fill: var(--text-muted); text-anchor: end; font-weight: 600; }
-.topo-node.kind-cluster:hover .topo-expand { fill: var(--layer-core); }
-.topo-link.link-wan { stroke-width: 2.4; }
-.topo-link.link-core { stroke-width: 2.2; }
-.topo-link.link-peer { stroke-width: 2.6; stroke-dasharray: 6 4; }
-.topo-link.link-access { stroke-width: 1.2; }
-.topo-link.link-wireless, .topo-link.link-member { stroke-width: 1; stroke-dasharray: 4 3; }
-.topo-link.faint { opacity: 0.28; }
-.topo-link.faint.hi { opacity: 0.9; }
-.topo-stage { min-height: 520px; }
-.topo-inspector { max-height: 720px; }
+.topo-node-icon svg { fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+
+.topo-node.kind-site .topo-node-bg { stroke-width: 1.5; }
+.topo-node.kind-site .topo-node-name { font-size: 13px; font-weight: 700; }
+.topo-node.kind-site.open .topo-node-bg { fill: var(--surface-2); }
+.topo-node.kind-site:hover .topo-node-chev { fill: var(--layer-core); }
+
+.topo-node.sel .topo-node-bg { stroke: var(--layer-core); stroke-width: 2.5; }
+.topo-node.hi .topo-node-bg { stroke-width: 1.8; }
+
+/* The band behind an opened site. Outline only — a tint fought with the
+   status colours inside it. */
+.topo-band { fill: var(--surface-2); stroke: var(--border); stroke-dasharray: 4 4; opacity: 0.55; }
+
+.topo-link { stroke: var(--gridline); fill: none; stroke-width: 1.5; stroke-linejoin: round; }
+.topo-link.kind-wan { stroke-width: 2.2; }
+.topo-link.kind-core { stroke-width: 2; }
+.topo-link.kind-peer { stroke-width: 2; stroke-dasharray: 5 4; }
+.topo-link.kind-site { stroke-width: 2; }
+.topo-link.kind-access { stroke-width: 1.2; opacity: 0.65; }
+.topo-link.dim { opacity: 0.12; }
+.topo-link.hi { stroke: var(--layer-core); stroke-width: 2.2; opacity: 1; }
+
+@media (max-width: 900px) {
+  /* Below this the inspector cannot sit beside the map without squeezing both,
+     so it drops underneath. */
+  .topo-layout { grid-template-columns: minmax(0, 1fr); }
+  .topo-inspector { border-left: none; border-top: 1px solid var(--border); max-height: none; }
+  .topo-stage { height: 420px; min-height: 420px; }
+}
 
 .ticket-trend-svg { width: 100%; height: 120px; display: block; }
 .ticket-trend-axis { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 4px; }

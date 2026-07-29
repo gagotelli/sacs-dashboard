@@ -1001,7 +1001,7 @@
   // 188 access points cannot each be a node and stay readable, so APs and
   // sensors are clustered by the location token in their name (SAH-L5-AP-…
   // clusters as SAH · L5). Clusters expand on click.
-  const topoState = { scale: 1, tx: 0, ty: 0, selected: null, world: null, expanded: {} };
+  const topoState = { scale: 1, tx: 0, ty: 0, selected: null, world: null, expanded: {}, needsFit: true, lastSize: "" };
 
   const TOPO_ICON = {
     internet: "icon-cloud",
@@ -1037,6 +1037,19 @@
     return parts.length >= 2 ? parts[1].toUpperCase() : "—";
   }
 
+  // For a group, the worst member is the wrong summary: one dead AP out of 145
+  // made a whole campus render as "Down", which is both alarming and false.
+  // Everything down is Down; anything down or warning is a partial failure.
+  function aggregateStatus(list) {
+    if (!list.length) return "unknown";
+    const known = list.filter((s) => s && s !== "unknown");
+    if (!known.length) return "unknown";
+    if (known.every((s) => s === "down")) return "down";
+    if (known.some((s) => s === "down" || s === "warning")) return "warning";
+    if (known.some((s) => s === "up" || s === "attested")) return "up";
+    return "unknown";
+  }
+
   function worstStatus(list) {
     if (list.some((s) => s === "down")) return "down";
     if (list.some((s) => s === "warning")) return "warning";
@@ -1044,190 +1057,178 @@
     return "unknown";
   }
 
+  // Geometry. One place, so rows stay aligned when any of it changes.
+  const TG = { NW: 158, NH: 40, SW: 198, SH: 60, GX: 18, GY: 76, PAD: 40 };
+
+  // Lay a row out centred on `mid`, returning x positions.
+  function rowX(count, w, gap, mid) {
+    const total = count * w + Math.max(0, count - 1) * gap;
+    const left = mid - total / 2;
+    return Array.from({ length: count }, (_, i) => left + i * (w + gap));
+  }
+
+  // The map is built around progressive disclosure. Drawing all 40-odd access
+  // switches at once produced a wall of identical boxes that had to be zoomed
+  // and dragged to read — a directory, not a topology. By default each site is
+  // ONE node carrying its counts and worst status; clicking it expands that
+  // site alone. The backbone (internet, firewalls, sensors, cores) is always
+  // visible because that is the part you actually trace a fault through.
   function buildTopoWorld() {
     const nodes = [];
     const links = [];
-    const push = (n) => { nodes.push(n); return n; };
+    const push = (n) => (nodes.push(n), n);
 
-    const fw = DEVICES.filter((d) => d.layer === "security");
-    const core = DEVICES.filter((d) => d.layer === "core");
+    const live = (d) => deviceStatus(d.id);
+    const inScope = (d) => !HIDDEN_SITES.test(d.site || "");
 
-    const mDevices = meraki().devices || [];
+    const fw = DEVICES.filter((d) => d.layer === "security" && inScope(d));
+    const cores = DEVICES.filter((d) => d.layer === "core" && inScope(d));
+    const access = DEVICES.filter((d) => d.layer === "access" && inScope(d));
+
+    // The fleet is one flat list tagged with productType — there are no
+    // per-kind arrays on it, and reading `fleet.switches` silently yielded
+    // nothing, which dropped every Meraki switch and two whole sites.
+    const mDevices = (meraki().devices || []).filter((d) => !HIDDEN_SITES.test(shortSite(d.site)));
     const mSwitches = mDevices.filter((d) => d.productType === "switch");
     const mAps = mDevices.filter((d) => d.productType === "wireless");
-    const mSensors = mDevices.filter((d) => d.productType === "sensor");
 
-    // Cisco access switches Meraki cannot see, keyed by name so a switch
-    // present in both feeds is not drawn twice.
-    const merakiNames = new Set(mSwitches.map((s) => s.name.toUpperCase()));
-    const ciscoAccess = DEVICES.filter(
-      (d) => !["core", "security"].includes(d.layer) && !merakiNames.has(String(d.name).toUpperCase())
-    );
-
-    const sites = [...new Set([
-      ...mSwitches.map((s) => shortSite(s.site)),
-      ...mAps.map((s) => shortSite(s.site)),
-      ...mSensors.map((s) => shortSite(s.site)),
-      ...ciscoAccess.map((d) => d.site).filter(Boolean),
-    ])].filter((s) => !HIDDEN_SITES.test(s))
-      // Widest column first so the tall campuses sit together and the short
-      // ones do not strand a column of whitespace between them.
-      .sort((a, b) => a.localeCompare(b));
-
-    // ---- geometry -------------------------------------------------------
-    const NW = 158, NH = 46, GAPX = 14, GAPY = 12;
-    const COLGAP = 34;
-
-    // Each site becomes a column; column width is driven by how many switch
-    // chips sit side by side in it.
-    const colsFor = (n) => Math.max(1, Math.min(3, Math.ceil(Math.sqrt(n || 1))));
-    const siteCols = {};
-    const siteWidth = {};
-    sites.forEach((site) => {
-      const sw = mSwitches.filter((s) => shortSite(s.site) === site).length
-        + ciscoAccess.filter((d) => d.site === site).length;
-      siteCols[site] = colsFor(sw);
-      siteWidth[site] = siteCols[site] * NW + (siteCols[site] - 1) * GAPX;
-    });
-
-    const totalWidth = Math.max(
-      sites.reduce((s, k) => s + siteWidth[k], 0) + COLGAP * Math.max(0, sites.length - 1) + 80,
-      1000
-    );
-
-    const yInternet = 24;
-    const yFw = 112;
-    const yCore = 206;
-    const ySiteLabel = 300;
-    const ySwitch = 322;
-
-    const centreRow = (items, w, gap, y, h) => {
-      const total = items.length * w + Math.max(0, items.length - 1) * gap;
-      let x = (totalWidth - total) / 2;
-      return items.map((it) => { const p = { x, y, w, h }; x += w + gap; return p; });
+    // Site key -> its switches (Cisco + Meraki) and access points.
+    const bySite = new Map();
+    const bucket = (key) => {
+      const k = key || "Unassigned";
+      if (!bySite.has(k)) bySite.set(k, { site: k, switches: [], aps: [] });
+      return bySite.get(k);
     };
+    access.forEach((d) => bucket(shortSite(d.site)).switches.push({
+      id: d.id, name: d.name, status: live(d), sub: d.ip || d.model || "", device: d,
+    }));
+    mSwitches.forEach((s) => bucket(shortSite(s.site)).switches.push({
+      id: `mk:${s.name}`, name: s.name, status: s.status, sub: s.model || "", meraki: s,
+    }));
+    mAps.forEach((a) => bucket(shortSite(a.site)).aps.push({ name: a.name, status: a.status, meraki: a }));
 
-    // ---- tiers ----------------------------------------------------------
+    const sites = [...bySite.keys()].sort();
+    sites.forEach((k) => bySite.get(k).switches.sort((a, b) => a.name.localeCompare(b.name)));
+
+    // ---- widths -----------------------------------------------------------
+    // The widest row sets the canvas; everything else centres inside it.
+    const secW = fw.length * TG.NW + (fw.length - 1) * TG.GX;
+    const coreW = cores.length * TG.NW + (cores.length - 1) * TG.GX;
+    const siteW = sites.length * TG.SW + (sites.length - 1) * TG.GX;
+
+    // An expanded site lays its switches out in a block beneath it. The block
+    // is as wide as it needs to be, and pushes the sites row wider.
+    // Roughly square. A fixed 4 columns turned 30 switches into 8 rows, and
+    // the auto-fit then zoomed out far enough to make every label unreadable.
+    const colsFor = (n) => Math.max(3, Math.min(7, Math.ceil(Math.sqrt(n))));
+    const expandedOf = (k) => !!topoState.expanded[`site:${k}`];
+    const blockW = (k) => {
+      if (!expandedOf(k)) return TG.SW;
+      const n = bySite.get(k).switches.length + (bySite.get(k).aps.length ? 1 : 0);
+      const cols = colsFor(n);
+      return Math.max(TG.SW, cols * TG.NW + (cols - 1) * TG.GX);
+    };
+    const siteBlocks = sites.map(blockW);
+    const sitesRowW = siteBlocks.reduce((a, b) => a + b, 0) + Math.max(0, sites.length - 1) * (TG.GX * 2);
+
+    const totalWidth = Math.max(secW, coreW, siteW, sitesRowW, 640) + TG.PAD * 2;
+    const mid = totalWidth / 2;
+
+    // ---- rows -------------------------------------------------------------
+    const yInternet = TG.PAD;
+    const ySec = yInternet + TG.GY;
+    const yCore = ySec + TG.GY;
+    const ySite = yCore + TG.GY;
+    const yExpand = ySite + TG.SH + 34;
+
     const inet = push({
-      id: "net:internet", kind: "internet", name: "Internet", sub: "WAN edge",
-      status: "unknown", x: (totalWidth - 150) / 2, y: yInternet, w: 150, h: 44,
+      id: "internet", kind: "internet", name: "Internet", sub: "WAN edge",
+      status: "up", x: mid - TG.NW / 2, y: yInternet, w: TG.NW, h: TG.NH,
     });
 
-    const fwPos = centreRow(fw, NW, 30, yFw, NH);
-    const fwNodes = fw.map((d, i) => push({
+    const secX = rowX(fw.length, TG.NW, TG.GX, mid);
+    const secNodes = fw.map((d, i) => push({
       // Arctic Wolf sensors sit in the security tier but are not firewalls;
-      // drawing them with a firewall icon overstates what they do.
+      // a firewall icon would overstate what they do.
       id: d.id, kind: /sensor/i.test(d.name) ? "sensor" : "firewall",
-      name: d.name, sub: d.ip || d.model || "",
-      status: deviceStatus(d.id), device: d, ...fwPos[i],
+      name: d.name, sub: d.ip || d.model || "", status: live(d), device: d,
+      x: secX[i], y: ySec, w: TG.NW, h: TG.NH,
     }));
-    fwNodes.forEach((n) => links.push({ from: inet.id, to: n.id, kind: "wan" }));
+    secNodes.forEach((n) => links.push({ from: inet.id, to: n.id, kind: "wan" }));
 
-    const corePos = centreRow(core, NW, 30, yCore, NH);
-    const coreNodes = core.map((d, i) => push({
+    const coreX = rowX(cores.length, TG.NW, TG.GX, mid);
+    const coreNodes = cores.map((d, i) => push({
       id: d.id, kind: "core", name: d.name, sub: d.ip || d.model || "",
-      status: deviceStatus(d.id), device: d, ...corePos[i],
+      status: live(d), device: d, x: coreX[i], y: yCore, w: TG.NW, h: TG.NH,
     }));
-    coreNodes.forEach((c) => fwNodes.forEach((f) => links.push({ from: f.id, to: c.id, kind: "core" })));
-    // Core peer-link, when there is more than one core switch.
+    // Only firewalls feed the cores; sensors observe, they do not route.
+    secNodes.filter((n) => n.kind === "firewall")
+      .forEach((f) => coreNodes.forEach((c) => links.push({ from: f.id, to: c.id, kind: "core" })));
     for (let i = 1; i < coreNodes.length; i++) {
       links.push({ from: coreNodes[i - 1].id, to: coreNodes[i].id, kind: "peer" });
     }
 
-    let cx = (totalWidth - (sites.reduce((s, k) => s + siteWidth[k], 0) + COLGAP * Math.max(0, sites.length - 1))) / 2;
-    const siteLabels = [];
+    // ---- sites ------------------------------------------------------------
+    let cursor = mid - sitesRowW / 2;
+    let maxY = ySite + TG.SH;
+    const bands = [];
 
-    sites.forEach((site) => {
-      const cols = siteCols[site];
-      const width = siteWidth[site];
-      const originX = cx;
+    sites.forEach((key, i) => {
+      const info = bySite.get(key);
+      const bw = siteBlocks[i];
+      const cx = cursor + bw / 2;
+      const open = expandedOf(key);
+      const members = [...info.switches, ...info.aps];
+      const worst = aggregateStatus(members.map((m) => m.status));
 
-      const switchesHere = [
-        ...mSwitches.filter((s) => shortSite(s.site) === site)
-          .map((s) => ({ name: s.name, status: s.status, sub: s.model || "", meraki: s })),
-        ...ciscoAccess.filter((d) => d.site === site)
-          .map((d) => ({ name: d.name, status: deviceStatus(d.id), sub: d.ip || d.model || "", device: d })),
-      ].sort((a, b) => a.name.localeCompare(b.name));
-
-      const swNodes = switchesHere.map((s, i) => {
-        const col = i % cols, row = Math.floor(i / cols);
-        return push({
-          id: `sw:${site}:${s.name}`, kind: "switch", name: s.name, sub: s.sub,
-          status: s.status, device: s.device, meraki: s.meraki, site,
-          x: originX + col * (NW + GAPX), y: ySwitch + row * (NH + GAPY), w: NW, h: NH,
-        });
+      const siteNode = push({
+        id: `site:${key}`, kind: "site", name: key,
+        sub: `${info.switches.length} switch${info.switches.length === 1 ? "" : "es"}${info.aps.length ? ` · ${info.aps.length} AP${info.aps.length === 1 ? "" : "s"}` : ""}`,
+        status: worst, site: key, open,
+        counts: { switches: info.switches.length, aps: info.aps.length },
+        members,
+        x: cx - TG.SW / 2, y: ySite, w: TG.SW, h: TG.SH,
       });
+      // A site hangs off whichever core is nearest horizontally, so the lines
+      // do not cross the whole diagram to reach a switch two metres away.
+      const nearest = coreNodes.length
+        ? coreNodes.reduce((a, b) =>
+            Math.abs(a.x + a.w / 2 - cx) <= Math.abs(b.x + b.w / 2 - cx) ? a : b)
+        : null;
+      if (nearest) links.push({ from: nearest.id, to: siteNode.id, kind: "site" });
 
-      // Every access switch hangs off the core as a whole — the per-switch
-      // uplink port is not in either feed, so no specific core link is claimed.
-      swNodes.forEach((n) => {
-        if (coreNodes.length) links.push({ from: coreNodes[0].id, to: n.id, kind: "access", faint: true });
-      });
-
-      const swRows = Math.ceil(switchesHere.length / cols) || 0;
-      let y = ySwitch + swRows * (NH + GAPY) + 14;
-
-      // AP + sensor clusters for this site, grouped by location token.
-      const apsHere = mAps.filter((a) => shortSite(a.site) === site);
-      const sensorsHere = mSensors.filter((a) => shortSite(a.site) === site);
-      const groups = {};
-      apsHere.forEach((a) => {
-        const k = locationToken(a.name);
-        (groups[k] = groups[k] || { aps: [], sensors: [] }).aps.push(a);
-      });
-      sensorsHere.forEach((a) => {
-        const k = locationToken(a.name);
-        (groups[k] = groups[k] || { aps: [], sensors: [] }).sensors.push(a);
-      });
-
-      Object.keys(groups).sort().forEach((token, i) => {
-        const g = groups[token];
-        const col = i % cols, row = Math.floor(i / cols);
-        const members = [...g.aps, ...g.sensors];
-        const id = `cl:${site}:${token}`;
-        const node = push({
-          id, kind: "cluster", site, token,
-          name: `${site} · ${token}`,
-          sub: `${g.aps.length} AP${g.aps.length === 1 ? "" : "s"}${g.sensors.length ? ` · ${g.sensors.length} sensor${g.sensors.length === 1 ? "" : "s"}` : ""}`,
-          status: worstStatus(members.map((m) => m.status)),
-          members,
-          x: originX + col * (NW + GAPX), y: y + row * (NH + GAPY), w: NW, h: NH,
-        });
-        // Cluster attaches to the site's switch stack, not to a named switch:
-        // neither feed reports which switch an AP is patched into.
-        if (swNodes.length) links.push({ from: swNodes[0].id, to: node.id, kind: "wireless", faint: true });
-
-        if (topoState.expanded[id]) {
-          members.forEach((m, mi) => {
-            const mcol = mi % cols, mrow = Math.floor(mi / cols);
-            const mNode = push({
-              id: `${id}:${m.name}`, kind: m.productType === "sensor" ? "sensor" : "ap",
-              name: m.name, sub: m.model || "", status: m.status, meraki: m, site,
-              x: originX + mcol * (NW + GAPX),
-              y: y + (Math.ceil(Object.keys(groups).length / cols)) * (NH + GAPY) + 10 + mrow * (NH + GAPY),
-              w: NW, h: NH,
-            });
-            links.push({ from: id, to: mNode.id, kind: "member", faint: true });
+      if (open) {
+        const items = [
+          ...info.switches.map((s) => ({ ...s, kind: "switch" })),
+          ...(info.aps.length ? [{
+            id: `aps:${key}`, kind: "cluster", name: `${info.aps.length} access points`,
+            sub: key, status: aggregateStatus(info.aps.map((a) => a.status)), members: info.aps,
+          }] : []),
+        ];
+        const cols = colsFor(items.length);
+        const left = cx - (cols * TG.NW + (cols - 1) * TG.GX) / 2;
+        items.forEach((it, idx) => {
+          const c = idx % cols, r = Math.floor(idx / cols);
+          const n = push({
+            ...it, site: key,
+            x: left + c * (TG.NW + TG.GX),
+            y: yExpand + r * (TG.NH + 16),
+            w: TG.NW, h: TG.NH,
           });
-        }
-      });
-
-      const groupRows = Math.ceil(Object.keys(groups).length / cols) || 0;
-      let bottom = y + groupRows * (NH + GAPY);
-      const expandedHere = Object.keys(groups).filter((t) => topoState.expanded[`cl:${site}:${t}`]);
-      if (expandedHere.length) {
-        const maxMembers = Math.max(...expandedHere.map((t) => groups[t].aps.length + groups[t].sensors.length));
-        bottom += 10 + Math.ceil(maxMembers / cols) * (NH + GAPY);
+          links.push({ from: siteNode.id, to: n.id, kind: "access" });
+          maxY = Math.max(maxY, n.y + n.h);
+        });
+        bands.push({ site: key, x: left - 16, y: ySite - 14, w: cols * TG.NW + (cols - 1) * TG.GX + 32, h: (maxY - ySite) + 30 });
       }
 
-      siteLabels.push({ site, x: originX, y: ySiteLabel, width, bottom });
-      cx += width + COLGAP;
+      cursor += bw + TG.GX * 2;
     });
 
-    const totalHeight = Math.max(...siteLabels.map((s) => s.bottom), ySwitch + 200) + 40;
     const byId = new Map(nodes.map((n) => [n.id, n]));
-
-    return { nodes, links, byId, siteLabels, totalWidth, totalHeight, sites };
+    return {
+      nodes, links, byId, sites, bands,
+      totalWidth, totalHeight: maxY + TG.PAD,
+    };
   }
 
   function topoNeighbours(id) {
@@ -1240,6 +1241,10 @@
     return set;
   }
 
+  // Rendered in stage pixel space (viewBox matches the element's own size), so
+  // one world unit is one CSS pixel at scale 1. Pan and zoom maths then needs
+  // no conversion between viewBox units and screen pixels — the source of the
+  // drift the old version had when the window was resized.
   function renderTopology() {
     const stage = document.getElementById("topo-stage");
     if (!stage) return;
@@ -1250,11 +1255,14 @@
     const showAps = document.getElementById("topo-show-aps")?.checked !== false;
     const query = (document.getElementById("topo-search")?.value || "").trim().toLowerCase();
 
-    const KIND_LAYER = { firewall: "security", core: "core", switch: "access", ap: "wireless", sensor: "wireless", cluster: "wireless", internet: "core" };
-
+    const KIND_LAYER = {
+      firewall: "security", sensor: "security", core: "core",
+      switch: "access", cluster: "wireless", site: "core", internet: "core",
+    };
     const visible = (n) => {
-      if (!showAps && ["ap", "sensor", "cluster"].includes(n.kind)) return false;
+      if (!showAps && n.kind === "cluster") return false;
       if (site !== "all" && n.site && n.site !== site) return false;
+      if (site !== "all" && n.kind === "site" && n.name !== site) return false;
       if (layer !== "all" && KIND_LAYER[n.kind] !== layer) return false;
       return true;
     };
@@ -1262,71 +1270,86 @@
     const shownIds = new Set(shown.map((n) => n.id));
 
     const sel = topoState.selected;
-    const near = sel && shownIds.has(sel) ? topoNeighbours(sel) : null;
+    // Neighbour focus dims everything unrelated, which is useful for tracing a
+    // single device but wrong for a site: opening one greyed out the entire
+    // backbone you opened it from.
+    const selNode = sel ? w.byId.get(sel) : null;
+    const near = sel && shownIds.has(sel) && selNode?.kind !== "site"
+      ? topoNeighbours(sel) : null;
+    const cx = (n) => n.x + n.w / 2;
 
-    const cxOf = (n) => n.x + n.w / 2;
+    const rect = stage.getBoundingClientRect();
+    const vw = Math.max(320, Math.round(rect.width));
+    const vh = Math.max(320, Math.round(rect.height));
+
     const parts = [];
-    parts.push(`<svg class="topology-svg" id="topo-svg" viewBox="0 0 ${w.totalWidth} ${w.totalHeight}" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">`);
+    parts.push(`<svg class="topology-svg" id="topo-svg" viewBox="0 0 ${vw} ${vh}" xmlns="http://www.w3.org/2000/svg">`);
     parts.push(`<g id="topo-viewport" transform="translate(${topoState.tx} ${topoState.ty}) scale(${topoState.scale})">`);
 
-    // Site bands sit behind everything so a column reads as one campus.
-    w.siteLabels.forEach((s) => {
-      if (site !== "all" && s.site !== site) return;
-      if (!shown.some((n) => n.site === s.site)) return;
-      parts.push(`<rect class="topo-site-band" x="${s.x - 14}" y="${s.y - 6}" width="${s.width + 28}" height="${s.bottom - s.y + 20}" rx="14"/>`);
-      parts.push(`<text class="topo-group-label" x="${s.x - 6}" y="${s.y + 8}">${esc(s.site)}</text>`);
+    w.bands.forEach((b) => {
+      if (!shown.some((n) => n.site === b.site)) return;
+      parts.push(`<rect class="topo-band" x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="14"/>`);
     });
 
+    // Orthogonal links: down, across, down. Straight diagonals across a diagram
+    // this wide are impossible to follow where they overlap.
     w.links.forEach((l) => {
-      if (!shownIds.has(l.from) || !shownIds.has(l.to)) return;
       const a = w.byId.get(l.from), b = w.byId.get(l.to);
-      const touches = near && near.has(l.from) && near.has(l.to);
-      const cls = ["topo-link", `link-${l.kind}`];
-      if (l.faint) cls.push("faint");
-      if (near) cls.push(touches ? "hi" : "dim");
+      if (!a || !b || !shownIds.has(a.id) || !shownIds.has(b.id)) return;
+      const dim = near && !(near.has(a.id) && near.has(b.id));
+      const cls = `topo-link kind-${l.kind}${dim ? " dim" : ""}${near && !dim ? " hi" : ""}`;
       if (l.kind === "peer") {
-        parts.push(`<path class="${cls.join(" ")}" d="M ${a.x + a.w} ${a.y + a.h / 2} L ${b.x} ${b.y + b.h / 2}"/>`);
+        parts.push(`<path class="${cls}" d="M${a.x + a.w},${a.y + a.h / 2} H${b.x}"/>`);
         return;
       }
-      // Orthogonal elbows read as structured cabling; a bezier fan at this
-      // node count turns into spaghetti.
-      const x1 = cxOf(a), y1 = a.y + a.h, x2 = cxOf(b), y2 = b.y;
-      const mid = y1 + (y2 - y1) / 2;
-      parts.push(`<path class="${cls.join(" ")}" d="M ${x1} ${y1} V ${mid} H ${x2} V ${y2}"/>`);
+      const y1 = a.y + a.h, y2 = b.y, myd = y1 + (y2 - y1) / 2;
+      parts.push(`<path class="${cls}" d="M${cx(a)},${y1} V${myd} H${cx(b)} V${y2}"/>`);
     });
 
     shown.forEach((n) => {
       const cls = ["topo-node", `kind-${n.kind}`];
       if (sel === n.id) cls.push("sel");
       else if (near) cls.push(near.has(n.id) ? "hi" : "dim");
-      if (query) cls.push(`${n.name} ${n.sub}`.toLowerCase().includes(query) ? "match" : "nomatch");
+      if (query) cls.push(`${n.name} ${n.sub || ""}`.toLowerCase().includes(query) ? "match" : "nomatch");
+      if (n.kind === "site" && n.open) cls.push("open");
+
+      const icon = TOPO_ICON[n.kind] || "icon-switch";
       const color = TOPO_COLOR[n.kind] || "var(--baseline)";
-      const isCluster = n.kind === "cluster";
-      const open = isCluster && topoState.expanded[n.id];
+      const isSite = n.kind === "site";
+
       parts.push(`
-        <g class="${cls.join(" ")}" data-id="${esc(n.id)}" tabindex="0" role="button" aria-label="${esc(n.name)}">
-          <rect class="topo-node-bg" x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="10"
-                fill="var(--surface-3)" stroke="${color}"${isCluster ? ' stroke-dasharray="5 3"' : ""}/>
-          <rect x="${n.x}" y="${n.y}" width="4" height="${n.h}" rx="2" fill="${color}"/>
-          <g class="topo-node-icon" style="color:${color}" transform="translate(${n.x + 12} ${n.y + 13})">
-            <svg width="17" height="17" viewBox="0 0 24 24"><use href="#${TOPO_ICON[n.kind]}"/></svg>
+        <g class="${cls.join(" ")}" data-id="${esc(n.id)}" tabindex="0" role="button"
+           aria-label="${esc(n.name)}${isSite ? `, ${n.open ? "expanded" : "collapsed"}` : ""}">
+          <rect class="topo-node-bg" x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="10"/>
+          <rect class="topo-node-edge" x="${n.x}" y="${n.y}" width="3.5" height="${n.h}" rx="2"
+                fill="${color}"/>
+          <g class="topo-node-icon" style="color:${color}"
+             transform="translate(${n.x + 13} ${n.y + n.h / 2 - 8})">
+            <svg width="16" height="16" viewBox="0 0 24 24"><use href="#${icon}"/></svg>
           </g>
-          <circle class="status-dot-${n.status}" cx="${n.x + n.w - 11}" cy="${n.y + 11}" r="4"/>
-          <text x="${n.x + 36}" y="${n.y + 20}">${esc(n.name)}</text>
-          <text class="sub" x="${n.x + 36}" y="${n.y + 34}">${esc(n.sub)}</text>
-          ${isCluster ? `<text class="topo-expand" x="${n.x + n.w - 13}" y="${n.y + n.h - 9}">${open ? "− collapse" : "+ expand"}</text>` : ""}
+          <text class="topo-node-name" x="${n.x + 38}" y="${n.y + (n.sub ? n.h / 2 - 2 : n.h / 2 + 4)}">${esc(n.name)}</text>
+          ${n.sub ? `<text class="topo-node-sub" x="${n.x + 38}" y="${n.y + n.h / 2 + 12}">${esc(n.sub)}</text>` : ""}
+          <circle class="dot status-dot-${n.status}" cx="${n.x + n.w - 13}" cy="${n.y + 13}" r="4.5"/>
+          ${isSite ? `<text class="topo-node-chev" x="${n.x + n.w - 13}" y="${n.y + n.h - 10}">${n.open ? "−" : "+"}</text>` : ""}
         </g>`);
     });
 
-    parts.push("</g></svg>");
-    stage.innerHTML = parts.join("\n");
+    parts.push(`</g></svg>`);
+    stage.innerHTML = parts.join("");
+
+    // First paint, or a change in what is drawn, should frame itself. Nobody
+    // should have to hunt for the diagram before they can read it.
+    if (topoState.needsFit) { topoState.needsFit = false; topoFit(); }
 
     const sub = document.getElementById("topo-subtitle");
     if (sub) {
       const hidden = w.nodes.length - shown.length;
+      const openSites = w.nodes.filter((n) => n.kind === "site" && n.open).length;
       sub.textContent = hidden
-        ? `Drag to pan, scroll to zoom, click a device for detail. ${shown.length} of ${w.nodes.length} nodes shown — ${hidden} filtered out.`
-        : "Drag to pan, scroll to zoom, click a device for detail. Click a cluster to expand it.";
+        ? `Drag to move, scroll or pinch to zoom. Tap a site to expand it. ${hidden} node${hidden === 1 ? "" : "s"} hidden by filters.`
+        : openSites
+          ? "Drag to move, scroll or pinch to zoom. Tap a site again to collapse it."
+          : "Drag to move, scroll or pinch to zoom. Tap a site to see its switches, or any device for detail.";
     }
     renderTopoInspector();
   }
@@ -1342,6 +1365,28 @@
     }
     const n = w.byId.get(id);
     if (!n) { el.innerHTML = ""; return; }
+
+    if (n.kind === "site") {
+      const bad = n.members.filter((m) => m.status === "down" || m.status === "warning");
+      const up = n.members.filter((m) => m.status === "up").length;
+      el.innerHTML = `
+        <h3>${esc(n.name)}</h3>
+        <p class="topo-status"><span class="dot status-dot-${n.status}"></span>${esc(STATUS_LABEL[n.status] || "Unknown")}</p>
+        <dl class="topo-dl">
+          <dt>Switches</dt><dd>${esc(n.counts.switches)}</dd>
+          <dt>Access points</dt><dd>${esc(n.counts.aps)}</dd>
+          <dt>Reporting up</dt><dd>${esc(up)} of ${esc(n.members.length)}</dd>
+        </dl>
+        ${bad.length
+          ? `<h4>Needs attention</h4><ul class="topo-list">${bad.slice(0, 12).map((m) =>
+              `<li>${esc(m.name)} <span class="muted-text">${esc(STATUS_LABEL[m.status] || "")}</span></li>`).join("")}
+             ${bad.length > 12 ? `<li class="muted-text">…and ${bad.length - 12} more</li>` : ""}</ul>`
+          : `<p class="muted-text">Everything at this site is reporting up.</p>`}
+        <p class="muted-text" style="margin-bottom:0">${n.open
+          ? "Tap the site again to collapse it."
+          : "Tap the site to see its individual switches."}</p>`;
+      return;
+    }
 
     if (n.kind === "cluster") {
       const down = n.members.filter((m) => m.status === "down" || m.status === "warning");
@@ -1384,101 +1429,6 @@
       ${n.device?.note ? `<p class="muted-text">${esc(n.device.note)}</p>` : ""}`;
   }
 
-  function initTopology() {
-    const stage = document.getElementById("topo-stage");
-    if (!stage) return;
-
-    const clamp = (v) => Math.min(4, Math.max(0.35, v));
-
-    // Zoom toward the cursor: convert the pointer to world coordinates, scale,
-    // then translate so that same world point stays under the pointer.
-    stage.addEventListener("wheel", (e) => {
-      e.preventDefault();
-      const svg = document.getElementById("topo-svg");
-      if (!svg) return;
-      const r = svg.getBoundingClientRect();
-      const vb = svg.viewBox.baseVal;
-      const px = ((e.clientX - r.left) / r.width) * vb.width;
-      const py = ((e.clientY - r.top) / r.height) * vb.height;
-      const next = clamp(topoState.scale * (e.deltaY < 0 ? 1.12 : 1 / 1.12));
-      topoState.tx = px - (px - topoState.tx) * (next / topoState.scale);
-      topoState.ty = py - (py - topoState.ty) * (next / topoState.scale);
-      topoState.scale = next;
-      applyTopoTransform();
-    }, { passive: false });
-
-    let drag = null;
-    stage.addEventListener("pointerdown", (e) => {
-      if (e.target.closest(".topo-node")) return;
-      drag = { x: e.clientX, y: e.clientY, tx: topoState.tx, ty: topoState.ty };
-      stage.setPointerCapture(e.pointerId);
-      stage.classList.add("grabbing");
-    });
-    stage.addEventListener("pointermove", (e) => {
-      if (!drag) return;
-      const svg = document.getElementById("topo-svg");
-      const r = svg.getBoundingClientRect();
-      const vb = svg.viewBox.baseVal;
-      topoState.tx = drag.tx + (e.clientX - drag.x) * (vb.width / r.width);
-      topoState.ty = drag.ty + (e.clientY - drag.y) * (vb.height / r.height);
-      applyTopoTransform();
-    });
-    const endDrag = () => { drag = null; stage.classList.remove("grabbing"); };
-    stage.addEventListener("pointerup", endDrag);
-    stage.addEventListener("pointercancel", endDrag);
-
-    stage.addEventListener("click", (e) => {
-      const node = e.target.closest(".topo-node");
-      const id = node ? node.getAttribute("data-id") : null;
-      // A second click on an already-selected cluster expands it, so one click
-      // still just inspects — expanding never happens by accident.
-      if (id && id.startsWith("cl:") && topoState.selected === id) {
-        topoState.expanded[id] = !topoState.expanded[id];
-      } else {
-        topoState.selected = id;
-      }
-      renderTopology();
-    });
-    stage.addEventListener("keydown", (e) => {
-      if (e.key !== "Enter" && e.key !== " ") return;
-      const node = e.target.closest(".topo-node");
-      if (!node) return;
-      e.preventDefault();
-      topoState.selected = node.getAttribute("data-id");
-      renderTopology();
-    });
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && topoState.selected) { topoState.selected = null; renderTopology(); }
-    });
-
-    const zoomBy = (f) => {
-      const svg = document.getElementById("topo-svg");
-      if (!svg) return;
-      const vb = svg.viewBox.baseVal;
-      const cxw = vb.width / 2, cyw = vb.height / 2;
-      const next = clamp(topoState.scale * f);
-      topoState.tx = cxw - (cxw - topoState.tx) * (next / topoState.scale);
-      topoState.ty = cyw - (cyw - topoState.ty) * (next / topoState.scale);
-      topoState.scale = next;
-      applyTopoTransform();
-    };
-    document.getElementById("topo-zoom-in")?.addEventListener("click", () => zoomBy(1.25));
-    document.getElementById("topo-zoom-out")?.addEventListener("click", () => zoomBy(1 / 1.25));
-    document.getElementById("topo-reset")?.addEventListener("click", () => {
-      topoState.scale = 1; topoState.tx = 0; topoState.ty = 0;
-      topoState.selected = null; topoState.expanded = {};
-      renderTopology();
-    });
-
-    populateTopoFilters();
-    ["topo-site", "topo-layer", "topo-show-aps"].forEach((id) => {
-      document.getElementById(id)?.addEventListener("change", renderTopology);
-    });
-    document.getElementById("topo-search")?.addEventListener("input", renderTopology);
-  }
-
-  // Site codes come from the feeds, so the filter is built from the world
-  // rather than hard-coded to SAH/BBC — KIRR, SAH-DMZ and TEST are real.
   function populateTopoFilters() {
     const sel = document.getElementById("topo-site");
     if (!sel) return;
@@ -1487,9 +1437,204 @@
       w.sites.map((s) => `<option value="${esc(s)}">${esc(s)}</option>`).join("");
   }
 
+  const TOPO_MIN = 0.25, TOPO_MAX = 3;
+  const topoClamp = (v) => Math.min(TOPO_MAX, Math.max(TOPO_MIN, v));
+
   function applyTopoTransform() {
     const g = document.getElementById("topo-viewport");
     if (g) g.setAttribute("transform", `translate(${topoState.tx} ${topoState.ty}) scale(${topoState.scale})`);
+  }
+
+  // Frame the whole diagram in the stage. This is the "reset" everyone
+  // actually wants — scale 1 at origin is meaningless once the map is wider
+  // than the screen, which it always is.
+  function topoFit(pad = 26) {
+    const svg = document.getElementById("topo-svg");
+    const w = topoState.world;
+    if (!svg || !w) return;
+    const vb = svg.viewBox.baseVal;
+
+    // With a site open, frame that site rather than the whole diagram. Fitting
+    // everything meant opening SAH zoomed out until no label could be read —
+    // the opposite of what asking for its switches was meant to achieve. The
+    // backbone stays one short drag above.
+    let x = 0, y = 0, W = w.totalWidth, H = w.totalHeight;
+    if (w.bands.length) {
+      const x0 = Math.min(...w.bands.map((b) => b.x));
+      const x1 = Math.max(...w.bands.map((b) => b.x + b.w));
+      const y0 = Math.min(...w.bands.map((b) => b.y));
+      const y1 = Math.max(...w.bands.map((b) => b.y + b.h));
+      x = x0; y = y0; W = x1 - x0; H = y1 - y0;
+    }
+
+    const s = topoClamp(Math.min((vb.width - pad * 2) / W, (vb.height - pad * 2) / H));
+    topoState.scale = s;
+    topoState.tx = (vb.width - W * s) / 2 - x * s;
+    topoState.ty = (vb.height - H * s) / 2 - y * s;
+    applyTopoTransform();
+  }
+
+  // Zoom about a fixed point in stage coordinates, so whatever is under the
+  // cursor or the pinch centre stays there.
+  function topoZoomAt(px, py, factor) {
+    const next = topoClamp(topoState.scale * factor);
+    const k = next / topoState.scale;
+    topoState.tx = px - (px - topoState.tx) * k;
+    topoState.ty = py - (py - topoState.ty) * k;
+    topoState.scale = next;
+    applyTopoTransform();
+  }
+
+  function initTopology() {
+    const stage = document.getElementById("topo-stage");
+    if (!stage) return;
+
+    const local = (e) => {
+      const r = stage.getBoundingClientRect();
+      return { x: e.clientX - r.left, y: e.clientY - r.top };
+    };
+
+    stage.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const p = local(e);
+      // Trackpads report small deltas continuously; mice report ~100 per notch.
+      // Scaling by the delta keeps both feeling the same rather than making a
+      // trackpad crawl and a mouse jump.
+      const step = Math.exp(-e.deltaY * 0.0015);
+      topoZoomAt(p.x, p.y, step);
+    }, { passive: false });
+
+    // One pointer pans, two pinch. Tracking pointers in a map rather than
+    // using touch events keeps mouse, pen and touch on the same code path.
+    const pointers = new Map();
+    let pan = null, pinch = null, moved = 0, hit = null;
+
+    stage.addEventListener("pointerdown", (e) => {
+      pointers.set(e.pointerId, local(e));
+      stage.setPointerCapture(e.pointerId);
+      moved = 0;
+      // Captured pointers retarget the following click to the capturing
+      // element, so `click` sees the stage and never the node. The hit is
+      // therefore recorded here, while the original target is still intact,
+      // and acted on at pointerup.
+      hit = e.target.closest(".topo-node")?.getAttribute("data-id") || null;
+      if (pointers.size === 1) {
+        const p = pointers.get(e.pointerId);
+        pan = { x: p.x, y: p.y, tx: topoState.tx, ty: topoState.ty };
+        stage.classList.add("grabbing");
+      } else if (pointers.size === 2) {
+        pan = null;
+        const [a, b] = [...pointers.values()];
+        pinch = { dist: Math.hypot(a.x - b.x, a.y - b.y) };
+      }
+    });
+
+    stage.addEventListener("pointermove", (e) => {
+      if (!pointers.has(e.pointerId)) return;
+      pointers.set(e.pointerId, local(e));
+
+      if (pinch && pointers.size >= 2) {
+        const [a, b] = [...pointers.values()];
+        const dist = Math.hypot(a.x - b.x, a.y - b.y);
+        if (pinch.dist > 0) {
+          topoZoomAt((a.x + b.x) / 2, (a.y + b.y) / 2, dist / pinch.dist);
+        }
+        pinch.dist = dist;
+        return;
+      }
+      if (!pan) return;
+      const p = pointers.get(e.pointerId);
+      moved = Math.max(moved, Math.hypot(p.x - pan.x, p.y - pan.y));
+      topoState.tx = pan.tx + (p.x - pan.x);
+      topoState.ty = pan.ty + (p.y - pan.y);
+      applyTopoTransform();
+    });
+
+    const release = (e) => {
+      const wasPanning = pointers.size === 1 && pinch === null;
+      pointers.delete(e.pointerId);
+      if (pointers.size < 2) pinch = null;
+      if (pointers.size === 0) { pan = null; stage.classList.remove("grabbing"); }
+      // A drag that happens to end over a node must not also select it.
+      if (wasPanning && e.type === "pointerup" && moved <= 5) activate(hit);
+      hit = null;
+    };
+    stage.addEventListener("pointerup", release);
+    stage.addEventListener("pointercancel", release);
+
+    const activate = (id) => {
+      if (id && id.startsWith("site:")) {
+        // One tap does both: select it and open it. Requiring a second tap to
+        // expand, as the old cluster behaviour did, just felt broken.
+        topoState.expanded[id] = !topoState.expanded[id];
+        topoState.selected = id;
+        // Opening a site changes how big the diagram is, so it has to be
+        // re-framed — otherwise the switches you just asked for are drawn
+        // off the bottom of the stage.
+        topoState.needsFit = true;
+      } else {
+        topoState.selected = id;
+      }
+      renderTopology();
+    };
+
+    stage.addEventListener("dblclick", (e) => {
+      if (e.target.closest(".topo-node")) return;
+      topoFit();
+    });
+
+    stage.addEventListener("keydown", (e) => {
+      const node = e.target.closest(".topo-node");
+      if (!node || (e.key !== "Enter" && e.key !== " ")) return;
+      e.preventDefault();
+      activate(node.getAttribute("data-id"));
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && topoState.selected) {
+        topoState.selected = null;
+        renderTopology();
+      }
+    });
+
+    const centreZoom = (f) => {
+      const svg = document.getElementById("topo-svg");
+      if (!svg) return;
+      topoZoomAt(svg.viewBox.baseVal.width / 2, svg.viewBox.baseVal.height / 2, f);
+    };
+    document.getElementById("topo-zoom-in")?.addEventListener("click", () => centreZoom(1.3));
+    document.getElementById("topo-zoom-out")?.addEventListener("click", () => centreZoom(1 / 1.3));
+    document.getElementById("topo-reset")?.addEventListener("click", () => {
+      topoState.selected = null;
+      topoState.expanded = {};
+      topoState.needsFit = true;
+      renderTopology();
+    });
+
+    // The first render happens while this panel is still display:none, so the
+    // stage measures zero and any fit computed then is meaningless. Watching
+    // the element covers that, tab switches and window resizes with one
+    // mechanism, instead of guessing when it became visible.
+    if (typeof ResizeObserver !== "undefined") {
+      let rt;
+      new ResizeObserver((entries) => {
+        const r = entries[0].contentRect;
+        if (r.width < 10 || r.height < 10) return;
+        const key = `${Math.round(r.width)}x${Math.round(r.height)}`;
+        if (key === topoState.lastSize) return;
+        topoState.lastSize = key;
+        clearTimeout(rt);
+        rt = setTimeout(() => { topoState.needsFit = true; renderTopology(); }, 60);
+      }).observe(stage);
+    }
+
+    populateTopoFilters();
+    ["topo-site", "topo-layer", "topo-show-aps"].forEach((id) => {
+      document.getElementById(id)?.addEventListener("change", () => {
+        topoState.needsFit = true;
+        renderTopology();
+      });
+    });
+    document.getElementById("topo-search")?.addEventListener("input", renderTopology);
   }
 
   // ---------------------------------------------------------------------
