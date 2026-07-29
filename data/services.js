@@ -16,5 +16,11 @@ const SERVICES = [
   { service: "Access Control System", hostname: null, ip: "172.30.30.253", vlan: 113, subnet: "172.30.30.0/24", gateway: "172.30.30.254", vrf: "CCTV", location: null, deviceType: "Security System", purpose: "Door Access Control", owner: "Facilities", criticality: "Critical", mfa: null, internetFacing: "No", backup: null, drRequired: null, notes: "Confirmed by user" },
   { service: "BMS", hostname: "bms.sacs.nsw.edu.au", ip: "172.30.30.221", vlan: null, subnet: "172.30.30.0/24", gateway: "172.30.30.254", vrf: "CCTV", location: null, deviceType: "Security System", purpose: null, owner: "Facilities", criticality: null, mfa: null, internetFacing: null, backup: null, drRequired: null, notes: "NEEDS SSL certificate" },
   { service: "BMCS", hostname: "464kentst.ozintsys.com.au", ip: "59.167.129.237", vlan: null, subnet: null, gateway: null, vrf: null, location: null, deviceType: null, purpose: null, owner: null, criticality: null, mfa: null, internetFacing: null, backup: null, drRequired: null, notes: null },
+  // ViVi wireless presentation. This is a device network rather than a single
+  // server: the ViVi boxes sit across 10.2.70.0/24 and take DHCP, so `ip` is
+  // deliberately null. 10.2.70.254 is the HSRP gateway and 10.2.70.251 the SVI
+  // on SQCS-SAH-SWC-01 — neither is ViVi's own address, and putting a router
+  // address in a column every other row uses for a host would be wrong.
+  { service: "ViVi", hostname: null, ip: null, vlan: 640, subnet: "10.2.70.0/24", gateway: "10.2.70.254", vrf: "AUDIOVISUAL", location: "SAH", deviceType: "Application", purpose: "Wireless screen sharing / classroom presentation", owner: "AV", criticality: "High", mfa: null, internetFacing: "No", backup: null, drRequired: null, notes: "VLAN 640 SACS_SAH_AV_PROJECT · SVI 10.2.70.251 · HSRP VIP 10.2.70.254 · DHCP relay 10.0.4.201 · MTU 9216 · OSPF 100 area 0" },
   { service: "DHCP Server on prems", hostname: "SACS-SAH-DH-20.sacs.nsw.edu.au", ip: "10.0.4.201", vlan: null, subnet: "10.0.4.0/24", gateway: null, vrf: null, location: null, deviceType: null, purpose: null, owner: null, criticality: null, mfa: null, internetFacing: null, backup: null, drRequired: null, notes: null },
 ];
