@@ -8,7 +8,7 @@
 // Serial numbers, MACs, IP addresses and physical locations are
 // deliberately not written here: this repo is public.
 const WIRELESS = {
-  "updatedAt": "2026-07-29T17:45:37.306Z",
+  "updatedAt": "2026-07-29T19:50:46.763Z",
   "source": "Meraki Dashboard",
   "portalUrl": "https://dashboard.meraki.com",
   "total": 188,
@@ -140,7 +140,7 @@ const WIRELESS = {
       "model": "MR57",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:12.814000Z"
+      "lastSeen": "2026-07-29T19:50:05.537000Z"
     },
     {
       "name": "BBC-G-AP-3D62",
@@ -160,7 +160,7 @@ const WIRELESS = {
       "model": "MR57",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:00.402000Z"
+      "lastSeen": "2026-07-29T19:50:31.165000Z"
     },
     {
       "name": "BBC-G-AP-BF5C",
@@ -170,7 +170,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:59.804000Z"
+      "lastSeen": "2026-07-29T19:50:17.720000Z"
     },
     {
       "name": "BBC-G-AP-C51B",
@@ -180,7 +180,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:54.121000Z"
+      "lastSeen": "2026-07-29T19:50:16.150000Z"
     },
     {
       "name": "BBC-G-AP-CC6A",
@@ -190,7 +190,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:26.389000Z"
+      "lastSeen": "2026-07-29T19:50:31.506000Z"
     },
     {
       "name": "BBC-G-AP-F86A",
@@ -200,7 +200,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:18.942000Z"
+      "lastSeen": "2026-07-29T19:50:28.806000Z"
     },
     {
       "name": "BBC-G-AP-F90A",
@@ -210,7 +210,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:18.728000Z"
+      "lastSeen": "2026-07-29T19:50:00.202000Z"
     },
     {
       "name": "BBC-G-AP-F9E1",
@@ -220,7 +220,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:57.465000Z"
+      "lastSeen": "2026-07-29T19:50:31.708000Z"
     },
     {
       "name": "BBC-L1-AP-013D",
@@ -230,7 +230,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:24.248000Z"
+      "lastSeen": "2026-07-29T19:49:57.830000Z"
     },
     {
       "name": "BBC-L1-AP-B108",
@@ -240,7 +240,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:03.165000Z"
+      "lastSeen": "2026-07-29T19:50:38.945000Z"
     },
     {
       "name": "BBC-L1-AP-BBBD",
@@ -250,7 +250,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:48.209000Z"
+      "lastSeen": "2026-07-29T19:50:21.412000Z"
     },
     {
       "name": "BBC-L1-AP-BE41",
@@ -260,7 +260,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:00.286000Z"
+      "lastSeen": "2026-07-29T19:50:36.097000Z"
     },
     {
       "name": "BBC-L1-AP-BE7B",
@@ -270,7 +270,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:24.776000Z"
+      "lastSeen": "2026-07-29T19:50:36.671000Z"
     },
     {
       "name": "BBC-L1-AP-BFDB",
@@ -280,7 +280,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:23.363000Z"
+      "lastSeen": "2026-07-29T19:50:04.903000Z"
     },
     {
       "name": "BBC-L1-AP-CD48",
@@ -290,7 +290,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:51.389000Z"
+      "lastSeen": "2026-07-29T19:50:09.648000Z"
     },
     {
       "name": "BBC-L1-AP-D140",
@@ -300,7 +300,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:03.167000Z"
+      "lastSeen": "2026-07-29T19:50:37.826000Z"
     },
     {
       "name": "BBC-L1-AP-D175",
@@ -310,7 +310,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:32.193000Z"
+      "lastSeen": "2026-07-29T19:50:34.175000Z"
     },
     {
       "name": "BBC-L1-AP-D52A",
@@ -320,7 +320,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:45.962000Z"
+      "lastSeen": "2026-07-29T19:50:09.658000Z"
     },
     {
       "name": "BBC-L1-AP-D785",
@@ -340,7 +340,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:33.261000Z"
+      "lastSeen": "2026-07-29T19:50:33.578000Z"
     },
     {
       "name": "BBC-L1-AP-E001",
@@ -350,7 +350,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:07.200000Z"
+      "lastSeen": "2026-07-29T19:50:17.366000Z"
     },
     {
       "name": "BBC-L1-AP-EF3E",
@@ -360,7 +360,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:27.201000Z"
+      "lastSeen": "2026-07-29T19:50:31.137000Z"
     },
     {
       "name": "BBC-L1-AP-FFF8",
@@ -370,7 +370,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:16.151000Z"
+      "lastSeen": "2026-07-29T19:50:19.232000Z"
     },
     {
       "name": "BBC-L1-AP-Reception",
@@ -380,7 +380,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:15.849000Z"
+      "lastSeen": "2026-07-29T19:50:24.014000Z"
     },
     {
       "name": "BBC-L2-AP-BF9B",
@@ -390,7 +390,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:57.495000Z"
+      "lastSeen": "2026-07-29T19:50:41.717000Z"
     },
     {
       "name": "BBC-L2-AP-C3F2",
@@ -400,7 +400,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:17.805000Z"
+      "lastSeen": "2026-07-29T19:50:41.624000Z"
     },
     {
       "name": "BBC-L2-AP-C934",
@@ -410,7 +410,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "warning",
-      "lastSeen": "2026-07-29T17:45:17.206000Z"
+      "lastSeen": "2026-07-29T19:50:11.983000Z"
     },
     {
       "name": "BBC-L2-AP-CAD4",
@@ -420,7 +420,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:15.460000Z"
+      "lastSeen": "2026-07-29T19:50:28.207000Z"
     },
     {
       "name": "BBC-L2-AP-D1CA",
@@ -430,7 +430,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:04.403000Z"
+      "lastSeen": "2026-07-29T19:50:35.963000Z"
     },
     {
       "name": "BBC-L2-AP-D3A3",
@@ -440,7 +440,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:18.148000Z"
+      "lastSeen": "2026-07-29T19:50:30.105000Z"
     },
     {
       "name": "BBC-L2-AP-D7BD",
@@ -450,7 +450,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:14.863000Z"
+      "lastSeen": "2026-07-29T19:50:35.359000Z"
     },
     {
       "name": "BBC-L2-AP-D7C3",
@@ -460,7 +460,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:57.474000Z"
+      "lastSeen": "2026-07-29T19:50:42.244000Z"
     },
     {
       "name": "BBC-L2-AP-DA2D",
@@ -470,7 +470,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:55.576000Z"
+      "lastSeen": "2026-07-29T19:50:41.298000Z"
     },
     {
       "name": "BBC-L2-AP-E045",
@@ -480,7 +480,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:16.260000Z"
+      "lastSeen": "2026-07-29T19:50:27.505000Z"
     },
     {
       "name": "BBC-L2-AP-EDDE",
@@ -490,7 +490,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:30.996000Z"
+      "lastSeen": "2026-07-29T19:50:22.826000Z"
     },
     {
       "name": "BBC-L3-AP-B317",
@@ -500,7 +500,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:27.972000Z"
+      "lastSeen": "2026-07-29T19:50:22.974000Z"
     },
     {
       "name": "BBC-L3-AP-C7C8",
@@ -520,7 +520,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:12.956000Z"
+      "lastSeen": "2026-07-29T19:50:10.242000Z"
     },
     {
       "name": "BBC-L3-AP-D054",
@@ -530,7 +530,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:16.429000Z"
+      "lastSeen": "2026-07-29T19:49:58.646000Z"
     },
     {
       "name": "BBC-L3-AP-D148",
@@ -540,7 +540,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:57.827000Z"
+      "lastSeen": "2026-07-29T19:50:34.540000Z"
     },
     {
       "name": "BBC-L3-AP-DAAF",
@@ -550,7 +550,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:28.900000Z"
+      "lastSeen": "2026-07-29T19:50:02.622000Z"
     },
     {
       "name": "BBC-L3-AP-DCD7",
@@ -560,7 +560,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:45.294000Z"
+      "lastSeen": "2026-07-29T19:50:21.411000Z"
     },
     {
       "name": "BBC-L3-AP-DED1",
@@ -570,7 +570,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:54.842000Z"
+      "lastSeen": "2026-07-29T19:50:34.491000Z"
     },
     {
       "name": "BBC-L4-AP-B401",
@@ -580,7 +580,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:00.464000Z"
+      "lastSeen": "2026-07-29T19:50:15.388000Z"
     },
     {
       "name": "BBC-L4-AP-B405",
@@ -590,7 +590,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:21.267000Z"
+      "lastSeen": "2026-07-29T19:50:40.087000Z"
     },
     {
       "name": "BBC-L4-AP-B407",
@@ -600,7 +600,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:16.444000Z"
+      "lastSeen": "2026-07-29T19:49:59.947000Z"
     },
     {
       "name": "BBC-L4-AP-B408",
@@ -610,7 +610,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:26.390000Z"
+      "lastSeen": "2026-07-29T19:50:19.402000Z"
     },
     {
       "name": "BBC-L4-AP-B409",
@@ -620,7 +620,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:59.161000Z"
+      "lastSeen": "2026-07-29T19:50:25.962000Z"
     },
     {
       "name": "BBC-L4-AP-B410",
@@ -630,7 +630,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:59.752000Z"
+      "lastSeen": "2026-07-29T19:50:24.659000Z"
     },
     {
       "name": "BBC-L4-AP-B411",
@@ -640,7 +640,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:58.749000Z"
+      "lastSeen": "2026-07-29T19:50:04.692000Z"
     },
     {
       "name": "BBC-L4-AP-B412",
@@ -650,7 +650,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:58.412000Z"
+      "lastSeen": "2026-07-29T19:50:15.755000Z"
     },
     {
       "name": "BBC-L4-AP-B413",
@@ -660,7 +660,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:47.593000Z"
+      "lastSeen": "2026-07-29T19:50:17.465000Z"
     },
     {
       "name": "BBC-L4-AP-B415",
@@ -670,7 +670,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:25.265000Z"
+      "lastSeen": "2026-07-29T19:50:21.416000Z"
     },
     {
       "name": "BBC-L4-AP-B418",
@@ -680,7 +680,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:24.548000Z"
+      "lastSeen": "2026-07-29T19:50:18.524000Z"
     },
     {
       "name": "BBC-L5-AP-C4AB",
@@ -690,7 +690,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:28.729000Z"
+      "lastSeen": "2026-07-29T19:50:04.249000Z"
     },
     {
       "name": "BBC-L5-AP-F996",
@@ -700,7 +700,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:59.731000Z"
+      "lastSeen": "2026-07-29T19:50:21.411000Z"
     },
     {
       "name": "BBC-LG-AP-0126",
@@ -720,7 +720,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:04.968000Z"
+      "lastSeen": "2026-07-29T19:50:21.963000Z"
     },
     {
       "name": "BBC-LG-AP-03BC",
@@ -730,7 +730,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:57.479000Z"
+      "lastSeen": "2026-07-29T19:50:34.149000Z"
     },
     {
       "name": "BBC-LG-AP-C060",
@@ -740,7 +740,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:12.640000Z"
+      "lastSeen": "2026-07-29T19:50:09.645000Z"
     },
     {
       "name": "BBC-LG-AP-C4E9",
@@ -750,7 +750,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:49.672000Z"
+      "lastSeen": "2026-07-29T19:50:30.891000Z"
     },
     {
       "name": "BBC-LG-AP-DE04",
@@ -760,7 +760,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:30.769000Z"
+      "lastSeen": "2026-07-29T19:50:42.778000Z"
     },
     {
       "name": "BBC-LG-AP-F2BE",
@@ -770,7 +770,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:09.457000Z"
+      "lastSeen": "2026-07-29T19:50:01.578000Z"
     },
     {
       "name": "BBC-LG-AP-F6D4",
@@ -780,7 +780,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:51.737000Z"
+      "lastSeen": "2026-07-29T19:50:03.666000Z"
     },
     {
       "name": "BBC-LG-AP-FCC9",
@@ -790,7 +790,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:25.102000Z"
+      "lastSeen": "2026-07-29T19:49:59.676000Z"
     },
     {
       "name": "(unnamed)",
@@ -810,7 +810,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-6",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:07.199000Z"
+      "lastSeen": "2026-07-29T19:50:35.621000Z"
     },
     {
       "name": "(unnamed)",
@@ -830,7 +830,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-6",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:30.924000Z"
+      "lastSeen": "2026-07-29T19:50:03.591000Z"
     },
     {
       "name": "(unnamed)",
@@ -840,7 +840,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-6",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:51.357000Z"
+      "lastSeen": "2026-07-29T19:50:02.768000Z"
     },
     {
       "name": "(unnamed)",
@@ -850,7 +850,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-6",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:20.744000Z"
+      "lastSeen": "2026-07-29T19:50:19.040000Z"
     },
     {
       "name": "(unnamed)",
@@ -900,7 +900,7 @@ const WIRELESS = {
       "model": "MR42",
       "firmware": "wireless-30-7-1",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:51.963000Z"
+      "lastSeen": "2026-07-29T19:50:18.051000Z"
     },
     {
       "name": "SACS-CHC-AP-1775",
@@ -910,7 +910,7 @@ const WIRELESS = {
       "model": "MR42",
       "firmware": "wireless-30-7-1",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:58.304000Z"
+      "lastSeen": "2026-07-29T19:50:05.454000Z"
     },
     {
       "name": "SACS-CHC-AP-1809",
@@ -920,7 +920,7 @@ const WIRELESS = {
       "model": "MR42",
       "firmware": "wireless-30-7-1",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:15.072000Z"
+      "lastSeen": "2026-07-29T19:50:21.405000Z"
     },
     {
       "name": "SACS-CHC-AP-1833",
@@ -930,7 +930,7 @@ const WIRELESS = {
       "model": "MR42",
       "firmware": "wireless-30-7-1",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:11.765000Z"
+      "lastSeen": "2026-07-29T19:50:21.635000Z"
     },
     {
       "name": "SACS-CHC-AP-1841",
@@ -940,7 +940,7 @@ const WIRELESS = {
       "model": "MR42",
       "firmware": "wireless-30-7-1",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:55.251000Z"
+      "lastSeen": "2026-07-29T19:49:55.991000Z"
     },
     {
       "name": "SACS-CHC-AP-1861",
@@ -950,7 +950,7 @@ const WIRELESS = {
       "model": "MR42",
       "firmware": "wireless-30-7-1",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:09.136000Z"
+      "lastSeen": "2026-07-29T19:50:36.312000Z"
     },
     {
       "name": "SAH-G-AP-SG02-RECEPTION",
@@ -960,7 +960,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:53.819000Z"
+      "lastSeen": "2026-07-29T19:50:00.037000Z"
     },
     {
       "name": "SAH-G-AP-SG06",
@@ -990,7 +990,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:21.985000Z"
+      "lastSeen": "2026-07-29T19:50:22.455000Z"
     },
     {
       "name": "SAH-G-AP-SG11",
@@ -1000,7 +1000,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:08.959000Z"
+      "lastSeen": "2026-07-29T19:50:10.309000Z"
     },
     {
       "name": "SAH-G-AP-SG12",
@@ -1010,7 +1010,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:57.969000Z"
+      "lastSeen": "2026-07-29T19:50:35.302000Z"
     },
     {
       "name": "SAH-G-AP-SG12 WEST",
@@ -1020,7 +1020,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:51.383000Z"
+      "lastSeen": "2026-07-29T19:50:14.080000Z"
     },
     {
       "name": "SAH-L3-AP-B6C5",
@@ -1040,7 +1040,7 @@ const WIRELESS = {
       "model": "MR57",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:17.526000Z"
+      "lastSeen": "2026-07-29T19:49:57.842000Z"
     },
     {
       "name": "SAH-L3-AP-FACILITIES-Above-Mitch",
@@ -1050,7 +1050,7 @@ const WIRELESS = {
       "model": "MR57",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:08.970000Z"
+      "lastSeen": "2026-07-29T19:50:21.638000Z"
     },
     {
       "name": "SAH-L3-AP-OUTSIDE-IT-OFFICE",
@@ -1060,7 +1060,7 @@ const WIRELESS = {
       "model": "MR57",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:12.852000Z"
+      "lastSeen": "2026-07-29T19:50:35.210000Z"
     },
     {
       "name": "SAH-L3-AP-WINGARA-FAR-BACK",
@@ -1070,7 +1070,7 @@ const WIRELESS = {
       "model": "MR57",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:54.689000Z"
+      "lastSeen": "2026-07-29T19:50:21.425000Z"
     },
     {
       "name": "SAH-L3-AP-WINGARA-FRONT",
@@ -1080,7 +1080,7 @@ const WIRELESS = {
       "model": "MR57",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:22.589000Z"
+      "lastSeen": "2026-07-29T19:50:36.001000Z"
     },
     {
       "name": "SAH-L4-AP-LOCKERS",
@@ -1090,7 +1090,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:27.654000Z"
+      "lastSeen": "2026-07-29T19:50:35.639000Z"
     },
     {
       "name": "SAH-L4-AP-S401",
@@ -1100,7 +1100,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:15.020000Z"
+      "lastSeen": "2026-07-29T19:50:15.817000Z"
     },
     {
       "name": "SAH-L4-AP-S410",
@@ -1110,7 +1110,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:18.620000Z"
+      "lastSeen": "2026-07-29T19:50:30.388000Z"
     },
     {
       "name": "SAH-L4-AP-S411",
@@ -1120,7 +1120,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:07.543000Z"
+      "lastSeen": "2026-07-29T19:50:21.963000Z"
     },
     {
       "name": "SAH-L4-AP-S413",
@@ -1130,7 +1130,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:55.895000Z"
+      "lastSeen": "2026-07-29T19:50:21.415000Z"
     },
     {
       "name": "SAH-L4-AP-S417",
@@ -1140,7 +1140,7 @@ const WIRELESS = {
       "model": "MR46",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:07.556000Z"
+      "lastSeen": "2026-07-29T19:50:17.236000Z"
     },
     {
       "name": "SAH-L4-AP-S423",
@@ -1150,7 +1150,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:49.401000Z"
+      "lastSeen": "2026-07-29T19:50:25.604000Z"
     },
     {
       "name": "SAH-L4-AP-S424",
@@ -1160,7 +1160,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:14.874000Z"
+      "lastSeen": "2026-07-29T19:50:04.342000Z"
     },
     {
       "name": "SAH-L4-AP-S426",
@@ -1170,7 +1170,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:30.574000Z"
+      "lastSeen": "2026-07-29T19:50:15.387000Z"
     },
     {
       "name": "SAH-L4-AP-S436",
@@ -1180,7 +1180,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:03.502000Z"
+      "lastSeen": "2026-07-29T19:50:22.591000Z"
     },
     {
       "name": "SAH-L5-AP-B482",
@@ -1190,7 +1190,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "warning",
-      "lastSeen": "2026-07-29T17:45:01.160000Z"
+      "lastSeen": "2026-07-29T19:50:29.029000Z"
     },
     {
       "name": "SAH-L5-AP-BE4C",
@@ -1200,7 +1200,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "warning",
-      "lastSeen": "2026-07-29T17:44:51.507000Z"
+      "lastSeen": "2026-07-29T19:50:01.640000Z"
     },
     {
       "name": "SAH-L5-AP-BEF3",
@@ -1210,7 +1210,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "warning",
-      "lastSeen": "2026-07-29T17:45:20.750000Z"
+      "lastSeen": "2026-07-29T19:49:56.428000Z"
     },
     {
       "name": "SAH-L5-AP-C016",
@@ -1230,7 +1230,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:07.974000Z"
+      "lastSeen": "2026-07-29T19:50:03.974000Z"
     },
     {
       "name": "SAH-L5-AP-CD5F",
@@ -1240,7 +1240,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "warning",
-      "lastSeen": "2026-07-29T17:45:11.094000Z"
+      "lastSeen": "2026-07-29T19:50:40.204000Z"
     },
     {
       "name": "SAH-L5-AP-D231",
@@ -1250,7 +1250,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "warning",
-      "lastSeen": "2026-07-29T17:45:17.421000Z"
+      "lastSeen": "2026-07-29T19:50:34.997000Z"
     },
     {
       "name": "SAH-L5-AP-DB49",
@@ -1260,7 +1260,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:20.813000Z"
+      "lastSeen": "2026-07-29T19:50:15.711000Z"
     },
     {
       "name": "SAH-L5-AP-DF82",
@@ -1280,7 +1280,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:04.257000Z"
+      "lastSeen": "2026-07-29T19:50:13.225000Z"
     },
     {
       "name": "SAH-L5-AP-E334",
@@ -1290,7 +1290,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "warning",
-      "lastSeen": "2026-07-29T17:45:04.876000Z"
+      "lastSeen": "2026-07-29T19:50:14.191000Z"
     },
     {
       "name": "SAH-L5-AP-EECF",
@@ -1300,7 +1300,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "warning",
-      "lastSeen": "2026-07-29T17:45:03.194000Z"
+      "lastSeen": "2026-07-29T19:50:33.275000Z"
     },
     {
       "name": "SAH-L5-AP-F1C7",
@@ -1310,7 +1310,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "warning",
-      "lastSeen": "2026-07-29T17:45:07.647000Z"
+      "lastSeen": "2026-07-29T19:50:29.309000Z"
     },
     {
       "name": "SAH-L5-AP-F2A1",
@@ -1320,7 +1320,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "warning",
-      "lastSeen": "2026-07-29T17:45:32.207000Z"
+      "lastSeen": "2026-07-29T19:50:07.545000Z"
     },
     {
       "name": "SAH-L5-AP-F72F",
@@ -1330,7 +1330,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "warning",
-      "lastSeen": "2026-07-29T17:44:54.683000Z"
+      "lastSeen": "2026-07-29T19:50:09.677000Z"
     },
     {
       "name": "SAH-L5-AP-S532",
@@ -1340,7 +1340,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "warning",
-      "lastSeen": "2026-07-29T17:45:09.387000Z"
+      "lastSeen": "2026-07-29T19:50:16.013000Z"
     },
     {
       "name": "SAH-L5-AP-S540",
@@ -1350,7 +1350,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "warning",
-      "lastSeen": "2026-07-29T17:44:48.459000Z"
+      "lastSeen": "2026-07-29T19:50:18.237000Z"
     },
     {
       "name": "SAH-L5-H-AP-3742",
@@ -1360,7 +1360,7 @@ const WIRELESS = {
       "model": "MR57",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:53.391000Z"
+      "lastSeen": "2026-07-29T19:50:31.298000Z"
     },
     {
       "name": "SAH-L5-H-AP-3BB2",
@@ -1370,7 +1370,7 @@ const WIRELESS = {
       "model": "MR57",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:01.259000Z"
+      "lastSeen": "2026-07-29T19:50:28.842000Z"
     },
     {
       "name": "SAH-L5-H-AP-3ED2",
@@ -1380,7 +1380,7 @@ const WIRELESS = {
       "model": "MR57",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:24.828000Z"
+      "lastSeen": "2026-07-29T19:50:03.570000Z"
     },
     {
       "name": "SAH-L5-H-AP-40B2",
@@ -1390,7 +1390,7 @@ const WIRELESS = {
       "model": "MR57",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:09.335000Z"
+      "lastSeen": "2026-07-29T19:49:58.525000Z"
     },
     {
       "name": "SAH-L6-AP-01B4",
@@ -1400,7 +1400,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:51.383000Z"
+      "lastSeen": "2026-07-29T19:50:06.112000Z"
     },
     {
       "name": "SAH-L6-AP-B185",
@@ -1410,7 +1410,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:14.870000Z"
+      "lastSeen": "2026-07-29T19:50:22.015000Z"
     },
     {
       "name": "SAH-L6-AP-BBE1",
@@ -1420,7 +1420,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:28.681000Z"
+      "lastSeen": "2026-07-29T19:50:33.264000Z"
     },
     {
       "name": "SAH-L6-AP-C01F",
@@ -1430,7 +1430,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:00.604000Z"
+      "lastSeen": "2026-07-29T19:50:38.945000Z"
     },
     {
       "name": "SAH-L6-AP-C239",
@@ -1440,7 +1440,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:27.613000Z"
+      "lastSeen": "2026-07-29T19:50:38.946000Z"
     },
     {
       "name": "SAH-L6-AP-C726",
@@ -1450,7 +1450,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:51.386000Z"
+      "lastSeen": "2026-07-29T19:50:01.954000Z"
     },
     {
       "name": "SAH-L6-AP-C876",
@@ -1460,7 +1460,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:52.627000Z"
+      "lastSeen": "2026-07-29T19:50:12.637000Z"
     },
     {
       "name": "SAH-L6-AP-CC50",
@@ -1470,7 +1470,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:14.872000Z"
+      "lastSeen": "2026-07-29T19:50:39.345000Z"
     },
     {
       "name": "SAH-L6-AP-CDDB",
@@ -1480,7 +1480,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:09.928000Z"
+      "lastSeen": "2026-07-29T19:50:31.226000Z"
     },
     {
       "name": "SAH-L6-AP-CF0B",
@@ -1490,7 +1490,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:32.201000Z"
+      "lastSeen": "2026-07-29T19:50:29.689000Z"
     },
     {
       "name": "SAH-L6-AP-DA1C",
@@ -1500,7 +1500,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:20.796000Z"
+      "lastSeen": "2026-07-29T19:50:21.562000Z"
     },
     {
       "name": "SAH-L6-AP-DD66",
@@ -1510,7 +1510,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:18.202000Z"
+      "lastSeen": "2026-07-29T19:50:21.632000Z"
     },
     {
       "name": "SAH-L6-AP-DF30",
@@ -1520,7 +1520,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:23.531000Z"
+      "lastSeen": "2026-07-29T19:50:04.579000Z"
     },
     {
       "name": "SAH-L6-AP-EF0B",
@@ -1530,7 +1530,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:52.454000Z"
+      "lastSeen": "2026-07-29T19:50:12.087000Z"
     },
     {
       "name": "SAH-L6-AP-EFFC",
@@ -1540,7 +1540,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:13.229000Z"
+      "lastSeen": "2026-07-29T19:50:29.418000Z"
     },
     {
       "name": "SAH-L6-AP-F1AD",
@@ -1550,7 +1550,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:32.208000Z"
+      "lastSeen": "2026-07-29T19:50:04.097000Z"
     },
     {
       "name": "SAH-L6-AP-F741",
@@ -1560,7 +1560,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:47.604000Z"
+      "lastSeen": "2026-07-29T19:50:24.659000Z"
     },
     {
       "name": "SAH-L6-AP-F990",
@@ -1570,7 +1570,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:15.803000Z"
+      "lastSeen": "2026-07-29T19:50:29.613000Z"
     },
     {
       "name": "SAH-L7-AP-BB2B",
@@ -1580,7 +1580,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:10.179000Z"
+      "lastSeen": "2026-07-29T19:50:33.434000Z"
     },
     {
       "name": "SAH-L7-AP-BBBB",
@@ -1590,7 +1590,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:58.618000Z"
+      "lastSeen": "2026-07-29T19:50:05.171000Z"
     },
     {
       "name": "SAH-L7-AP-BEC3",
@@ -1600,7 +1600,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:05.329000Z"
+      "lastSeen": "2026-07-29T19:50:27.982000Z"
     },
     {
       "name": "SAH-L7-AP-C028",
@@ -1610,7 +1610,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:19.128000Z"
+      "lastSeen": "2026-07-29T19:50:07.143000Z"
     },
     {
       "name": "SAH-L7-AP-C1E7",
@@ -1620,7 +1620,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:11.774000Z"
+      "lastSeen": "2026-07-29T19:50:07.565000Z"
     },
     {
       "name": "SAH-L7-AP-C3D7",
@@ -1630,7 +1630,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:54.426000Z"
+      "lastSeen": "2026-07-29T19:50:23.165000Z"
     },
     {
       "name": "SAH-L7-AP-C65F",
@@ -1640,7 +1640,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:03.166000Z"
+      "lastSeen": "2026-07-29T19:50:24.699000Z"
     },
     {
       "name": "SAH-L7-AP-C79E",
@@ -1660,7 +1660,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:05.518000Z"
+      "lastSeen": "2026-07-29T19:50:40.081000Z"
     },
     {
       "name": "SAH-L7-AP-D512",
@@ -1670,7 +1670,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:19.137000Z"
+      "lastSeen": "2026-07-29T19:49:57.834000Z"
     },
     {
       "name": "SAH-L7-AP-D608",
@@ -1680,7 +1680,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:08.957000Z"
+      "lastSeen": "2026-07-29T19:50:01.578000Z"
     },
     {
       "name": "SAH-L7-AP-D60B",
@@ -1690,7 +1690,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:59.695000Z"
+      "lastSeen": "2026-07-29T19:50:16.130000Z"
     },
     {
       "name": "SAH-L7-AP-D7D5",
@@ -1700,7 +1700,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:53.893000Z"
+      "lastSeen": "2026-07-29T19:50:07.093000Z"
     },
     {
       "name": "SAH-L7-AP-D895",
@@ -1710,7 +1710,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:53.202000Z"
+      "lastSeen": "2026-07-29T19:50:13.186000Z"
     },
     {
       "name": "SAH-L7-AP-DA23",
@@ -1720,7 +1720,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:01.756000Z"
+      "lastSeen": "2026-07-29T19:50:41.554000Z"
     },
     {
       "name": "SAH-L7-AP-DBC8",
@@ -1730,7 +1730,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:06.089000Z"
+      "lastSeen": "2026-07-29T19:50:36.112000Z"
     },
     {
       "name": "SAH-L7-AP-E006",
@@ -1740,7 +1740,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:54.605000Z"
+      "lastSeen": "2026-07-29T19:50:15.389000Z"
     },
     {
       "name": "SAH-L7-AP-EF20",
@@ -1750,7 +1750,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:00.321000Z"
+      "lastSeen": "2026-07-29T19:50:24.989000Z"
     },
     {
       "name": "SAH-L7-AP-F3FA",
@@ -1760,7 +1760,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "warning",
-      "lastSeen": "2026-07-29T17:45:08.957000Z"
+      "lastSeen": "2026-07-29T19:50:05.635000Z"
     },
     {
       "name": "SAH-L7-AP-F921",
@@ -1770,7 +1770,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:11.048000Z"
+      "lastSeen": "2026-07-29T19:50:03.563000Z"
     },
     {
       "name": "SAH-L7-AP-FAFD",
@@ -1780,7 +1780,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:15.232000Z"
+      "lastSeen": "2026-07-29T19:50:39.043000Z"
     },
     {
       "name": "SAH-L7-AP-FB25",
@@ -1790,7 +1790,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:29.943000Z"
+      "lastSeen": "2026-07-29T19:50:09.647000Z"
     },
     {
       "name": "SAH-L7-AP-S703",
@@ -1800,7 +1800,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:03.176000Z"
+      "lastSeen": "2026-07-29T19:50:33.840000Z"
     },
     {
       "name": "SAH-L8-AP-B759",
@@ -1810,7 +1810,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:52.881000Z"
+      "lastSeen": "2026-07-29T19:50:06.930000Z"
     },
     {
       "name": "SAH-L8-AP-BD12",
@@ -1820,7 +1820,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:27.327000Z"
+      "lastSeen": "2026-07-29T19:50:18.975000Z"
     },
     {
       "name": "SAH-L8-AP-BECE",
@@ -1830,7 +1830,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:21.067000Z"
+      "lastSeen": "2026-07-29T19:50:31.916000Z"
     },
     {
       "name": "SAH-L8-AP-BFD9",
@@ -1840,7 +1840,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:17.313000Z"
+      "lastSeen": "2026-07-29T19:50:25.044000Z"
     },
     {
       "name": "SAH-L8-AP-BFDA",
@@ -1850,7 +1850,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:08.972000Z"
+      "lastSeen": "2026-07-29T19:50:38.947000Z"
     },
     {
       "name": "SAH-L8-AP-C089",
@@ -1860,7 +1860,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:07.587000Z"
+      "lastSeen": "2026-07-29T19:50:40.574000Z"
     },
     {
       "name": "SAH-L8-AP-C576",
@@ -1870,7 +1870,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:27.838000Z"
+      "lastSeen": "2026-07-29T19:50:29.088000Z"
     },
     {
       "name": "SAH-L8-AP-C5EF",
@@ -1880,7 +1880,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:33.260000Z"
+      "lastSeen": "2026-07-29T19:50:12.445000Z"
     },
     {
       "name": "SAH-L8-AP-C835",
@@ -1890,7 +1890,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:27.626000Z"
+      "lastSeen": "2026-07-29T19:50:15.387000Z"
     },
     {
       "name": "SAH-L8-AP-CE5F",
@@ -1900,7 +1900,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:57.886000Z"
+      "lastSeen": "2026-07-29T19:50:34.490000Z"
     },
     {
       "name": "SAH-L8-AP-D020",
@@ -1910,7 +1910,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:05.996000Z"
+      "lastSeen": "2026-07-29T19:50:42.043000Z"
     },
     {
       "name": "SAH-L8-AP-D476",
@@ -1920,7 +1920,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:03.507000Z"
+      "lastSeen": "2026-07-29T19:50:05.238000Z"
     },
     {
       "name": "SAH-L8-AP-D4CB",
@@ -1930,7 +1930,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:44:46.651000Z"
+      "lastSeen": "2026-07-29T19:50:08.172000Z"
     },
     {
       "name": "SAH-L8-AP-DDC9",
@@ -1940,7 +1940,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:20.703000Z"
+      "lastSeen": "2026-07-29T19:50:23.023000Z"
     },
     {
       "name": "SAH-L8-AP-EFF4",
@@ -1950,7 +1950,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:21.683000Z"
+      "lastSeen": "2026-07-29T19:50:10.262000Z"
     },
     {
       "name": "SAH-L8-AP-F7F0",
@@ -1960,7 +1960,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:14.869000Z"
+      "lastSeen": "2026-07-29T19:50:19.574000Z"
     },
     {
       "name": "SAH-L8-AP-S815",
@@ -1970,7 +1970,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:15.214000Z"
+      "lastSeen": "2026-07-29T19:50:40.313000Z"
     },
     {
       "name": "SAH-L9-AP-S901 After School Care",
@@ -1980,7 +1980,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:05.406000Z"
+      "lastSeen": "2026-07-29T19:49:55.860000Z"
     },
     {
       "name": "SAH-L9-AP-S915 North Rooftop",
@@ -1990,7 +1990,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "warning",
-      "lastSeen": "2026-07-29T17:45:19.577000Z"
+      "lastSeen": "2026-07-29T19:50:23.616000Z"
     },
     {
       "name": "SAH-P2-AP-D45E",
@@ -2000,7 +2000,7 @@ const WIRELESS = {
       "model": "MR44",
       "firmware": "wireless-32-1-7",
       "status": "up",
-      "lastSeen": "2026-07-29T17:45:07.630000Z"
+      "lastSeen": "2026-07-29T19:50:43.006000Z"
     },
     {
       "name": "BBC-L3-AP-C65A",
@@ -2120,7 +2120,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-16-9",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:08.979000Z"
+        "lastSeen": "2026-07-29T19:50:04.931000Z"
       },
       {
         "name": "BBC-G-AP-3572",
@@ -2130,7 +2130,7 @@ const WIRELESS = {
         "model": "MR57",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:12.814000Z"
+        "lastSeen": "2026-07-29T19:50:05.537000Z"
       },
       {
         "name": "BBC-G-AP-3D62",
@@ -2150,7 +2150,7 @@ const WIRELESS = {
         "model": "MR57",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:00.402000Z"
+        "lastSeen": "2026-07-29T19:50:31.165000Z"
       },
       {
         "name": "BBC-G-AP-BF5C",
@@ -2160,7 +2160,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:59.804000Z"
+        "lastSeen": "2026-07-29T19:50:17.720000Z"
       },
       {
         "name": "BBC-G-AP-C51B",
@@ -2170,7 +2170,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:54.121000Z"
+        "lastSeen": "2026-07-29T19:50:16.150000Z"
       },
       {
         "name": "BBC-G-AP-CC6A",
@@ -2180,7 +2180,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:26.389000Z"
+        "lastSeen": "2026-07-29T19:50:31.506000Z"
       },
       {
         "name": "BBC-G-AP-F86A",
@@ -2190,7 +2190,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:18.942000Z"
+        "lastSeen": "2026-07-29T19:50:28.806000Z"
       },
       {
         "name": "BBC-G-AP-F90A",
@@ -2200,7 +2200,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:18.728000Z"
+        "lastSeen": "2026-07-29T19:50:00.202000Z"
       },
       {
         "name": "BBC-G-AP-F9E1",
@@ -2210,7 +2210,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:57.465000Z"
+        "lastSeen": "2026-07-29T19:50:31.708000Z"
       },
       {
         "name": "BBC-G-R1-1",
@@ -2220,7 +2220,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-16-9",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:26.406000Z"
+        "lastSeen": "2026-07-29T19:50:14.207000Z"
       },
       {
         "name": "BBC-L1-AP-013D",
@@ -2230,7 +2230,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:24.248000Z"
+        "lastSeen": "2026-07-29T19:49:57.830000Z"
       },
       {
         "name": "BBC-L1-AP-B108",
@@ -2240,7 +2240,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:03.165000Z"
+        "lastSeen": "2026-07-29T19:50:38.945000Z"
       },
       {
         "name": "BBC-L1-AP-BBBD",
@@ -2250,7 +2250,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:48.209000Z"
+        "lastSeen": "2026-07-29T19:50:21.412000Z"
       },
       {
         "name": "BBC-L1-AP-BE41",
@@ -2260,7 +2260,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:00.286000Z"
+        "lastSeen": "2026-07-29T19:50:36.097000Z"
       },
       {
         "name": "BBC-L1-AP-BE7B",
@@ -2270,7 +2270,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:24.776000Z"
+        "lastSeen": "2026-07-29T19:50:36.671000Z"
       },
       {
         "name": "BBC-L1-AP-BFDB",
@@ -2280,7 +2280,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:23.363000Z"
+        "lastSeen": "2026-07-29T19:50:04.903000Z"
       },
       {
         "name": "BBC-L1-AP-CD48",
@@ -2290,7 +2290,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:51.389000Z"
+        "lastSeen": "2026-07-29T19:50:09.648000Z"
       },
       {
         "name": "BBC-L1-AP-D140",
@@ -2300,7 +2300,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:03.167000Z"
+        "lastSeen": "2026-07-29T19:50:37.826000Z"
       },
       {
         "name": "BBC-L1-AP-D175",
@@ -2310,7 +2310,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:32.193000Z"
+        "lastSeen": "2026-07-29T19:50:34.175000Z"
       },
       {
         "name": "BBC-L1-AP-D52A",
@@ -2320,7 +2320,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:45.962000Z"
+        "lastSeen": "2026-07-29T19:50:09.658000Z"
       },
       {
         "name": "BBC-L1-AP-D785",
@@ -2340,7 +2340,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:33.261000Z"
+        "lastSeen": "2026-07-29T19:50:33.578000Z"
       },
       {
         "name": "BBC-L1-AP-E001",
@@ -2350,7 +2350,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:07.200000Z"
+        "lastSeen": "2026-07-29T19:50:17.366000Z"
       },
       {
         "name": "BBC-L1-AP-EF3E",
@@ -2360,7 +2360,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:27.201000Z"
+        "lastSeen": "2026-07-29T19:50:31.137000Z"
       },
       {
         "name": "BBC-L1-AP-FFF8",
@@ -2370,7 +2370,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:16.151000Z"
+        "lastSeen": "2026-07-29T19:50:19.232000Z"
       },
       {
         "name": "BBC-L1-AP-Reception",
@@ -2380,7 +2380,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:15.849000Z"
+        "lastSeen": "2026-07-29T19:50:24.014000Z"
       },
       {
         "name": "BBC-L1-R1-1",
@@ -2390,7 +2390,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-16-9",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:28.764000Z"
+        "lastSeen": "2026-07-29T19:50:02.323000Z"
       },
       {
         "name": "BBC-L1-R2-1",
@@ -2400,7 +2400,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-16-9",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:57.544000Z"
+        "lastSeen": "2026-07-29T19:50:11.998000Z"
       },
       {
         "name": "BBC-L1-R2-2",
@@ -2410,7 +2410,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-16-9",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:29.270000Z"
+        "lastSeen": "2026-07-29T19:50:27.656000Z"
       },
       {
         "name": "BBC-L2-AP-BF9B",
@@ -2420,7 +2420,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:57.495000Z"
+        "lastSeen": "2026-07-29T19:50:41.717000Z"
       },
       {
         "name": "BBC-L2-AP-C3F2",
@@ -2430,7 +2430,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:17.805000Z"
+        "lastSeen": "2026-07-29T19:50:41.624000Z"
       },
       {
         "name": "BBC-L2-AP-C934",
@@ -2440,7 +2440,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "warning",
-        "lastSeen": "2026-07-29T17:45:17.206000Z"
+        "lastSeen": "2026-07-29T19:50:11.983000Z"
       },
       {
         "name": "BBC-L2-AP-CAD4",
@@ -2450,7 +2450,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:15.460000Z"
+        "lastSeen": "2026-07-29T19:50:28.207000Z"
       },
       {
         "name": "BBC-L2-AP-D1CA",
@@ -2460,7 +2460,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:04.403000Z"
+        "lastSeen": "2026-07-29T19:50:35.963000Z"
       },
       {
         "name": "BBC-L2-AP-D3A3",
@@ -2470,7 +2470,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:18.148000Z"
+        "lastSeen": "2026-07-29T19:50:30.105000Z"
       },
       {
         "name": "BBC-L2-AP-D7BD",
@@ -2480,7 +2480,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:14.863000Z"
+        "lastSeen": "2026-07-29T19:50:35.359000Z"
       },
       {
         "name": "BBC-L2-AP-D7C3",
@@ -2490,7 +2490,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:57.474000Z"
+        "lastSeen": "2026-07-29T19:50:42.244000Z"
       },
       {
         "name": "BBC-L2-AP-DA2D",
@@ -2500,7 +2500,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:55.576000Z"
+        "lastSeen": "2026-07-29T19:50:41.298000Z"
       },
       {
         "name": "BBC-L2-AP-E045",
@@ -2510,7 +2510,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:16.260000Z"
+        "lastSeen": "2026-07-29T19:50:27.505000Z"
       },
       {
         "name": "BBC-L2-AP-EDDE",
@@ -2520,7 +2520,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:30.996000Z"
+        "lastSeen": "2026-07-29T19:50:22.826000Z"
       },
       {
         "name": "BBC-L2-R1-1",
@@ -2530,7 +2530,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-16-9",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:12.798000Z"
+        "lastSeen": "2026-07-29T19:50:36.171000Z"
       },
       {
         "name": "BBC-L2-R1-2",
@@ -2540,7 +2540,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-16-9",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:32.425000Z"
+        "lastSeen": "2026-07-29T19:50:29.896000Z"
       },
       {
         "name": "BBC-L3-AP-B317",
@@ -2550,7 +2550,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:27.972000Z"
+        "lastSeen": "2026-07-29T19:50:22.974000Z"
       },
       {
         "name": "BBC-L3-AP-C7C8",
@@ -2570,7 +2570,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:12.956000Z"
+        "lastSeen": "2026-07-29T19:50:10.242000Z"
       },
       {
         "name": "BBC-L3-AP-D054",
@@ -2580,7 +2580,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:16.429000Z"
+        "lastSeen": "2026-07-29T19:49:58.646000Z"
       },
       {
         "name": "BBC-L3-AP-D148",
@@ -2590,7 +2590,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:57.827000Z"
+        "lastSeen": "2026-07-29T19:50:34.540000Z"
       },
       {
         "name": "BBC-L3-AP-DAAF",
@@ -2600,7 +2600,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:28.900000Z"
+        "lastSeen": "2026-07-29T19:50:02.622000Z"
       },
       {
         "name": "BBC-L3-AP-DCD7",
@@ -2610,7 +2610,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:45.294000Z"
+        "lastSeen": "2026-07-29T19:50:21.411000Z"
       },
       {
         "name": "BBC-L3-AP-DED1",
@@ -2620,7 +2620,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:54.842000Z"
+        "lastSeen": "2026-07-29T19:50:34.491000Z"
       },
       {
         "name": "BBC-L3-C1-1",
@@ -2630,7 +2630,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-16-9",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:28.149000Z"
+        "lastSeen": "2026-07-29T19:50:23.705000Z"
       },
       {
         "name": "BBC-L3-C1-2",
@@ -2640,7 +2640,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-16-9",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:54.077000Z"
+        "lastSeen": "2026-07-29T19:50:27.341000Z"
       },
       {
         "name": "BBC-L3-C1-3",
@@ -2650,7 +2650,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-16-9",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:15.504000Z"
+        "lastSeen": "2026-07-29T19:50:02.210000Z"
       },
       {
         "name": "BBC-L3-C1-4",
@@ -2660,7 +2660,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-16-9",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:51.446000Z"
+        "lastSeen": "2026-07-29T19:50:11.611000Z"
       },
       {
         "name": "BBC-L3-C1-TEMP-01",
@@ -2680,7 +2680,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:00.464000Z"
+        "lastSeen": "2026-07-29T19:50:15.388000Z"
       },
       {
         "name": "BBC-L4-AP-B405",
@@ -2690,7 +2690,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:21.267000Z"
+        "lastSeen": "2026-07-29T19:50:40.087000Z"
       },
       {
         "name": "BBC-L4-AP-B407",
@@ -2700,7 +2700,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:16.444000Z"
+        "lastSeen": "2026-07-29T19:49:59.947000Z"
       },
       {
         "name": "BBC-L4-AP-B408",
@@ -2710,7 +2710,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:26.390000Z"
+        "lastSeen": "2026-07-29T19:50:19.402000Z"
       },
       {
         "name": "BBC-L4-AP-B409",
@@ -2720,7 +2720,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:59.161000Z"
+        "lastSeen": "2026-07-29T19:50:25.962000Z"
       },
       {
         "name": "BBC-L4-AP-B410",
@@ -2730,7 +2730,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:59.752000Z"
+        "lastSeen": "2026-07-29T19:50:24.659000Z"
       },
       {
         "name": "BBC-L4-AP-B411",
@@ -2740,7 +2740,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:58.749000Z"
+        "lastSeen": "2026-07-29T19:50:04.692000Z"
       },
       {
         "name": "BBC-L4-AP-B412",
@@ -2750,7 +2750,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:58.412000Z"
+        "lastSeen": "2026-07-29T19:50:15.755000Z"
       },
       {
         "name": "BBC-L4-AP-B413",
@@ -2760,7 +2760,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:47.593000Z"
+        "lastSeen": "2026-07-29T19:50:17.465000Z"
       },
       {
         "name": "BBC-L4-AP-B415",
@@ -2770,7 +2770,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:25.265000Z"
+        "lastSeen": "2026-07-29T19:50:21.416000Z"
       },
       {
         "name": "BBC-L4-AP-B418",
@@ -2780,7 +2780,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:24.548000Z"
+        "lastSeen": "2026-07-29T19:50:18.524000Z"
       },
       {
         "name": "BBC-L4-R1-1",
@@ -2790,7 +2790,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-16-9",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:59.409000Z"
+        "lastSeen": "2026-07-29T19:50:21.802000Z"
       },
       {
         "name": "BBC-L5-AP-C4AB",
@@ -2800,7 +2800,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:28.729000Z"
+        "lastSeen": "2026-07-29T19:50:04.249000Z"
       },
       {
         "name": "BBC-L5-AP-F996",
@@ -2810,7 +2810,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:59.731000Z"
+        "lastSeen": "2026-07-29T19:50:21.411000Z"
       },
       {
         "name": "BBC-L5-R1-1",
@@ -2820,7 +2820,7 @@ const WIRELESS = {
         "model": "MS120-8FP",
         "firmware": "switch-16-9",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:32.219000Z"
+        "lastSeen": "2026-07-29T19:49:54.731000Z"
       },
       {
         "name": "BBC-LG-AP-0126",
@@ -2840,7 +2840,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:04.968000Z"
+        "lastSeen": "2026-07-29T19:50:21.963000Z"
       },
       {
         "name": "BBC-LG-AP-03BC",
@@ -2850,7 +2850,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:57.479000Z"
+        "lastSeen": "2026-07-29T19:50:34.149000Z"
       },
       {
         "name": "BBC-LG-AP-C060",
@@ -2860,7 +2860,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:12.640000Z"
+        "lastSeen": "2026-07-29T19:50:09.645000Z"
       },
       {
         "name": "BBC-LG-AP-C4E9",
@@ -2870,7 +2870,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:49.672000Z"
+        "lastSeen": "2026-07-29T19:50:30.891000Z"
       },
       {
         "name": "BBC-LG-AP-DE04",
@@ -2880,7 +2880,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:30.769000Z"
+        "lastSeen": "2026-07-29T19:50:42.778000Z"
       },
       {
         "name": "BBC-LG-AP-F2BE",
@@ -2890,7 +2890,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:09.457000Z"
+        "lastSeen": "2026-07-29T19:50:01.578000Z"
       },
       {
         "name": "BBC-LG-AP-F6D4",
@@ -2900,7 +2900,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:51.737000Z"
+        "lastSeen": "2026-07-29T19:50:03.666000Z"
       },
       {
         "name": "BBC-LG-AP-FCC9",
@@ -2910,7 +2910,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:25.102000Z"
+        "lastSeen": "2026-07-29T19:49:59.676000Z"
       },
       {
         "name": "BBC-LG-C1-1",
@@ -2920,7 +2920,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-16-9",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:26.450000Z"
+        "lastSeen": "2026-07-29T19:50:20.321000Z"
       },
       {
         "name": "BBC-LG-C1-2",
@@ -2930,7 +2930,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-16-9",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:10.875000Z"
+        "lastSeen": "2026-07-29T19:50:21.439000Z"
       },
       {
         "name": "BBC-LG-C1-3",
@@ -2940,7 +2940,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-16-9",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:14.883000Z"
+        "lastSeen": "2026-07-29T19:50:33.290000Z"
       },
       {
         "name": "(unnamed)",
@@ -2970,7 +2970,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-6",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:07.199000Z"
+        "lastSeen": "2026-07-29T19:50:35.621000Z"
       },
       {
         "name": "(unnamed)",
@@ -2990,7 +2990,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-6",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:30.924000Z"
+        "lastSeen": "2026-07-29T19:50:03.591000Z"
       },
       {
         "name": "(unnamed)",
@@ -3000,7 +3000,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-6",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:51.357000Z"
+        "lastSeen": "2026-07-29T19:50:02.768000Z"
       },
       {
         "name": "(unnamed)",
@@ -3010,7 +3010,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-6",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:20.744000Z"
+        "lastSeen": "2026-07-29T19:50:19.040000Z"
       },
       {
         "name": "(unnamed)",
@@ -3150,7 +3150,7 @@ const WIRELESS = {
         "model": "MR42",
         "firmware": "wireless-30-7-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:51.963000Z"
+        "lastSeen": "2026-07-29T19:50:18.051000Z"
       },
       {
         "name": "SACS-CATH-SW-01",
@@ -3160,7 +3160,7 @@ const WIRELESS = {
         "model": "MS120-8FP",
         "firmware": "switch-17-2-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:54.463000Z"
+        "lastSeen": "2026-07-29T19:50:25.502000Z"
       },
       {
         "name": "SACS-CHC-AP-1775",
@@ -3170,7 +3170,7 @@ const WIRELESS = {
         "model": "MR42",
         "firmware": "wireless-30-7-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:58.304000Z"
+        "lastSeen": "2026-07-29T19:50:05.454000Z"
       },
       {
         "name": "SACS-CHC-AP-1809",
@@ -3180,7 +3180,7 @@ const WIRELESS = {
         "model": "MR42",
         "firmware": "wireless-30-7-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:15.072000Z"
+        "lastSeen": "2026-07-29T19:50:21.405000Z"
       },
       {
         "name": "SACS-CHC-AP-1833",
@@ -3190,7 +3190,7 @@ const WIRELESS = {
         "model": "MR42",
         "firmware": "wireless-30-7-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:11.765000Z"
+        "lastSeen": "2026-07-29T19:50:21.635000Z"
       },
       {
         "name": "SACS-CHC-AP-1841",
@@ -3200,7 +3200,7 @@ const WIRELESS = {
         "model": "MR42",
         "firmware": "wireless-30-7-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:55.251000Z"
+        "lastSeen": "2026-07-29T19:49:55.991000Z"
       },
       {
         "name": "SACS-CHC-AP-1861",
@@ -3210,7 +3210,7 @@ const WIRELESS = {
         "model": "MR42",
         "firmware": "wireless-30-7-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:09.136000Z"
+        "lastSeen": "2026-07-29T19:50:36.312000Z"
       },
       {
         "name": "SACS-CHC-SW-01",
@@ -3220,7 +3220,7 @@ const WIRELESS = {
         "model": "MS210-48FP",
         "firmware": "switch-17-2-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:51.534000Z"
+        "lastSeen": "2026-07-29T19:50:41.409000Z"
       },
       {
         "name": "SACS-CHC-SW-02",
@@ -3230,7 +3230,7 @@ const WIRELESS = {
         "model": "MS210-48FP",
         "firmware": "switch-17-2-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:52.290000Z"
+        "lastSeen": "2026-07-29T19:50:37.805000Z"
       },
       {
         "name": "SAH-G-AP-SG02-RECEPTION",
@@ -3240,7 +3240,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:53.819000Z"
+        "lastSeen": "2026-07-29T19:50:00.037000Z"
       },
       {
         "name": "SAH-G-AP-SG06",
@@ -3270,7 +3270,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:21.985000Z"
+        "lastSeen": "2026-07-29T19:50:22.455000Z"
       },
       {
         "name": "SAH-G-AP-SG11",
@@ -3280,7 +3280,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:08.959000Z"
+        "lastSeen": "2026-07-29T19:50:10.309000Z"
       },
       {
         "name": "SAH-G-AP-SG12",
@@ -3290,7 +3290,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:57.969000Z"
+        "lastSeen": "2026-07-29T19:50:35.302000Z"
       },
       {
         "name": "SAH-G-AP-SG12 WEST",
@@ -3300,7 +3300,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:51.383000Z"
+        "lastSeen": "2026-07-29T19:50:14.080000Z"
       },
       {
         "name": "SAH-G-R1-1",
@@ -3310,7 +3310,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-17-2-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:15.758000Z"
+        "lastSeen": "2026-07-29T19:50:16.540000Z"
       },
       {
         "name": "SAH-G-R1-2",
@@ -3320,7 +3320,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-17-2-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:21.521000Z"
+        "lastSeen": "2026-07-29T19:49:57.900000Z"
       },
       {
         "name": "SAH-L3-AP-B6C5",
@@ -3340,7 +3340,7 @@ const WIRELESS = {
         "model": "MR57",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:17.526000Z"
+        "lastSeen": "2026-07-29T19:49:57.842000Z"
       },
       {
         "name": "SAH-L3-AP-FACILITIES-Above-Mitch",
@@ -3350,7 +3350,7 @@ const WIRELESS = {
         "model": "MR57",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:08.970000Z"
+        "lastSeen": "2026-07-29T19:50:21.638000Z"
       },
       {
         "name": "SAH-L3-AP-OUTSIDE-IT-OFFICE",
@@ -3360,7 +3360,7 @@ const WIRELESS = {
         "model": "MR57",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:12.852000Z"
+        "lastSeen": "2026-07-29T19:50:35.210000Z"
       },
       {
         "name": "SAH-L3-AP-WINGARA-FAR-BACK",
@@ -3370,7 +3370,7 @@ const WIRELESS = {
         "model": "MR57",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:54.689000Z"
+        "lastSeen": "2026-07-29T19:50:21.425000Z"
       },
       {
         "name": "SAH-L3-AP-WINGARA-FRONT",
@@ -3380,7 +3380,7 @@ const WIRELESS = {
         "model": "MR57",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:22.589000Z"
+        "lastSeen": "2026-07-29T19:50:36.001000Z"
       },
       {
         "name": "SAH-L3-R1-1",
@@ -3390,7 +3390,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-17-2-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:27.627000Z"
+        "lastSeen": "2026-07-29T19:50:13.158000Z"
       },
       {
         "name": "SAH-L3-R1-2",
@@ -3400,7 +3400,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-17-2-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:12.649000Z"
+        "lastSeen": "2026-07-29T19:50:08.065000Z"
       },
       {
         "name": "SAH-L3-R1-3",
@@ -3410,7 +3410,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-17-2-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:05.927000Z"
+        "lastSeen": "2026-07-29T19:50:35.655000Z"
       },
       {
         "name": "SAH-L3-R1-4",
@@ -3420,7 +3420,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-17-2-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:01.556000Z"
+        "lastSeen": "2026-07-29T19:50:17.951000Z"
       },
       {
         "name": "SAH-L4-AP-LOCKERS",
@@ -3430,7 +3430,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:27.654000Z"
+        "lastSeen": "2026-07-29T19:50:35.639000Z"
       },
       {
         "name": "SAH-L4-AP-S401",
@@ -3440,7 +3440,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:15.020000Z"
+        "lastSeen": "2026-07-29T19:50:15.817000Z"
       },
       {
         "name": "SAH-L4-AP-S410",
@@ -3450,7 +3450,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:18.620000Z"
+        "lastSeen": "2026-07-29T19:50:30.388000Z"
       },
       {
         "name": "SAH-L4-AP-S411",
@@ -3460,7 +3460,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:07.543000Z"
+        "lastSeen": "2026-07-29T19:50:21.963000Z"
       },
       {
         "name": "SAH-L4-AP-S413",
@@ -3470,7 +3470,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:55.895000Z"
+        "lastSeen": "2026-07-29T19:50:21.415000Z"
       },
       {
         "name": "SAH-L4-AP-S417",
@@ -3480,7 +3480,7 @@ const WIRELESS = {
         "model": "MR46",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:07.556000Z"
+        "lastSeen": "2026-07-29T19:50:17.236000Z"
       },
       {
         "name": "SAH-L4-AP-S423",
@@ -3490,7 +3490,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:49.401000Z"
+        "lastSeen": "2026-07-29T19:50:25.604000Z"
       },
       {
         "name": "SAH-L4-AP-S424",
@@ -3500,7 +3500,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:14.874000Z"
+        "lastSeen": "2026-07-29T19:50:04.342000Z"
       },
       {
         "name": "SAH-L4-AP-S426",
@@ -3510,7 +3510,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:30.574000Z"
+        "lastSeen": "2026-07-29T19:50:15.387000Z"
       },
       {
         "name": "SAH-L4-AP-S436",
@@ -3520,7 +3520,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:03.502000Z"
+        "lastSeen": "2026-07-29T19:50:22.591000Z"
       },
       {
         "name": "SAH-L4-R1-1",
@@ -3530,7 +3530,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-17-2-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:05.584000Z"
+        "lastSeen": "2026-07-29T19:50:23.379000Z"
       },
       {
         "name": "SAH-L5-AP-B482",
@@ -3540,7 +3540,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "warning",
-        "lastSeen": "2026-07-29T17:45:01.160000Z"
+        "lastSeen": "2026-07-29T19:50:29.029000Z"
       },
       {
         "name": "SAH-L5-AP-BE4C",
@@ -3550,7 +3550,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "warning",
-        "lastSeen": "2026-07-29T17:44:51.507000Z"
+        "lastSeen": "2026-07-29T19:50:01.640000Z"
       },
       {
         "name": "SAH-L5-AP-BEF3",
@@ -3560,7 +3560,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "warning",
-        "lastSeen": "2026-07-29T17:45:20.750000Z"
+        "lastSeen": "2026-07-29T19:49:56.428000Z"
       },
       {
         "name": "SAH-L5-AP-C016",
@@ -3580,7 +3580,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:07.974000Z"
+        "lastSeen": "2026-07-29T19:50:03.974000Z"
       },
       {
         "name": "SAH-L5-AP-CD5F",
@@ -3590,7 +3590,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "warning",
-        "lastSeen": "2026-07-29T17:45:11.094000Z"
+        "lastSeen": "2026-07-29T19:50:40.204000Z"
       },
       {
         "name": "SAH-L5-AP-D231",
@@ -3600,7 +3600,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "warning",
-        "lastSeen": "2026-07-29T17:45:17.421000Z"
+        "lastSeen": "2026-07-29T19:50:34.997000Z"
       },
       {
         "name": "SAH-L5-AP-DB49",
@@ -3610,7 +3610,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:20.813000Z"
+        "lastSeen": "2026-07-29T19:50:15.711000Z"
       },
       {
         "name": "SAH-L5-AP-DF82",
@@ -3630,7 +3630,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:04.257000Z"
+        "lastSeen": "2026-07-29T19:50:13.225000Z"
       },
       {
         "name": "SAH-L5-AP-E334",
@@ -3640,7 +3640,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "warning",
-        "lastSeen": "2026-07-29T17:45:04.876000Z"
+        "lastSeen": "2026-07-29T19:50:14.191000Z"
       },
       {
         "name": "SAH-L5-AP-EECF",
@@ -3650,7 +3650,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "warning",
-        "lastSeen": "2026-07-29T17:45:03.194000Z"
+        "lastSeen": "2026-07-29T19:50:33.275000Z"
       },
       {
         "name": "SAH-L5-AP-F1C7",
@@ -3660,7 +3660,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "warning",
-        "lastSeen": "2026-07-29T17:45:07.647000Z"
+        "lastSeen": "2026-07-29T19:50:29.309000Z"
       },
       {
         "name": "SAH-L5-AP-F2A1",
@@ -3670,7 +3670,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "warning",
-        "lastSeen": "2026-07-29T17:45:32.207000Z"
+        "lastSeen": "2026-07-29T19:50:07.545000Z"
       },
       {
         "name": "SAH-L5-AP-F72F",
@@ -3680,7 +3680,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "warning",
-        "lastSeen": "2026-07-29T17:44:54.683000Z"
+        "lastSeen": "2026-07-29T19:50:09.677000Z"
       },
       {
         "name": "SAH-L5-AP-S532",
@@ -3690,7 +3690,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "warning",
-        "lastSeen": "2026-07-29T17:45:09.387000Z"
+        "lastSeen": "2026-07-29T19:50:16.013000Z"
       },
       {
         "name": "SAH-L5-AP-S540",
@@ -3700,7 +3700,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "warning",
-        "lastSeen": "2026-07-29T17:44:48.459000Z"
+        "lastSeen": "2026-07-29T19:50:18.237000Z"
       },
       {
         "name": "SAH-L5-H-AP-3742",
@@ -3710,7 +3710,7 @@ const WIRELESS = {
         "model": "MR57",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:53.391000Z"
+        "lastSeen": "2026-07-29T19:50:31.298000Z"
       },
       {
         "name": "SAH-L5-H-AP-3BB2",
@@ -3720,7 +3720,7 @@ const WIRELESS = {
         "model": "MR57",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:01.259000Z"
+        "lastSeen": "2026-07-29T19:50:28.842000Z"
       },
       {
         "name": "SAH-L5-H-AP-3ED2",
@@ -3730,7 +3730,7 @@ const WIRELESS = {
         "model": "MR57",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:24.828000Z"
+        "lastSeen": "2026-07-29T19:50:03.570000Z"
       },
       {
         "name": "SAH-L5-H-AP-40B2",
@@ -3740,7 +3740,7 @@ const WIRELESS = {
         "model": "MR57",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:09.335000Z"
+        "lastSeen": "2026-07-29T19:49:58.525000Z"
       },
       {
         "name": "SAH-L5-R1-1",
@@ -3750,7 +3750,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-17-2-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:10.080000Z"
+        "lastSeen": "2026-07-29T19:50:07.170000Z"
       },
       {
         "name": "SAH-L6-AP-01B4",
@@ -3760,7 +3760,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:51.383000Z"
+        "lastSeen": "2026-07-29T19:50:06.112000Z"
       },
       {
         "name": "SAH-L6-AP-B185",
@@ -3770,7 +3770,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:14.870000Z"
+        "lastSeen": "2026-07-29T19:50:22.015000Z"
       },
       {
         "name": "SAH-L6-AP-BBE1",
@@ -3780,7 +3780,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:28.681000Z"
+        "lastSeen": "2026-07-29T19:50:33.264000Z"
       },
       {
         "name": "SAH-L6-AP-C01F",
@@ -3790,7 +3790,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:00.604000Z"
+        "lastSeen": "2026-07-29T19:50:38.945000Z"
       },
       {
         "name": "SAH-L6-AP-C239",
@@ -3800,7 +3800,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:27.613000Z"
+        "lastSeen": "2026-07-29T19:50:38.946000Z"
       },
       {
         "name": "SAH-L6-AP-C726",
@@ -3810,7 +3810,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:51.386000Z"
+        "lastSeen": "2026-07-29T19:50:01.954000Z"
       },
       {
         "name": "SAH-L6-AP-C876",
@@ -3820,7 +3820,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:52.627000Z"
+        "lastSeen": "2026-07-29T19:50:12.637000Z"
       },
       {
         "name": "SAH-L6-AP-CC50",
@@ -3830,7 +3830,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:14.872000Z"
+        "lastSeen": "2026-07-29T19:50:39.345000Z"
       },
       {
         "name": "SAH-L6-AP-CDDB",
@@ -3840,7 +3840,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:09.928000Z"
+        "lastSeen": "2026-07-29T19:50:31.226000Z"
       },
       {
         "name": "SAH-L6-AP-CF0B",
@@ -3850,7 +3850,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:32.201000Z"
+        "lastSeen": "2026-07-29T19:50:29.689000Z"
       },
       {
         "name": "SAH-L6-AP-DA1C",
@@ -3860,7 +3860,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:20.796000Z"
+        "lastSeen": "2026-07-29T19:50:21.562000Z"
       },
       {
         "name": "SAH-L6-AP-DD66",
@@ -3870,7 +3870,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:18.202000Z"
+        "lastSeen": "2026-07-29T19:50:21.632000Z"
       },
       {
         "name": "SAH-L6-AP-DF30",
@@ -3880,7 +3880,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:23.531000Z"
+        "lastSeen": "2026-07-29T19:50:04.579000Z"
       },
       {
         "name": "SAH-L6-AP-EF0B",
@@ -3890,7 +3890,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:52.454000Z"
+        "lastSeen": "2026-07-29T19:50:12.087000Z"
       },
       {
         "name": "SAH-L6-AP-EFFC",
@@ -3900,7 +3900,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:13.229000Z"
+        "lastSeen": "2026-07-29T19:50:29.418000Z"
       },
       {
         "name": "SAH-L6-AP-F1AD",
@@ -3910,7 +3910,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:32.208000Z"
+        "lastSeen": "2026-07-29T19:50:04.097000Z"
       },
       {
         "name": "SAH-L6-AP-F741",
@@ -3920,7 +3920,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:47.604000Z"
+        "lastSeen": "2026-07-29T19:50:24.659000Z"
       },
       {
         "name": "SAH-L6-AP-F990",
@@ -3930,7 +3930,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:15.803000Z"
+        "lastSeen": "2026-07-29T19:50:29.613000Z"
       },
       {
         "name": "SAH-L6-C1-TEMP-01",
@@ -3940,7 +3940,7 @@ const WIRELESS = {
         "model": "MT10",
         "firmware": "mt-2-0-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:29:56.000000Z"
+        "lastSeen": "2026-07-29T19:49:57.000000Z"
       },
       {
         "name": "SAH-L6-C1-WATER-01",
@@ -3950,7 +3950,7 @@ const WIRELESS = {
         "model": "MT12",
         "firmware": "mt-2-0-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:38:24.000000Z"
+        "lastSeen": "2026-07-29T19:38:24.000000Z"
       },
       {
         "name": "SAH-L6-CRM1-1",
@@ -3960,7 +3960,7 @@ const WIRELESS = {
         "model": "MS125-48",
         "firmware": "switch-17-2-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:03.832000Z"
+        "lastSeen": "2026-07-29T19:50:04.569000Z"
       },
       {
         "name": "SAH-L6-R1-1",
@@ -3970,7 +3970,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-17-2-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:16.038000Z"
+        "lastSeen": "2026-07-29T19:50:25.401000Z"
       },
       {
         "name": "SAH-L6-R1-2",
@@ -3980,7 +3980,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-17-2-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:30.873000Z"
+        "lastSeen": "2026-07-29T19:50:14.334000Z"
       },
       {
         "name": "SAH-L7-AP-BB2B",
@@ -3990,7 +3990,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:10.179000Z"
+        "lastSeen": "2026-07-29T19:50:33.434000Z"
       },
       {
         "name": "SAH-L7-AP-BBBB",
@@ -4000,7 +4000,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:58.618000Z"
+        "lastSeen": "2026-07-29T19:50:05.171000Z"
       },
       {
         "name": "SAH-L7-AP-BEC3",
@@ -4010,7 +4010,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:05.329000Z"
+        "lastSeen": "2026-07-29T19:50:27.982000Z"
       },
       {
         "name": "SAH-L7-AP-C028",
@@ -4020,7 +4020,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:19.128000Z"
+        "lastSeen": "2026-07-29T19:50:07.143000Z"
       },
       {
         "name": "SAH-L7-AP-C1E7",
@@ -4030,7 +4030,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:11.774000Z"
+        "lastSeen": "2026-07-29T19:50:07.565000Z"
       },
       {
         "name": "SAH-L7-AP-C3D7",
@@ -4040,7 +4040,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:54.426000Z"
+        "lastSeen": "2026-07-29T19:50:23.165000Z"
       },
       {
         "name": "SAH-L7-AP-C65F",
@@ -4050,7 +4050,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:03.166000Z"
+        "lastSeen": "2026-07-29T19:50:24.699000Z"
       },
       {
         "name": "SAH-L7-AP-C79E",
@@ -4070,7 +4070,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:05.518000Z"
+        "lastSeen": "2026-07-29T19:50:40.081000Z"
       },
       {
         "name": "SAH-L7-AP-D512",
@@ -4080,7 +4080,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:19.137000Z"
+        "lastSeen": "2026-07-29T19:49:57.834000Z"
       },
       {
         "name": "SAH-L7-AP-D608",
@@ -4090,7 +4090,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:08.957000Z"
+        "lastSeen": "2026-07-29T19:50:01.578000Z"
       },
       {
         "name": "SAH-L7-AP-D60B",
@@ -4100,7 +4100,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:59.695000Z"
+        "lastSeen": "2026-07-29T19:50:16.130000Z"
       },
       {
         "name": "SAH-L7-AP-D7D5",
@@ -4110,7 +4110,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:53.893000Z"
+        "lastSeen": "2026-07-29T19:50:07.093000Z"
       },
       {
         "name": "SAH-L7-AP-D895",
@@ -4120,7 +4120,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:53.202000Z"
+        "lastSeen": "2026-07-29T19:50:13.186000Z"
       },
       {
         "name": "SAH-L7-AP-DA23",
@@ -4130,7 +4130,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:01.756000Z"
+        "lastSeen": "2026-07-29T19:50:41.554000Z"
       },
       {
         "name": "SAH-L7-AP-DBC8",
@@ -4140,7 +4140,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:06.089000Z"
+        "lastSeen": "2026-07-29T19:50:36.112000Z"
       },
       {
         "name": "SAH-L7-AP-E006",
@@ -4150,7 +4150,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:54.605000Z"
+        "lastSeen": "2026-07-29T19:50:15.389000Z"
       },
       {
         "name": "SAH-L7-AP-EF20",
@@ -4160,7 +4160,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:00.321000Z"
+        "lastSeen": "2026-07-29T19:50:24.989000Z"
       },
       {
         "name": "SAH-L7-AP-F3FA",
@@ -4170,7 +4170,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "warning",
-        "lastSeen": "2026-07-29T17:45:08.957000Z"
+        "lastSeen": "2026-07-29T19:50:05.635000Z"
       },
       {
         "name": "SAH-L7-AP-F921",
@@ -4180,7 +4180,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:11.048000Z"
+        "lastSeen": "2026-07-29T19:50:03.563000Z"
       },
       {
         "name": "SAH-L7-AP-FAFD",
@@ -4190,7 +4190,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:15.232000Z"
+        "lastSeen": "2026-07-29T19:50:39.043000Z"
       },
       {
         "name": "SAH-L7-AP-FB25",
@@ -4200,7 +4200,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:29.943000Z"
+        "lastSeen": "2026-07-29T19:50:09.647000Z"
       },
       {
         "name": "SAH-L7-AP-S703",
@@ -4210,7 +4210,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:03.176000Z"
+        "lastSeen": "2026-07-29T19:50:33.840000Z"
       },
       {
         "name": "SAH-L7-R1-1",
@@ -4220,7 +4220,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-17-2-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:32.334000Z"
+        "lastSeen": "2026-07-29T19:50:33.496000Z"
       },
       {
         "name": "SAH-L7-R1-2",
@@ -4230,7 +4230,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-17-2-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:23.150000Z"
+        "lastSeen": "2026-07-29T19:49:57.969000Z"
       },
       {
         "name": "SAH-L8-AP-B759",
@@ -4240,7 +4240,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:52.881000Z"
+        "lastSeen": "2026-07-29T19:50:06.930000Z"
       },
       {
         "name": "SAH-L8-AP-BD12",
@@ -4250,7 +4250,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:27.327000Z"
+        "lastSeen": "2026-07-29T19:50:18.975000Z"
       },
       {
         "name": "SAH-L8-AP-BECE",
@@ -4260,7 +4260,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:21.067000Z"
+        "lastSeen": "2026-07-29T19:50:31.916000Z"
       },
       {
         "name": "SAH-L8-AP-BFD9",
@@ -4270,7 +4270,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:17.313000Z"
+        "lastSeen": "2026-07-29T19:50:25.044000Z"
       },
       {
         "name": "SAH-L8-AP-BFDA",
@@ -4280,7 +4280,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:08.972000Z"
+        "lastSeen": "2026-07-29T19:50:38.947000Z"
       },
       {
         "name": "SAH-L8-AP-C089",
@@ -4290,7 +4290,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:07.587000Z"
+        "lastSeen": "2026-07-29T19:50:40.574000Z"
       },
       {
         "name": "SAH-L8-AP-C576",
@@ -4300,7 +4300,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:27.838000Z"
+        "lastSeen": "2026-07-29T19:50:29.088000Z"
       },
       {
         "name": "SAH-L8-AP-C5EF",
@@ -4310,7 +4310,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:33.260000Z"
+        "lastSeen": "2026-07-29T19:50:12.445000Z"
       },
       {
         "name": "SAH-L8-AP-C835",
@@ -4320,7 +4320,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:27.626000Z"
+        "lastSeen": "2026-07-29T19:50:15.387000Z"
       },
       {
         "name": "SAH-L8-AP-CE5F",
@@ -4330,7 +4330,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:57.886000Z"
+        "lastSeen": "2026-07-29T19:50:34.490000Z"
       },
       {
         "name": "SAH-L8-AP-D020",
@@ -4340,7 +4340,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:05.996000Z"
+        "lastSeen": "2026-07-29T19:50:42.043000Z"
       },
       {
         "name": "SAH-L8-AP-D476",
@@ -4350,7 +4350,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:03.507000Z"
+        "lastSeen": "2026-07-29T19:50:05.238000Z"
       },
       {
         "name": "SAH-L8-AP-D4CB",
@@ -4360,7 +4360,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:46.651000Z"
+        "lastSeen": "2026-07-29T19:50:08.172000Z"
       },
       {
         "name": "SAH-L8-AP-DDC9",
@@ -4370,7 +4370,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:20.703000Z"
+        "lastSeen": "2026-07-29T19:50:23.023000Z"
       },
       {
         "name": "SAH-L8-AP-EFF4",
@@ -4380,7 +4380,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:21.683000Z"
+        "lastSeen": "2026-07-29T19:50:10.262000Z"
       },
       {
         "name": "SAH-L8-AP-F7F0",
@@ -4390,7 +4390,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:14.869000Z"
+        "lastSeen": "2026-07-29T19:50:19.574000Z"
       },
       {
         "name": "SAH-L8-AP-S815",
@@ -4400,7 +4400,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:15.214000Z"
+        "lastSeen": "2026-07-29T19:50:40.313000Z"
       },
       {
         "name": "SAH-L8-R1-1",
@@ -4410,7 +4410,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-17-2-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:54.582000Z"
+        "lastSeen": "2026-07-29T19:50:26.172000Z"
       },
       {
         "name": "SAH-L8-R1-2",
@@ -4420,7 +4420,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-17-2-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:09.410000Z"
+        "lastSeen": "2026-07-29T19:50:11.442000Z"
       },
       {
         "name": "SAH-L9-AP-S901 After School Care",
@@ -4430,7 +4430,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:05.406000Z"
+        "lastSeen": "2026-07-29T19:49:55.860000Z"
       },
       {
         "name": "SAH-L9-AP-S915 North Rooftop",
@@ -4440,7 +4440,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "warning",
-        "lastSeen": "2026-07-29T17:45:19.577000Z"
+        "lastSeen": "2026-07-29T19:50:23.616000Z"
       },
       {
         "name": "SAH-L9-R1-1",
@@ -4450,7 +4450,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-17-2-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:53.127000Z"
+        "lastSeen": "2026-07-29T19:50:07.261000Z"
       },
       {
         "name": "SAH-L9-R2-1",
@@ -4460,7 +4460,7 @@ const WIRELESS = {
         "model": "MS225-48FP",
         "firmware": "switch-17-2-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:44:47.991000Z"
+        "lastSeen": "2026-07-29T19:50:21.574000Z"
       },
       {
         "name": "SAH-P2-AP-D45E",
@@ -4470,7 +4470,7 @@ const WIRELESS = {
         "model": "MR44",
         "firmware": "wireless-32-1-7",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:07.630000Z"
+        "lastSeen": "2026-07-29T19:50:43.006000Z"
       },
       {
         "name": "SAH-P2-R1-01",
@@ -4480,7 +4480,7 @@ const WIRELESS = {
         "model": "MS130-8P-I",
         "firmware": "switch-17-2-1",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:04.279000Z"
+        "lastSeen": "2026-07-29T19:50:40.572000Z"
       },
       {
         "name": "SACS-SAH-DMZ-01",
@@ -4490,7 +4490,7 @@ const WIRELESS = {
         "model": "MS425-16",
         "firmware": "switch-18-1-3",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:21.352000Z"
+        "lastSeen": "2026-07-29T19:49:58.059000Z"
       },
       {
         "name": "SACS-SAH-DMZ-02",
@@ -4500,7 +4500,7 @@ const WIRELESS = {
         "model": "MS425-16",
         "firmware": "switch-18-1-3",
         "status": "up",
-        "lastSeen": "2026-07-29T17:45:01.187000Z"
+        "lastSeen": "2026-07-29T19:50:33.555000Z"
       },
       {
         "name": "BBC-L3-AP-C65A",
