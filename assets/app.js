@@ -468,12 +468,14 @@
     const noteEl = document.getElementById("tickets-not-connected-note");
     const donutEl = document.getElementById("glance-tickets-donut");
     const legendEl = document.getElementById("glance-tickets-legend");
-    if (!labelEl) return;
+    // Every target here is optional — the header ticket counter was removed,
+    // and the overview donut before it. This runs for whichever survive.
+    const setText = (el, t) => { if (el) el.textContent = t; };
     const setHtml = (el, html) => { if (el) el.innerHTML = html; };
     const setHidden = (el, v) => { if (el) el.hidden = v; };
 
     if (TICKET_SUMMARY.total == null) {
-      labelEl.textContent = "Tickets: not connected";
+      setText(labelEl, "Tickets: not connected");
       setHtml(donutEl, "");
       setHtml(legendEl, "");
       setHidden(noteEl, false);
@@ -500,7 +502,7 @@
     const haveBreakdown = priorityCounts.length > 0;
 
     if (!haveBreakdown) {
-      labelEl.textContent = `Tickets: ${TICKET_SUMMARY.total.toLocaleString()} total`;
+      setText(labelEl, `Tickets: ${TICKET_SUMMARY.total.toLocaleString()} total`);
       setHtml(donutEl, donutSvg(
         [{ value: 1, color: "var(--status-unknown)", label: "Total" }],
         { centerValue: TICKET_SUMMARY.total, centerLabel: "total" }
@@ -514,7 +516,7 @@
     }
 
     setHidden(noteEl, true);
-    labelEl.textContent = `${TICKET_SUMMARY.open} open · ${TICKET_SUMMARY.urgent ?? 0} urgent`;
+    setText(labelEl, `${TICKET_SUMMARY.open} open · ${TICKET_SUMMARY.urgent ?? 0} urgent`);
     setHtml(donutEl, donutSvg(priorityCounts, { centerValue: TICKET_SUMMARY.open, centerLabel: "open" }));
     setHtml(legendEl, legendHtml(priorityCounts));
   }
@@ -1940,6 +1942,98 @@
     document.getElementById("sp-collapse")?.addEventListener("click", () => setAll(false));
   }
 
+
+  // ---------------------------------------------------------------------
+  // Sortable tables
+  // ---------------------------------------------------------------------
+  // Applied to every table in the dashboard rather than wired per-table, so a
+  // new table is sortable without extra code. Works on the rendered DOM, which
+  // means it sorts whatever the current filter has produced.
+  //
+  // Sort keys are inferred from the cell: a date if it parses as one, a number
+  // if it looks numeric, otherwise text. Status cells sort by severity, not
+  // alphabetically — "Down, Dormant, Unknown, Up" is the wrong order to hand
+  // someone looking for what is broken.
+  const STATUS_RANK = {
+    down: 0, critical: 0, offline: 0,
+    warning: 1, alerting: 1, degraded: 1, serious: 1,
+    unknown: 2, dormant: 3,
+    up: 4, online: 4, good: 4, ok: 4, active: 4,
+  };
+
+  function cellSortValue(cell) {
+    const text = cell.textContent.trim();
+    const lower = text.toLowerCase();
+
+    if (Object.prototype.hasOwnProperty.call(STATUS_RANK, lower)) {
+      return { type: "rank", v: STATUS_RANK[lower] };
+    }
+    if (!text || text === "—") {
+      // Blanks always sort last, whichever direction — an empty cell is not
+      // "smaller", it is absent.
+      return { type: "empty", v: 0 };
+    }
+    const num = text.replace(/[, ]/g, "").match(/^-?\d+(\.\d+)?%?$/);
+    if (num) return { type: "num", v: parseFloat(text.replace(/[, %]/g, "")) };
+
+    const t = Date.parse(text);
+    if (!Number.isNaN(t) && /\d{4}|\d{1,2}[/-]\d{1,2}/.test(text)) return { type: "num", v: t };
+
+    return { type: "text", v: lower };
+  }
+
+  function sortTable(table, index, dir) {
+    const body = table.tBodies[0];
+    if (!body) return;
+    const rows = [...body.rows].filter((r) => r.cells.length > index);
+    // A "no results" row spans the table; it must not be sorted into the middle.
+    const spanning = [...body.rows].filter((r) => r.cells.length <= index);
+
+    rows.sort((a, b) => {
+      const x = cellSortValue(a.cells[index]);
+      const y = cellSortValue(b.cells[index]);
+      if (x.type === "empty" && y.type === "empty") return 0;
+      if (x.type === "empty") return 1;
+      if (y.type === "empty") return -1;
+      const cmp = typeof x.v === "string"
+        ? x.v.localeCompare(y.v, undefined, { numeric: true })
+        : x.v - y.v;
+      return dir === "asc" ? cmp : -cmp;
+    });
+
+    rows.forEach((r) => body.appendChild(r));
+    spanning.forEach((r) => body.appendChild(r));
+  }
+
+  function initSortableTables() {
+    document.querySelectorAll("table").forEach((table) => {
+      const head = table.tHead && table.tHead.rows[0];
+      if (!head) return;
+      [...head.cells].forEach((th, i) => {
+        if (!th.textContent.trim()) return;   // action columns have no label
+        if (th.classList.contains("sortable")) return;
+        th.classList.add("sortable");
+        th.setAttribute("aria-sort", "none");
+        th.insertAdjacentHTML("beforeend", '<span class="sort-arrow">\u25B2</span>');
+        th.addEventListener("click", () => {
+          const current = th.getAttribute("aria-sort");
+          const dir = current === "ascending" ? "desc" : "asc";
+          [...head.cells].forEach((o) => o.setAttribute("aria-sort", "none"));
+          th.setAttribute("aria-sort", dir === "asc" ? "ascending" : "descending");
+          sortTable(table, i, dir);
+        });
+      });
+    });
+  }
+
+  // Tables are re-rendered by their own filters, which replaces the tbody and
+  // drops any applied order. Re-attaching on click keeps newly rendered tables
+  // sortable without every renderer having to know about this.
+  function watchForNewTables() {
+    document.addEventListener("click", () => setTimeout(initSortableTables, 0));
+    document.addEventListener("input", () => setTimeout(initSortableTables, 0));
+  }
+
   // ---------------------------------------------------------------------
   // Roadmap
   // ---------------------------------------------------------------------
@@ -2944,6 +3038,8 @@
     renderRoadmap();
     renderCns();
     renderSharePointSteps();
+    initSortableTables();
+    watchForNewTables();
     initSharePoint();
     renderSharePoint();
   });

@@ -72,6 +72,37 @@ async function main() {
   const statuses = await api(`/organizations/${org.id}/devices/statuses?perPage=1000`);
   console.log(`networks: ${networks.length}, devices: ${devices.length}, statuses: ${statuses.length}`);
 
+  // Licence overview. Meraki is co-termination here — one expiry for the whole
+  // estate — so a lapse takes every AP and switch at once, which makes the
+  // headroom numbers below worth watching as closely as the date.
+  let licensing = null;
+  try {
+    const lic = await api(`/organizations/${org.id}/licenses/overview`);
+    const limits = lic.licensedDeviceCounts || {};
+    // Compare each licensed pool against what is actually deployed. A pool at
+    // 0 spare means the next switch of that model cannot be added without
+    // buying a licence first — worth knowing before the switch arrives.
+    const pools = Object.entries(limits).map(([model, limit]) => {
+      const used = model === "MR" || model === "wireless"
+        ? devices.filter((d) => /^MR/.test(d.model || "")).length
+        : devices.filter((d) => (d.model || "") === model).length;
+      return { model, limit: Number(limit) || 0, used, spare: (Number(limit) || 0) - used };
+    }).sort((a, b) => a.spare - b.spare || a.model.localeCompare(b.model));
+
+    licensing = {
+      status: lic.status || null,
+      model: "co-termination",
+      expiresOn: lic.expirationDate || null,
+      pools,
+      exhausted: pools.filter((p) => p.spare <= 0).map((p) => p.model),
+    };
+    console.log(`licence: ${licensing.status}, expires ${licensing.expiresOn}`);
+    console.log(`  pools with no spare: ${licensing.exhausted.join(", ") || "none"}`);
+  } catch (e) {
+    // A licence read failing must not take the whole device sync with it.
+    console.log(`licence overview unavailable: ${e.message}`);
+  }
+
   const netName = new Map(networks.map((n) => [n.id, n.name]));
   // Status is keyed by serial, which is never written out — it is used here
   // only to join the two responses.
@@ -116,6 +147,7 @@ async function main() {
     portalUrl: "https://dashboard.meraki.com",
     total: aps.length,
     counts: apCounts,
+    licensing,
     bySite,
     byModel: tally(aps, (r) => r.model),
     aps,

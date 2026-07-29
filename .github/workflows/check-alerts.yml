@@ -1,0 +1,41 @@
+name: Check alerts
+
+# Evaluates the synced data against thresholds and posts new conditions to
+# Teams. Without TEAMS_WEBHOOK_URL it runs as a dry run and only logs, which
+# is a safe default — it never silently does nothing without saying so.
+
+on:
+  schedule:
+    - cron: "5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Evaluate thresholds
+        env:
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          DASHBOARD_URL: https://gagotelli.github.io/sacs-dashboard/
+        run: node scripts/check-alerts.js
+      - name: Commit alert state
+        run: |
+          git add data/alert-state.js
+          if git diff --cached --quiet -- data/alert-state.js; then
+            echo "no change"
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Update alert state"
+          for attempt in 1 2 3 4 5; do
+            if git push; then exit 0; fi
+            echo "push rejected (attempt $attempt) — rebasing onto origin/main"
+            git pull --rebase --autostash origin main || exit 1
+            sleep $((attempt * 3))
+          done
+          exit 1

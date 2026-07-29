@@ -74,10 +74,6 @@
 <div class="app-main">
 <header class="app-header">
   <div class="header-actions">
-    <button class="theme-toggle ticket-button" id="ticket-button" type="button" data-panel="panel-tickets">
-      <svg class="icon" width="15" height="15"><use href="#icon-ticket"/></svg>
-      <span id="ticket-button-label">Tickets: not connected</span>
-    </button>
     <button class="theme-toggle" id="theme-toggle" type="button">
       <svg class="icon" width="15" height="15" id="theme-icon"><use href="#icon-moon"/></svg>
       <span id="theme-label">Dark</span>
@@ -175,7 +171,7 @@
     </div>
 
     <div class="card topology-card">
-      <div class="topo-toolbar">
+      <div class="topo-toolbar filters">
         <input type="search" id="topo-search" placeholder="Find a device…" />
         <select id="topo-site"><option value="all">All sites</option></select>
         <select id="topo-layer">
@@ -846,6 +842,8 @@
 <script src="data/status.js"></script>
 <script src="data/wireless.js"></script>
 <script src="data/sharepoint.js"></script>
+<script src="data/history.js"></script>
+<script src="data/alert-state.js"></script>
 <script src="data/tickets.js"></script>
 <script src="data/endpoints.js"></script>
 <script src="data/security.js"></script>
