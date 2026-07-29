@@ -6,11 +6,41 @@
 // disappears is reported as cleared and removed, so it alerts again if it
 // returns.
 const ALERT_STATE = {
-  "updatedAt": "2026-07-29T00:16:35.809Z",
+  "updatedAt": "2026-07-29T00:23:36.670Z",
   "seen": {
+    "aps-down": {
+      "at": "2026-07-29T00:23:36.664Z",
+      "title": "1 access point offline",
+      "severity": "warning"
+    },
     "aps-alerting": {
       "at": "2026-07-29T00:09:17.497Z",
       "title": "15 access points alerting",
+      "severity": "warning"
+    },
+    "licence-pool:MS120-8FP": {
+      "at": "2026-07-29T00:23:36.670Z",
+      "title": "No spare Meraki licences for MS120-8FP",
+      "severity": "warning"
+    },
+    "licence-pool:MS125-48": {
+      "at": "2026-07-29T00:23:36.670Z",
+      "title": "No spare Meraki licences for MS125-48",
+      "severity": "warning"
+    },
+    "licence-pool:MS210-48FP": {
+      "at": "2026-07-29T00:23:36.670Z",
+      "title": "No spare Meraki licences for MS210-48FP",
+      "severity": "warning"
+    },
+    "licence-pool:MS225-48FP": {
+      "at": "2026-07-29T00:23:36.670Z",
+      "title": "No spare Meraki licences for MS225-48FP",
+      "severity": "warning"
+    },
+    "licence-pool:MS425-16": {
+      "at": "2026-07-29T00:23:36.670Z",
+      "title": "No spare Meraki licences for MS425-16",
       "severity": "warning"
     },
     "licence-unaudited": {
