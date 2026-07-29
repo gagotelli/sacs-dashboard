@@ -5,17 +5,17 @@
 // name is written here: NinjaOne covers the whole endpoint estate and
 // this repo is public.
 const ENDPOINT_SUMMARY = {
-  "updatedAt": "2026-07-29T03:40:10.518Z",
+  "updatedAt": "2026-07-29T06:45:25.864Z",
   "source": "NinjaOne",
   "portalUrl": "https://oc.ninjarmm.com/#/deviceDashboard",
   "devices": {
-    "total": 438,
-    "online": 235,
-    "notCheckedIn": 203,
+    "total": 443,
+    "online": 95,
+    "notCheckedIn": 348,
     "byClass": [
       {
         "label": "Windows workstation",
-        "value": 433
+        "value": 438
       },
       {
         "label": "Linux server",
@@ -25,21 +25,21 @@ const ENDPOINT_SUMMARY = {
     "byStaleness": [
       {
         "label": "Under 24 hours",
-        "value": 165
+        "value": 297
       },
       {
         "label": "1–7 days",
-        "value": 38
+        "value": 51
       }
     ]
   },
   "alerts": {
-    "total": 41,
+    "total": 42,
     "severityUsable": false,
     "byCondition": [
       {
         "label": "Memory is greater than or equal to 90 % for 15 minutes",
-        "value": 22
+        "value": 21
       },
       {
         "label": "Disk Active Time is greater than 90  % for 15 minutes",
@@ -47,13 +47,13 @@ const ENDPOINT_SUMMARY = {
       },
       {
         "label": "Disk free space is less than or equal to 15 % for 15 minutes  Exclude recovery volume for window device(s) Exclude removable disk for window device(s)",
-        "value": 5
+        "value": 7
       }
     ],
     "bySourceType": [
       {
         "label": "Memory",
-        "value": 22
+        "value": 21
       },
       {
         "label": "Disk I/O",
@@ -61,7 +61,7 @@ const ENDPOINT_SUMMARY = {
       },
       {
         "label": "Disk free space",
-        "value": 5
+        "value": 7
       }
     ]
   }
