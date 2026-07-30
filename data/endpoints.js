@@ -5,13 +5,13 @@
 // name is written here: NinjaOne covers the whole endpoint estate and
 // this repo is public.
 const ENDPOINT_SUMMARY = {
-  "updatedAt": "2026-07-30T06:41:29.348Z",
+  "updatedAt": "2026-07-30T09:42:21.825Z",
   "source": "NinjaOne",
   "portalUrl": "https://oc.ninjarmm.com/#/deviceDashboard",
   "devices": {
     "total": 471,
-    "online": 92,
-    "notCheckedIn": 379,
+    "online": 70,
+    "notCheckedIn": 401,
     "byClass": [
       {
         "label": "Windows workstation",
@@ -25,21 +25,21 @@ const ENDPOINT_SUMMARY = {
     "byStaleness": [
       {
         "label": "Under 24 hours",
-        "value": 277
+        "value": 291
       },
       {
         "label": "1–7 days",
-        "value": 102
+        "value": 110
       }
     ]
   },
   "alerts": {
-    "total": 35,
+    "total": 34,
     "severityUsable": false,
     "byCondition": [
       {
         "label": "Memory is greater than or equal to 90 % for 15 minutes",
-        "value": 16
+        "value": 15
       },
       {
         "label": "Disk Active Time is greater than 90  % for 15 minutes",
@@ -57,7 +57,7 @@ const ENDPOINT_SUMMARY = {
     "bySourceType": [
       {
         "label": "Memory",
-        "value": 16
+        "value": 15
       },
       {
         "label": "Disk I/O",
