@@ -7,7 +7,7 @@
 // disappears is reported as cleared and removed, so it alerts again if it
 // returns.
 const ALERT_STATE = {
-  "updatedAt": "2026-07-30T14:15:10.670Z",
+  "updatedAt": "2026-07-30T16:39:18.517Z",
   "seen": {
     "aps-alerting": {
       "at": "2026-07-29T01:08:46.767Z",
@@ -31,13 +31,13 @@ const ALERT_STATE = {
       "at": "2026-07-30T11:55:21.471Z",
       "title": "Meraki feed is stale",
       "severity": "warning",
-      "detail": "Last successful sync was 10.6 hours ago."
+      "detail": "Last successful sync was 13.0 hours ago."
     },
     "stale:Arctic Wolf": {
       "at": "2026-07-30T14:15:10.604Z",
       "title": "Arctic Wolf feed is stale",
       "severity": "warning",
-      "detail": "Last successful sync was 6.9 hours ago."
+      "detail": "Last successful sync was 9.3 hours ago."
     }
   }
 };
