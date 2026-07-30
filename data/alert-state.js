@@ -7,7 +7,7 @@
 // disappears is reported as cleared and removed, so it alerts again if it
 // returns.
 const ALERT_STATE = {
-  "updatedAt": "2026-07-30T06:32:39.277Z",
+  "updatedAt": "2026-07-30T09:33:47.745Z",
   "seen": {
     "aps-alerting": {
       "at": "2026-07-29T01:08:46.767Z",
