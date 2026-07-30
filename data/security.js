@@ -8,16 +8,16 @@
 // `score` ranks the queue — it never hides anything. Every open ticket
 // appears in `queue` regardless of score.
 const SECURITY_SUMMARY = {
-  "updatedAt": "2026-07-30T03:47:01.494Z",
+  "updatedAt": "2026-07-30T07:21:07.390Z",
   "source": "Arctic Wolf",
   "portalUrl": "https://dashboard.arcticwolf.com/",
-  "total": 140,
-  "open": 4,
+  "total": 144,
+  "open": 8,
   "closed": 136,
   "byPriority": [
     {
       "label": "NORMAL",
-      "value": 122
+      "value": 126
     },
     {
       "label": "LOW",
@@ -35,16 +35,24 @@ const SECURITY_SUMMARY = {
     },
     {
       "label": "PENDING",
-      "value": 4
+      "value": 7
+    },
+    {
+      "label": "OPEN",
+      "value": 1
     }
   ],
   "byType": [
     {
       "label": "INCIDENT",
-      "value": 140
+      "value": 144
     }
   ],
   "openByCategory": [
+    {
+      "label": "Malware",
+      "value": 2
+    },
     {
       "label": "Scanning / recon",
       "value": 2
@@ -54,7 +62,15 @@ const SECURITY_SUMMARY = {
       "value": 1
     },
     {
+      "label": "Network / C2",
+      "value": 1
+    },
+    {
       "label": "Other",
+      "value": 1
+    },
+    {
+      "label": "Suspicious login",
       "value": 1
     }
   ],
@@ -66,7 +82,7 @@ const SECURITY_SUMMARY = {
       "type": "INCIDENT",
       "category": "Scanning / recon",
       "createdAt": "2026-07-08T02:31:24Z",
-      "updatedAt": "2026-07-27T04:44:46Z",
+      "updatedAt": "2026-07-30T05:23:10Z",
       "comments": 6,
       "attachments": 3,
       "assigned": true,
@@ -79,7 +95,7 @@ const SECURITY_SUMMARY = {
       "type": "INCIDENT",
       "category": "Other",
       "createdAt": "2026-06-04T01:40:53Z",
-      "updatedAt": "2026-07-27T01:57:52Z",
+      "updatedAt": "2026-07-30T05:26:35Z",
       "comments": 14,
       "attachments": 2,
       "assigned": true,
@@ -92,11 +108,37 @@ const SECURITY_SUMMARY = {
       "type": "INCIDENT",
       "category": "Configuration / policy",
       "createdAt": "2026-06-04T01:33:39Z",
-      "updatedAt": "2026-07-27T02:12:16Z",
+      "updatedAt": "2026-07-30T05:26:43Z",
       "comments": 9,
       "attachments": 2,
       "assigned": true,
       "score": 90
+    },
+    {
+      "id": 17834955,
+      "priority": "NORMAL",
+      "status": "OPEN",
+      "type": "INCIDENT",
+      "category": "Network / C2",
+      "createdAt": "2026-07-30T06:57:13Z",
+      "updatedAt": "2026-07-30T07:03:08Z",
+      "comments": 3,
+      "attachments": 1,
+      "assigned": true,
+      "score": 44
+    },
+    {
+      "id": 17834540,
+      "priority": "NORMAL",
+      "status": "PENDING",
+      "type": "INCIDENT",
+      "category": "Malware",
+      "createdAt": "2026-07-30T03:57:29Z",
+      "updatedAt": "2026-07-30T04:57:22Z",
+      "comments": 2,
+      "attachments": 1,
+      "assigned": true,
+      "score": 41
     },
     {
       "id": 17834238,
@@ -105,9 +147,35 @@ const SECURITY_SUMMARY = {
       "type": "INCIDENT",
       "category": "Scanning / recon",
       "createdAt": "2026-07-30T02:04:41Z",
-      "updatedAt": "2026-07-30T02:04:41Z",
-      "comments": 1,
+      "updatedAt": "2026-07-30T05:09:38Z",
+      "comments": 2,
       "attachments": 4,
+      "assigned": true,
+      "score": 41
+    },
+    {
+      "id": 17834987,
+      "priority": "NORMAL",
+      "status": "PENDING",
+      "type": "INCIDENT",
+      "category": "Malware",
+      "createdAt": "2026-07-30T07:09:56Z",
+      "updatedAt": "2026-07-30T07:10:08Z",
+      "comments": 1,
+      "attachments": 1,
+      "assigned": true,
+      "score": 38
+    },
+    {
+      "id": 17834775,
+      "priority": "NORMAL",
+      "status": "PENDING",
+      "type": "INCIDENT",
+      "category": "Suspicious login",
+      "createdAt": "2026-07-30T05:58:55Z",
+      "updatedAt": "2026-07-30T05:59:09Z",
+      "comments": 1,
+      "attachments": 1,
       "assigned": true,
       "score": 38
     }
