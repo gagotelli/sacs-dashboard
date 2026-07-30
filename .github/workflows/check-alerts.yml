@@ -1,3 +1,14 @@
+# DISCONNECTED 2026-07-29 — the maintainer no longer works at St Andrew's
+# Cathedral School. The schedule below was removed so this workflow no longer
+# calls the school's systems on its own.
+#
+# THIS DOES NOT REVOKE ANYTHING. The API credentials in this repository's
+# Actions secrets remain valid until they are deleted here AND revoked in each
+# vendor's console. Removing a cron entry stops this repository asking; it does
+# not stop the keys working for anyone else who holds them.
+#
+# Re-enabling is a one-line change, so treat this file as live until the
+# credentials themselves are gone.
 name: Check alerts
 
 # Evaluates the synced data against thresholds and posts new conditions to
@@ -5,8 +16,6 @@ name: Check alerts
 # is a safe default — it never silently does nothing without saying so.
 
 on:
-  schedule:
-    - cron: "5 * * * *"
   workflow_dispatch:
     inputs:
       force:
