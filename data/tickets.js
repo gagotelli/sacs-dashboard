@@ -4,11 +4,11 @@
 // Aggregate counts only, by design: no ticket subjects, requester
 // names, or descriptions ever leave ManageEngine. This repo is public.
 const TICKET_SUMMARY = {
-  "updatedAt": "2026-07-30T19:24:05Z",
+  "updatedAt": "2026-07-30T21:07:31Z",
   "source": "ManageEngine ServiceDesk Plus",
   "portalUrl": "https://sacs.sdpondemand.manageengine.com/app/itdesk/ui/requests",
-  "total": 15690,
-  "open": 520,
+  "total": 15694,
+  "open": 524,
   "urgent": 10,
   "byStatus": [
     {
@@ -21,7 +21,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Open",
-      "value": 464
+      "value": 468
     },
     {
       "label": "Resolved",
@@ -35,7 +35,7 @@ const TICKET_SUMMARY = {
   "byPriority": [
     {
       "label": "1 Week",
-      "value": 191
+      "value": 193
     },
     {
       "label": "Critical: Drop Everything",
@@ -43,7 +43,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Normal: End of Next Day",
-      "value": 291
+      "value": 293
     },
     {
       "label": "Term Break",
@@ -109,7 +109,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Uncategorised",
-      "value": 342
+      "value": 346
     }
   ],
   "byTechnician": [
@@ -120,7 +120,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Unassigned",
-      "open": 67,
+      "open": 71,
       "total": null
     },
     {
@@ -212,7 +212,7 @@ const TICKET_SUMMARY = {
       "cells": [
         {
           "label": "1 Week",
-          "value": 175
+          "value": 177
         },
         {
           "label": "Critical: Drop Everything",
@@ -232,7 +232,7 @@ const TICKET_SUMMARY = {
         },
         {
           "label": "Normal: End of Next Day",
-          "value": 260
+          "value": 262
         },
         {
           "label": "Term Break",
@@ -246,6 +246,38 @@ const TICKET_SUMMARY = {
     }
   ],
   "recentOpen": [
+    {
+      "id": "23010000045686044",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785445226633",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045686033",
+      "status": "Open",
+      "priority": "Normal: End of Next Day",
+      "category": null,
+      "created": "1785445219210",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045686019",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785441853446",
+      "dueBy": null
+    },
+    {
+      "id": "23010000045686009",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785441852290",
+      "dueBy": null
+    },
     {
       "id": "23010000045662141",
       "status": "Open",
@@ -1013,38 +1045,6 @@ const TICKET_SUMMARY = {
       "category": "Z. Admin",
       "created": "1784849316708",
       "dueBy": "1785454120253"
-    },
-    {
-      "id": "23010000045541183",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": "Z. Parent",
-      "created": "1784848412693",
-      "dueBy": "1785453216163"
-    },
-    {
-      "id": "23010000045541070",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": "Z. Parent",
-      "created": "1784842739194",
-      "dueBy": "1785447540169"
-    },
-    {
-      "id": "23010000045541026",
-      "status": "Open",
-      "priority": "Normal: End of Next Day",
-      "category": "Z. Admin",
-      "created": "1784842016923",
-      "dueBy": "1785446821543"
-    },
-    {
-      "id": "23010000045505737",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": null,
-      "created": "1784782156711",
-      "dueBy": "1785386960271"
     }
   ]
 };
