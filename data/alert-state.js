@@ -7,7 +7,7 @@
 // disappears is reported as cleared and removed, so it alerts again if it
 // returns.
 const ALERT_STATE = {
-  "updatedAt": "2026-07-30T09:33:47.745Z",
+  "updatedAt": "2026-07-30T11:55:21.475Z",
   "seen": {
     "aps-alerting": {
       "at": "2026-07-29T01:08:46.767Z",
@@ -26,6 +26,12 @@ const ALERT_STATE = {
       "title": "2 licences have no confirmed expiry date",
       "severity": "critical",
       "detail": "Windows Server 2025 Datacenter, Windows Server 2025 Datacenter. This is how the 2026-07-20 DHCP outage started — run the audit runbook and record the dates."
+    },
+    "stale:Meraki": {
+      "at": "2026-07-30T11:55:21.471Z",
+      "title": "Meraki feed is stale",
+      "severity": "warning",
+      "detail": "Last successful sync was 8.3 hours ago."
     }
   }
 };
