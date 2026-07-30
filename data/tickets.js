@@ -4,11 +4,11 @@
 // Aggregate counts only, by design: no ticket subjects, requester
 // names, or descriptions ever leave ManageEngine. This repo is public.
 const TICKET_SUMMARY = {
-  "updatedAt": "2026-07-30T11:06:35Z",
+  "updatedAt": "2026-07-30T13:56:06Z",
   "source": "ManageEngine ServiceDesk Plus",
   "portalUrl": "https://sacs.sdpondemand.manageengine.com/app/itdesk/ui/requests",
-  "total": 15689,
-  "open": 519,
+  "total": 15690,
+  "open": 520,
   "urgent": 10,
   "byStatus": [
     {
@@ -21,7 +21,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Open",
-      "value": 463
+      "value": 464
     },
     {
       "label": "Resolved",
@@ -35,7 +35,7 @@ const TICKET_SUMMARY = {
   "byPriority": [
     {
       "label": "1 Week",
-      "value": 190
+      "value": 191
     },
     {
       "label": "Critical: Drop Everything",
@@ -109,7 +109,7 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Uncategorised",
-      "value": 341
+      "value": 342
     }
   ],
   "byTechnician": [
@@ -155,8 +155,8 @@ const TICKET_SUMMARY = {
     },
     {
       "label": "Tong, Fred",
-      "open": 23,
-      "total": 4299
+      "open": 24,
+      "total": 4300
     },
     {
       "label": "Gu, Matthew",
@@ -212,7 +212,7 @@ const TICKET_SUMMARY = {
       "cells": [
         {
           "label": "1 Week",
-          "value": 174
+          "value": 175
         },
         {
           "label": "Critical: Drop Everything",
@@ -246,6 +246,14 @@ const TICKET_SUMMARY = {
     }
   ],
   "recentOpen": [
+    {
+      "id": "23010000045662141",
+      "status": "Open",
+      "priority": "1 Week",
+      "category": null,
+      "created": "1785412226775",
+      "dueBy": null
+    },
     {
       "id": "23010000045662124",
       "status": "Open",
@@ -1037,14 +1045,6 @@ const TICKET_SUMMARY = {
       "category": null,
       "created": "1784782156711",
       "dueBy": "1785386960271"
-    },
-    {
-      "id": "23010000045505640",
-      "status": "Open",
-      "priority": "1 Week",
-      "category": "Audio Visual - Services",
-      "created": "1784776676185",
-      "dueBy": "1785381477115"
     }
   ]
 };
