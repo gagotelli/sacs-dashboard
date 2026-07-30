@@ -5,17 +5,17 @@
 // name is written here: NinjaOne covers the whole endpoint estate and
 // this repo is public.
 const ENDPOINT_SUMMARY = {
-  "updatedAt": "2026-07-30T03:28:55.321Z",
+  "updatedAt": "2026-07-30T06:41:29.348Z",
   "source": "NinjaOne",
   "portalUrl": "https://oc.ninjarmm.com/#/deviceDashboard",
   "devices": {
-    "total": 466,
-    "online": 216,
-    "notCheckedIn": 250,
+    "total": 471,
+    "online": 92,
+    "notCheckedIn": 379,
     "byClass": [
       {
         "label": "Windows workstation",
-        "value": 461
+        "value": 466
       },
       {
         "label": "Linux server",
@@ -25,11 +25,11 @@ const ENDPOINT_SUMMARY = {
     "byStaleness": [
       {
         "label": "Under 24 hours",
-        "value": 171
+        "value": 277
       },
       {
         "label": "1–7 days",
-        "value": 79
+        "value": 102
       }
     ]
   },
@@ -43,11 +43,11 @@ const ENDPOINT_SUMMARY = {
       },
       {
         "label": "Disk Active Time is greater than 90  % for 15 minutes",
-        "value": 11
+        "value": 10
       },
       {
         "label": "Disk free space is less than or equal to 15 % for 15 minutes  Exclude recovery volume for window device(s) Exclude removable disk for window device(s)",
-        "value": 6
+        "value": 7
       },
       {
         "label": "Windows Service 'Spooler' is Down",
@@ -61,11 +61,11 @@ const ENDPOINT_SUMMARY = {
       },
       {
         "label": "Disk I/O",
-        "value": 11
+        "value": 10
       },
       {
         "label": "Disk free space",
-        "value": 6
+        "value": 7
       },
       {
         "label": "Windows service state changed",
