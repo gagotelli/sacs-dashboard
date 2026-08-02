@@ -8,7 +8,7 @@
   // is a plain static file with no server-side check, so anyone who fetches
   // those URLs directly bypasses this entirely. Don't rely on it to protect
   // anything you wouldn't be okay with a determined visitor eventually seeing.
-  const REQUIRED_HASH = "4177d843c5d2f77930620dd6a0e5fe2b61c277d32628aa67f1bf08e444cfdcd2";
+  const REQUIRED_HASH = "9ef663562e883b7a95aa7cc49ba220373ac19f58ce0a8007949b9b162687b4ad";
   const SESSION_KEY = "sacs-gate-ok";
 
   async function sha256Hex(text) {
